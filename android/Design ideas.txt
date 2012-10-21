@@ -1,0 +1,14 @@
+when user first opens app, text box window thing pops up/ a notification comes up saying  something like:
+"Welcome to maptime! Press menu/look in action bar to start timeline"
+
+opening menu will query maptime for timelines and a selection box wiill be in the menu
+
+After selecting a mtimeline from the menu, goes into map point selection mode where we get the points, user asked if okay after navigation overlay is shown
+
+If okay all the points are drawn and thatsa about it.
+
+Things needed
+Notification/text window
+Menu item, menu screen
+User input
+Okay? Yes/No thing
