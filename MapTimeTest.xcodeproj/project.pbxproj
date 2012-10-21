@@ -18,6 +18,9 @@
 		8934B1771634521F00A8CC7B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8934B1761634521F00A8CC7B /* Default-568h@2x.png */; };
 		8934B17A1634521F00A8CC7B /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8934B1781634521F00A8CC7B /* MainStoryboard.storyboard */; };
 		8934B17D1634521F00A8CC7B /* MapTimeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8934B17C1634521F00A8CC7B /* MapTimeViewController.m */; };
+		8934B1841634526A00A8CC7B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8934B1831634526A00A8CC7B /* CoreLocation.framework */; };
+		8934B1861634686300A8CC7B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8934B1851634686300A8CC7B /* MapKit.framework */; };
+		8934B1891634785F00A8CC7B /* MapPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 8934B1881634785F00A8CC7B /* MapPoint.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +40,10 @@
 		8934B1791634521F00A8CC7B /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		8934B17B1634521F00A8CC7B /* MapTimeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapTimeViewController.h; sourceTree = "<group>"; };
 		8934B17C1634521F00A8CC7B /* MapTimeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapTimeViewController.m; sourceTree = "<group>"; };
+		8934B1831634526A00A8CC7B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		8934B1851634686300A8CC7B /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		8934B1871634785F00A8CC7B /* MapPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapPoint.h; sourceTree = "<group>"; };
+		8934B1881634785F00A8CC7B /* MapPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapPoint.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +51,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8934B1861634686300A8CC7B /* MapKit.framework in Frameworks */,
+				8934B1841634526A00A8CC7B /* CoreLocation.framework in Frameworks */,
 				8934B1611634521F00A8CC7B /* UIKit.framework in Frameworks */,
 				8934B1631634521F00A8CC7B /* Foundation.framework in Frameworks */,
 				8934B1651634521F00A8CC7B /* CoreGraphics.framework in Frameworks */,
@@ -56,6 +65,7 @@
 		8934B1511634521F00A8CC7B = {
 			isa = PBXGroup;
 			children = (
+				8934B1851634686300A8CC7B /* MapKit.framework */,
 				8934B1661634521F00A8CC7B /* MapTimeTest */,
 				8934B15F1634521F00A8CC7B /* Frameworks */,
 				8934B15D1634521F00A8CC7B /* Products */,
@@ -73,6 +83,7 @@
 		8934B15F1634521F00A8CC7B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8934B1831634526A00A8CC7B /* CoreLocation.framework */,
 				8934B1601634521F00A8CC7B /* UIKit.framework */,
 				8934B1621634521F00A8CC7B /* Foundation.framework */,
 				8934B1641634521F00A8CC7B /* CoreGraphics.framework */,
@@ -88,6 +99,8 @@
 				8934B1781634521F00A8CC7B /* MainStoryboard.storyboard */,
 				8934B17B1634521F00A8CC7B /* MapTimeViewController.h */,
 				8934B17C1634521F00A8CC7B /* MapTimeViewController.m */,
+				8934B1871634785F00A8CC7B /* MapPoint.h */,
+				8934B1881634785F00A8CC7B /* MapPoint.m */,
 				8934B1671634521F00A8CC7B /* Supporting Files */,
 			);
 			path = MapTimeTest;
@@ -177,6 +190,7 @@
 				8934B16D1634521F00A8CC7B /* main.m in Sources */,
 				8934B1711634521F00A8CC7B /* MapTimeAppDelegate.m in Sources */,
 				8934B17D1634521F00A8CC7B /* MapTimeViewController.m in Sources */,
+				8934B1891634785F00A8CC7B /* MapPoint.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

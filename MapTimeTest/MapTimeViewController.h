@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MapTimeViewController : UIViewController
+@interface MapTimeViewController : UIViewController <MKMapViewDelegate>
+
+@property (nonatomic, strong) MKMapView *mapView;
 
 @end
