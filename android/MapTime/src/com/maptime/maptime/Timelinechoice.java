@@ -10,13 +10,19 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.support.v4.app.NavUtils;
 
 public class Timelinechoice extends Activity {
 
 	public final static String GEOPOINTS = "com.maptime.maptime.GEOPOINTS";
 	
-    @SuppressLint({ "NewApi", "NewApi" })
+    @SuppressLint({ "NewApi", "NewApi" }) //so it doesn't error on getActionBar()
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +34,33 @@ public class Timelinechoice extends Activity {
         //somehow return a list of geopoints to the main activity when something is selected here
 		//TODO: the intent returning needs to be done somehow before onPause() so 
         //prob at after user selects a timeline from the list. Every time user selects timeline from list
+        
+        
+        
+        
+        final String [] items=new String[]{"Item1","Item2","Item3","Item4"};
+        ArrayAdapter ad=new ArrayAdapter(this,android.R.layout.simple_list_item_1,items);
+        final ListView list=(ListView)findViewById(R.id.tlcList);
+        list.setAdapter(ad);
+list.setOnItemClickListener(new OnItemClickListener()
+        {
+
+   public void onItemClick(AdapterView arg0, View arg1, int arg2,
+     long arg3) {
+    // TODO Auto-generated method stub
+    TextView txt=(TextView)findViewById(R.id.tlcTXT);
+    txt.setText(list.getItemAtPosition(arg2).toString());
+
+   }
+
+
+
+        }
+        );
+        
+        
+        
+        
     }
 
     @Override
@@ -47,4 +80,6 @@ public class Timelinechoice extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+	
+	
 }

@@ -63,11 +63,11 @@ public class MainActivity extends MapActivity {
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		
 		super.onActivityResult(requestCode, resultCode, data);
-		if (data != null) {
+		if (data != null) { //if data was returned
 			
 			System.out.println(data.getIntArrayExtra(Timelinechoice.GEOPOINTS)[3]);
 		}
-		else{System.out.println("shitballs");}
+		//else{System.out.println("No data");}
 	}
 	
 	@Override
@@ -82,7 +82,10 @@ public class MainActivity extends MapActivity {
 	    case R.id.menu_timelines:
 	        Intent intent = new Intent(this,Timelinechoice.class);
 	        startActivityForResult(intent, 0);
-	        return true;            
+	        return true;
+	    case R.id.menu_startnav:
+	    	//start navigation mode()
+	    	return true;
 	    }
 	    return false;
 	}

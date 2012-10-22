@@ -3,4 +3,8 @@
         android:title="@string/menu_timelines"
         android:orderInCategory="100"
         android:showAsAction="ifRoom" />
+    <item android:id="@+id/menu_startnav"
+        android:title="@string/menu_startnav"
+        android:orderInCategory="50"
+        android:showAsAction="ifRoom" />
 </menu>
