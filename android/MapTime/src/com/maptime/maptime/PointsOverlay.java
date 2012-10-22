@@ -20,6 +20,7 @@ public class PointsOverlay extends ItemizedOverlay {
 	private Context mContext;
 	private boolean isPinch  =  false;
 	private String TAG = "TapHandler";
+	private boolean navMode = false;
 	
 	public PointsOverlay(Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
@@ -92,6 +93,11 @@ public class PointsOverlay extends ItemizedOverlay {
     	}
 		
     return super.onTouchEvent(e,mapView);
+	}
+	
+	public void setNavMode(boolean b) {
+		
+		navMode = b;
 	}
 	
 }

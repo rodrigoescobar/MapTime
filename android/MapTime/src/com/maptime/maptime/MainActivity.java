@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
@@ -23,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -33,7 +35,8 @@ import android.view.MenuItem;
 public class MainActivity extends MapActivity {
 	
 	MapController mapController;
-
+	private PointsOverlay itemizedOverlay;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -43,7 +46,7 @@ public class MainActivity extends MapActivity {
         mapView.setBuiltInZoomControls(true);
         List<Overlay> mapOverlays = mapView.getOverlays();
         Drawable drawable = this.getResources().getDrawable(android.R.drawable.arrow_down_float);
-        PointsOverlay itemizedOverlay = new PointsOverlay(drawable, this);
+        itemizedOverlay = new PointsOverlay(drawable, this);
         
         //TODO: Make these set by input
         GeoPoint point = new GeoPoint(50935017, -1396294);
@@ -84,7 +87,16 @@ public class MainActivity extends MapActivity {
 	        startActivityForResult(intent, 0);
 	        return true;
 	    case R.id.menu_startnav:
-	    	//start navigation mode()
+	    	itemizedOverlay.setNavMode(true);
+	    	AlertDialog.Builder  dialog = new AlertDialog.Builder(this);
+			dialog.setTitle("Navigation Mode");
+			dialog.setMessage("Tap where you want to start your timeline");
+			dialog.show();
+			//get alerted when user has entered both points
+			//pop up alert with are these two points correct? Yes/No. If no, set navMode to false, remove both points.
+			//if yes, then set navmode to false and set the points to be used in the NavOverlay
+			//then add the two points to the navOverlay and display the route.
+			itemizedOverlay.setNavMode(false);
 	    	return true;
 	    }
 	    return false;
