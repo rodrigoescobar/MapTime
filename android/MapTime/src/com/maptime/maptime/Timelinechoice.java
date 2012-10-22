@@ -37,7 +37,7 @@ public class Timelinechoice extends Activity {
         
         
         
-        
+        //The following is the example code that fill the menu. Either modify this for replace it with similar code for our function
         final String [] items=new String[]{"Item1","Item2","Item3","Item4"};
         ArrayAdapter ad=new ArrayAdapter(this,android.R.layout.simple_list_item_1,items);
         final ListView list=(ListView)findViewById(R.id.tlcList);

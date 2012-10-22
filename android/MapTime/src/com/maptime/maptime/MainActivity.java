@@ -46,14 +46,14 @@ public class MainActivity extends MapActivity {
         PointsOverlay itemizedOverlay = new PointsOverlay(drawable, this);
         
         //TODO: Make these set by input
-        /*GeoPoint point = new GeoPoint(50935017, -1396294);
+        GeoPoint point = new GeoPoint(50935017, -1396294);
 		GeoPoint point2 = new GeoPoint(51501135, -0115356);
 		OverlayItem overlayItem = new OverlayItem(point, "Highfield", "Highfield Campus");
-		OverlayItem overlayItem2 = new OverlayItem(point2, "London", "London City!!!1");*/
+		OverlayItem overlayItem2 = new OverlayItem(point2, "London", "London City!!!1");
         //TODO: These will be done after user input
-        /*itemizedOverlay.addOverlay(overlayItem);
+        itemizedOverlay.addOverlay(overlayItem);
 		itemizedOverlay.addOverlay(overlayItem2);
-		mapOverlays.add(itemizedOverlay);*/
+		mapOverlays.add(itemizedOverlay);
 		//TODO: An asynctask which
 		//mapOverlays.add(new NavOverlay(point, point2));
         
