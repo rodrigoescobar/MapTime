@@ -36,6 +36,7 @@ public class MainActivity extends MapActivity {
 	
 	MapController mapController;
 	private PointsOverlay itemizedOverlay;
+	GeoPoint point, point2;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,15 +50,15 @@ public class MainActivity extends MapActivity {
         itemizedOverlay = new PointsOverlay(drawable, this);
         
         //TODO: Make these set by input
-        GeoPoint point = new GeoPoint(50935017, -1396294);
-		GeoPoint point2 = new GeoPoint(51501135, -0115356);
+        point = new GeoPoint(50935017, -1396294);
+		point2 = new GeoPoint(51501135, -0115356);
 		OverlayItem overlayItem = new OverlayItem(point, "Highfield", "Highfield Campus");
 		OverlayItem overlayItem2 = new OverlayItem(point2, "London", "London City!!!1");
         //TODO: These will be done after user input
         itemizedOverlay.addOverlay(overlayItem);
 		itemizedOverlay.addOverlay(overlayItem2);
 		mapOverlays.add(itemizedOverlay);
-		//TODO: An asynctask which
+		//TODO: An asynctask which does the following since we can't network on main thread
 		//mapOverlays.add(new NavOverlay(point, point2));
         
     }    
@@ -87,6 +88,7 @@ public class MainActivity extends MapActivity {
 	        startActivityForResult(intent, 0);
 	        return true;
 	    case R.id.menu_startnav:
+	    	itemizedOverlay.clearPoints();
 	    	itemizedOverlay.setNavMode(true);
 	    	AlertDialog.Builder  dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Navigation Mode");
@@ -96,7 +98,12 @@ public class MainActivity extends MapActivity {
 			//pop up alert with are these two points correct? Yes/No. If no, set navMode to false, remove both points.
 			//if yes, then set navmode to false and set the points to be used in the NavOverlay
 			//then add the two points to the navOverlay and display the route.
+			
+			//TODO: Again, really needs to be some sort  of wait here, with the following code run only after we have our two points
+			
 			itemizedOverlay.setNavMode(false);
+			point = itemizedOverlay.getStartpoint();
+			point2 = itemizedOverlay.getEndpoint();
 	    	return true;
 	    }
 	    return false;
