@@ -21,7 +21,7 @@ public class PointsOverlay extends ItemizedOverlay {
 	private boolean isPinch  =  false;
 	private String TAG = "TapHandler";
 	private boolean navMode = false;
-	private GeoPoint startpoint, endpoint;
+	private GeoPoint startPoint, endPoint;
 	
 	public PointsOverlay(Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
@@ -30,6 +30,21 @@ public class PointsOverlay extends ItemizedOverlay {
 	
 	public void addOverlay(OverlayItem overlay) {
 		mOverlays.add(overlay);
+		populate();
+	}
+	
+	public void setStartPointOverlay(OverlayItem oi) {
+		mOverlays.set(0, oi);
+		populate();
+	}
+	
+	public void setEndPointOverlay(OverlayItem oi) {
+		if (mOverlays.size() == 1) {
+			mOverlays.add(oi);
+		}
+		else {
+			mOverlays.set(1, oi);
+		}
 		populate();
 	}
 	
@@ -67,15 +82,15 @@ public class PointsOverlay extends ItemizedOverlay {
 			if ( p!=null ) {
 				
 				//handleGeoPoint(p);
-				if (navMode && startpoint == null) {
-					startpoint = p;
+				if (navMode && startPoint == null) {
+					startPoint = p;
 					AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
 					dialog.setTitle("Navigation Mode");
-					dialog.setMessage("Now tap the endpoint of your route");
+					dialog.setMessage("Now tap the endPoint of your route");
 					dialog.show();
 				}
-				else if (navMode){
-					endpoint = p;
+				else if (navMode && endPoint == null){
+					endPoint = p;
 				}
 				return super.onTap(p, map);            // We handled the tap
 			}
@@ -111,17 +126,17 @@ public class PointsOverlay extends ItemizedOverlay {
 		navMode = b;
 	}
 	
-	public GeoPoint getStartpoint() {
-		return startpoint;
+	public GeoPoint getStartPoint() {
+		return startPoint;
 	}
 	
-	public GeoPoint getEndpoint() {
-		return endpoint;
+	public GeoPoint getEndPoint() {
+		return endPoint;
 	}
 	
 	public void clearPoints() {
-		startpoint = null;
-		endpoint = null;
+		startPoint = null;
+		endPoint = null;
 	}
 	
 }
