@@ -1,12 +1,19 @@
 package com.maptime.maptime;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import com.google.android.maps.GeoPoint;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,10 +25,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.support.v4.app.NavUtils;
 
+
 public class Timelinechoice extends Activity {
 
 	public final static String GEOPOINTS = "com.maptime.maptime.GEOPOINTS";
-	
+	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
+	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
     @SuppressLint({ "NewApi", "NewApi" }) //so it doesn't error on getActionBar()
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,34 +44,39 @@ public class Timelinechoice extends Activity {
 		//TODO: the intent returning needs to be done somehow before onPause() so 
         //prob at after user selects a timeline from the list. Every time user selects timeline from list
         
-        
-        
-        //The following is the example code that fill the menu. Either modify this for replace it with similar code for our function
-        final String [] items=new String[]{"Item1","Item2","Item3","Item4"};
-        ArrayAdapter ad=new ArrayAdapter(this,android.R.layout.simple_list_item_1,items);
-        final ListView list=(ListView)findViewById(R.id.tlcList);
-        list.setAdapter(ad);
-list.setOnItemClickListener(new OnItemClickListener()
-        {
-
-   public void onItemClick(AdapterView arg0, View arg1, int arg2,
-     long arg3) {
-    // TODO Auto-generated method stub
-    TextView txt=(TextView)findViewById(R.id.tlcTXT);
-    txt.setText(list.getItemAtPosition(arg2).toString());
-
-   }
-
-
-
-        }
-        );
-        
-        
-        
-        
+        //new Thread(new TimelineRetriever(this)).start();
+        new TimelineRetrieverTask(this).execute();
     }
 
+    
+    private void retrieveTimelines() {
+    	String total = "";
+		try {
+			// Create a URL for the desired page
+			URL url = new URL(APIURL);
+
+			// Read all the text returned by the server
+			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+			in.readLine();//remove<?xml etc. line
+			String curLine = in.readLine();
+			while (curLine != null) {
+				while (!curLine.trim().startsWith("</timeli")) {
+					total = total + curLine + '\n';
+					curLine = in.readLine();
+				}
+				total = total + curLine + '\n';
+				timelines.add(new Timeline(total));
+				total = "";
+				curLine = in.readLine();
+			}
+			in.close();
+		} catch (MalformedURLException e) {
+		} catch (IOException e) {
+		}
+    	
+    }
+    
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_timelinechoice, menu);
@@ -76,10 +90,49 @@ list.setOnItemClickListener(new OnItemClickListener()
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
+        	case R.id.menu_refresh:
+        		return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+	private class TimelineRetrieverTask extends AsyncTask<Void, Void, Void> {
+
+		private Context context;
+		
+		public TimelineRetrieverTask(Context ct) {
+			context = ct;
+		}
+		
+		@Override
+		protected Void doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			retrieveTimelines();
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			// TODO Auto-generated method stub
+			String[] tlIDs = new String[timelines.size()];
+	        for (int i = 0; i < timelines.size(); i++) {
+	        	tlIDs[i] = "Timeline "+Integer.toString(timelines.get(i).getLineID());
+	        }
+	        ArrayAdapter ad=new ArrayAdapter(context,android.R.layout.simple_list_item_1,tlIDs);
+	        final ListView list=(ListView)findViewById(R.id.tlcList);
+	        list.setAdapter(ad);
+	        list.setOnItemClickListener(new OnItemClickListener() {
+
+	        	public void onItemClick(AdapterView arg0, View arg1, int arg2, long arg3) {
+	        		// TODO Auto-generated method stub
+	        		TextView txt=(TextView)findViewById(R.id.tlcTXT);
+	        		txt.setText(list.getItemAtPosition(arg2).toString());
+	        	}
+	        });
+		}
+		
+	}
+	
 	
 	
 }

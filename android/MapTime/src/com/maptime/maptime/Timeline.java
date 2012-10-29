@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class Timeline implements Parcelable{
 
@@ -20,11 +21,11 @@ public class Timeline implements Parcelable{
 		String line;
 		try {
 			line = bf.readLine();
-			lineID = Integer.parseInt(line.split("'")[1]);
+			lineID = Integer.parseInt(line.split("\'")[1]);
+			line = bf.readLine();
 			//extract each timepoint, create its object and shove it in the arraylist
 			while(!line.trim().startsWith("</timel")) {
-				line = bf.readLine();
-				int id = Integer.parseInt(line.split("'")[1]);
+				int id = Integer.parseInt(line.split("\'")[1]);
 				String name = bf.readLine().trim().substring(6).split("</na")[0];
 				String desc = bf.readLine().trim().substring(13).split("</des")[0];
 				bf.readLine();//pass over sourceName tag
@@ -33,15 +34,20 @@ public class Timeline implements Parcelable{
 				bf.readLine();//pass over yearUnitID tag
 				int month = Integer.parseInt(bf.readLine().trim().substring(7).split("</mo")[0]);
 				int day = Integer.parseInt(bf.readLine().trim().substring(5).split("</day")[0]);
-				bf.readLine();//pass over second description tag
+				bf.readLine();//pass over second description tag (it's a duplicate)
 				double time = Double.parseDouble(bf.readLine().trim().substring(10).split("</yea")[0]);;
 				timePoints.add(new TimePoint(time, id, name, desc, month, day));
-				bf.readLine();
+				bf.readLine(); //skip over </timepoint>
+				line = bf.readLine();
 			}
 	
 		} catch (IOException e){
 			e.printStackTrace();
 		}
+	}
+	
+	public int getLineID() {
+		return lineID;
 	}
 
 	public Timeline (Parcel source) {
