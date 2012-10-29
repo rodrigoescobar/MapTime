@@ -1,6 +1,9 @@
 package com.maptime.maptime;
 
-public class TimePoint {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class TimePoint implements Parcelable{
 
 	private double timeInBC;
 	private int id;
@@ -19,8 +22,20 @@ public class TimePoint {
 		month = monthSet;
 		day = daySet;
 		if (month > 12 || day < 1) {
-			fineDate = true;
+			fineDate = false;
 		}
+	}
+	
+	public TimePoint(Parcel source) {
+		timeInBC = source.readDouble();
+		id = source.readInt();
+		name = source.readString();
+		description = source.readString();
+		month = source.readInt();
+		day = source.readInt();
+		boolean[] temp = new boolean[1];
+		source.readBooleanArray(temp);
+		fineDate = temp[0];
 	}
 	
 	public String getDescription() {
@@ -43,5 +58,21 @@ public class TimePoint {
 	}
 	public boolean usesFineDate() {
 		return fineDate;
+	}
+
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void writeToParcel(Parcel dest, int flags) {
+		// TODO Auto-generated method stub
+		dest.writeDouble(timeInBC);
+		dest.writeInt(id);
+		dest.writeString(name);
+		dest.writeString(description);
+		dest.writeInt(month);
+		dest.writeInt(day);
+		dest.writeBooleanArray(new boolean[] {fineDate});
 	}
 }
