@@ -50,6 +50,10 @@ public class Timeline implements Parcelable{
 		return lineID;
 	}
 
+	public TimePoint getPoint(int point) {
+		return timePoints.get(point);
+	}
+	
 	public Timeline (Parcel source) {
 		timePoints = new ArrayList<TimePoint>();
 		lineID = source.readInt();
@@ -66,4 +70,16 @@ public class Timeline implements Parcelable{
 		dest.writeInt(lineID);
 		dest.writeList(timePoints);
 	}
+	
+	public static final Parcelable.Creator<Timeline> CREATOR = 
+	new Parcelable.Creator<Timeline>() {
+		public Timeline createFromParcel(Parcel in) {
+			return new Timeline(in);
+		}
+
+		public Timeline[] newArray(int size) {
+			return new Timeline[size];
+		}
+	};
+	
 }

@@ -31,6 +31,8 @@ public class Timelinechoice extends Activity {
 	public final static String GEOPOINTS = "com.maptime.maptime.GEOPOINTS";
 	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
+	private int timelineChoice = -1;
+	
     @SuppressLint({ "NewApi", "NewApi" }) //so it doesn't error on getActionBar()
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,7 @@ public class Timelinechoice extends Activity {
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
         	case R.id.menu_refresh:
+        		new TimelineRetrieverTask(this).execute();
         		return true;
         }
         return super.onOptionsItemSelected(item);
@@ -127,6 +130,12 @@ public class Timelinechoice extends Activity {
 	        		// TODO Auto-generated method stub
 	        		TextView txt=(TextView)findViewById(R.id.tlcTXT);
 	        		txt.setText(list.getItemAtPosition(arg2).toString());
+	        		timelineChoice = arg2;
+	        		//the following is quick/dirty purely for making-work purposes
+	        		Intent result = new Intent();
+	        		result.putExtra("selectedTimeline", timelines.get(arg2));
+	        		setResult(RESULT_OK, result);
+	        		finish();
 	        	}
 	        });
 		}

@@ -75,4 +75,16 @@ public class TimePoint implements Parcelable{
 		dest.writeInt(day);
 		dest.writeBooleanArray(new boolean[] {fineDate});
 	}
+	
+	public static final Parcelable.Creator<TimePoint> CREATOR = 
+	new Parcelable.Creator<TimePoint>() {
+		public TimePoint createFromParcel(Parcel in) {
+			return new TimePoint(in);
+		}
+
+		public TimePoint[] newArray(int size) {
+			return new TimePoint[size];
+		}
+	};
+	
 }

@@ -107,6 +107,10 @@ public class NavOverlay extends Overlay {
 		return length;
 	}
     
+    public ArrayList<GeoPoint> getNavGPs() {
+		return navGPs;
+	}
+    
     @Override
     public void draw(Canvas canvas, MapView mapView, boolean shadow) {
         // TODO Auto-generated method stub

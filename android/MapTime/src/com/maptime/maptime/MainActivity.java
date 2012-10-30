@@ -41,6 +41,7 @@ public class MainActivity extends MapActivity {
 	private List<Overlay> mapOverlays;
 	private GeoPoint point, point2;
 	private ArrayList<OverlayItem> timePoints;
+	private Timeline curTimeline;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -61,11 +62,9 @@ public class MainActivity extends MapActivity {
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		
 		super.onActivityResult(requestCode, resultCode, data);
-		if (data != null) { //if data was returned
-			
-			System.out.println(data.getIntArrayExtra(Timelinechoice.GEOPOINTS)[3]);
+		if (requestCode == 0 && resultCode == RESULT_OK) {
+			curTimeline = data.getParcelableExtra("selectedTimeline");
 		}
-		//else{System.out.println("No data");}
 	}
 	
 	@Override
