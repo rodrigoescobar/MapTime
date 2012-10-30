@@ -23,8 +23,13 @@ MKMapView *mapView;
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
+    
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     
+    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
+                                          initWithTarget:self action:@selector(handleGesture:)];
+    lpgr.minimumPressDuration = 2.0;  //user must press for 2 seconds
+    [mapView addGestureRecognizer:lpgr];
     
     CLLocationDegrees lat1 = 50.876004;
     CLLocationDegrees lon1 = -1.373291;
@@ -47,6 +52,11 @@ MKMapView *mapView;
     NSString *xml = [[NSString alloc] initWithString:[self downloadData]];
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
+}
+
 -(NSString *)downloadData
 {
     NSURL *url = [NSURL URLWithString:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=52.215676&flon=5.963946&tlat=52.2573&tlon=6.1799&v=motorcar&fast=1&layer=mapnik"];
@@ -65,6 +75,23 @@ MKMapView *mapView;
     NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     return string;
     
+}
+
+- (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer
+{
+    
+    NSLog(@"I'm in the gesture recogniser");
+    if (gestureRecognizer.state != UIGestureRecognizerStateEnded)
+        return;
+    
+    CGPoint touchPoint = [gestureRecognizer locationInView:mapView];
+    CLLocationCoordinate2D touchMapCoordinate =
+    [mapView convertPoint:touchPoint toCoordinateFromView:mapView];
+    
+    MKPointAnnotation *pa = [[MKPointAnnotation alloc] init];
+    pa.coordinate = touchMapCoordinate;
+    pa.title = [[NSString alloc] initWithFormat:@"%f, %f", pa.coordinate.latitude, pa.coordinate.longitude];
+    [mapView addAnnotation:pa];
 }
 
 
