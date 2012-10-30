@@ -9,6 +9,7 @@
 #import "MapTimeViewController.h"
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import "TBXML.h"
 
 @interface MapTimeViewController ()
 
@@ -49,7 +50,9 @@ MKMapView *mapView;
     
     [mapView addOverlay:line];
     
-    NSString *xml = [[NSString alloc] initWithString:[self downloadData]];
+    NSData *xml = [[NSData alloc] initWithData:[self downloadData]];
+    [self parseXML:xml];
+                    
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -57,7 +60,7 @@ MKMapView *mapView;
     return YES;
 }
 
--(NSString *)downloadData
+-(NSData *)downloadData
 {
     NSURL *url = [NSURL URLWithString:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=52.215676&flon=5.963946&tlat=52.2573&tlon=6.1799&v=motorcar&fast=1&layer=mapnik"];
     
@@ -72,8 +75,7 @@ MKMapView *mapView;
         NSLog(@"%@", [error localizedDescription]);
     }
     
-    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    return string;
+    return data;
     
 }
 
@@ -104,6 +106,25 @@ MKMapView *mapView;
     }
     
     return nil;
+}
+
+-(void)parseXML:(NSData *)xml
+{
+    NSError *error;
+    TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:&error];
+    if(error) {
+        NSLog(@"%@ %@", [error localizedDescription], [error userInfo]);
+    } else {
+        
+        //NSLog(@"%@", [TBXML elementName:tbxml.rootXMLElement]); // element name
+        NSLog(@"%@", [TBXML textForElement:tbxml.rootXMLElement]);
+        TBXMLElement *Document = [TBXML childElementNamed:@"Document" parentElement:tbxml.rootXMLElement];
+        TBXMLElement *Folder = [TBXML childElementNamed:@"Folder" parentElement:Document];
+        TBXMLElement *Placemark = [TBXML childElementNamed:@"Placemark" parentElement:Folder];
+        TBXMLElement *LineString = [TBXML childElementNamed:@"LineString" parentElement:Placemark];
+        TBXMLElement *coordinates = [TBXML childElementNamed:@"coordinates" parentElement:LineString];
+        NSLog(@"%@", [TBXML textForElement:coordinates]);
+    }
 }
 
 - (void)didReceiveMemoryWarning
