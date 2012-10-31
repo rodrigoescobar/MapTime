@@ -63,6 +63,7 @@ public class Timeline implements Parcelable{
 	public Timeline (Parcel source) {
 		timePoints = new ArrayList<TimePoint>();
 		lineID = source.readInt();
+		size = source.readInt();
 		source.readList(timePoints, TimePoint.class.getClassLoader());
 	}
 	
@@ -74,6 +75,7 @@ public class Timeline implements Parcelable{
 	public void writeToParcel(Parcel dest, int flags) {
 		// TODO Auto-generated method stub
 		dest.writeInt(lineID);
+		dest.writeInt(size);
 		dest.writeList(timePoints);
 	}
 	

@@ -67,17 +67,17 @@ public class MainActivity extends MapActivity {
 		double timeRange = curTimeline.getPoint(timelineSize-1).getTimeInBC() - endTimeValue;
 		double[] relativePos = new double[timelineSize];
 		for (int i = 0; i < timelineSize; i++) {
-			relativePos[i] = (timeRange - (curTimeline.getPoint((timelineSize-1)-i).getTimeInBC() - endTimeValue)) / dist;
+			relativePos[i] = dist * ((timeRange - (curTimeline.getPoint((timelineSize-1)-i).getTimeInBC() - endTimeValue)) / timeRange);
 		}
 		int curCheck = 0;
 		double lengthSoFar = 0.0;
-		for(int i = 0; i < gp.size()-2; i++){
+		for(int i = 0; i < gp.size()-1; i++){
 			double length = distanceKm((double)(gp.get(i).getLatitudeE6())/(double)1000000.0,
 					(double)(gp.get(i).getLongitudeE6())/(double)1000000.0,
 					(double)(gp.get(i+1).getLatitudeE6())/(double)1000000.0,
 					(double)(gp.get(i+1).getLongitudeE6())/(double)1000000.0);
-			while(relativePos[curCheck] < length + lengthSoFar) {
-				double fraction = (curCheck-lengthSoFar) / length;
+			while(curCheck < relativePos.length && relativePos[curCheck] < length + lengthSoFar) {
+				double fraction = (relativePos[curCheck]-lengthSoFar) / length;
 				int lat1 = gp.get(i).getLatitudeE6();
 				int lon1 = gp.get(i).getLongitudeE6();
 				int lat2 = gp.get(i+1).getLatitudeE6();
@@ -86,7 +86,7 @@ public class MainActivity extends MapActivity {
 				int diffLon = lon2 - lon1;
 				double addLat = fraction * (double) diffLat;
 				double addLon = fraction * (double) diffLon;
-				itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(lat1+(int)addLat,lon1+(int)addLon), curTimeline.getPoint(i).getName(), curTimeline.getPoint(i).getDescription()));
+				itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(lat1+(int)addLat,lon1+(int)addLon), curTimeline.getPoint((curTimeline.size()-1)-curCheck).getName(), curTimeline.getPoint((curTimeline.size()-1)-curCheck).getDescription()));
 				//get microdegrees between geopoints, multiply by fraction, then add that onto the first geopoint, and add that point to our arraylist
 				curCheck++;
 			}

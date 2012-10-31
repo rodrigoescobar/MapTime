@@ -140,7 +140,7 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	public void clearTimePoints(){
-		for (int i = mOverlays.size(); i > 1; i--) {
+		for (int i = mOverlays.size()-1; i > 1; i--) {
 			mOverlays.remove(i);
 		}
 	}
