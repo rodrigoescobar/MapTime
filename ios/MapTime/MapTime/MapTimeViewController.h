@@ -10,7 +10,7 @@
 
 @interface MapTimeViewController : UIViewController
 
--(NSData *)downloadData;
+-(NSData *)downloadData:(NSMutableArray *)array;
 
 -(void)parseXML:(NSData *)xml;
 

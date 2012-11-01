@@ -11,13 +11,17 @@
 #import <CoreLocation/CoreLocation.h>
 #import "TBXML.h"
 
+
 @interface MapTimeViewController ()
 
 @end
 
 @implementation MapTimeViewController
 
+NSMutableArray *coordinates; 
 MKMapView *mapView;
+MKMapPoint *points;
+int numberOfPoints;
 
 - (void)viewDidLoad
 {
@@ -25,24 +29,32 @@ MKMapView *mapView;
 	// Do any additional setup after loading the view, typically from a nib.
     
     mapView = (MKMapView *)[self.view viewWithTag:1001];
+    coordinates = [[NSMutableArray alloc]init];
+    points = malloc(sizeof(CLLocationCoordinate2D)*2);
+    numberOfPoints = 0;
 
-    
     UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(handleGesture:)];
-    lpgr.minimumPressDuration = 2.0;  //user must press for 2 seconds
+    lpgr.minimumPressDuration = 1.0;  //user must press for half second
     [mapView addGestureRecognizer:lpgr];
+    
     
     CLLocationDegrees lat1 = 50.876004;
     CLLocationDegrees lon1 = -1.373291;
+
+    [coordinates addObject: [NSNumber numberWithDouble:lat1]];
+    [coordinates addObject: [NSNumber numberWithDouble:lon1]];
     CLLocationCoordinate2D coords1 = CLLocationCoordinate2DMake(lat1, lon1);
     MKMapPoint point1 = MKMapPointForCoordinate(coords1);
     
     CLLocationDegrees lat2 = 51.475225;
     CLLocationDegrees lon2 = -0.131836;
+    [coordinates addObject: [NSNumber numberWithDouble:lat2]];
+    [coordinates addObject: [NSNumber numberWithDouble:lon2]];
     CLLocationCoordinate2D coords2 = CLLocationCoordinate2DMake(lat2, lon2);
     MKMapPoint point2 = MKMapPointForCoordinate(coords2);
     
-    MKMapPoint *points = malloc(sizeof(CLLocationCoordinate2D)*2);
+    //MKMapPoint *points = malloc(sizeof(CLLocationCoordinate2D)*2);
     points[0] = point1;
     points[1] = point2;
     
@@ -50,7 +62,7 @@ MKMapView *mapView;
     
     [mapView addOverlay:line];
     
-    NSData *xml = [[NSData alloc] initWithData:[self downloadData]];
+    NSData *xml = [[NSData alloc] initWithData:[self downloadData:coordinates]];
     [self parseXML:xml];
                     
 }
@@ -60,11 +72,17 @@ MKMapView *mapView;
     return YES;
 }
 
--(NSData *)downloadData
+-(NSData *)downloadData:(NSMutableArray *)array
 {
-    NSURL *url = [NSURL URLWithString:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=52.215676&flon=5.963946&tlat=52.2573&tlon=6.1799&v=motorcar&fast=1&layer=mapnik"];
+    NSString *point1 =[[array objectAtIndex:0] stringValue];
+    NSString *point2 =[[array objectAtIndex:1] stringValue];
+    NSString *point3 =[[array objectAtIndex:2] stringValue];
+    NSString *point4 =[[array objectAtIndex:3] stringValue];
+    NSString *urlString = [[NSString alloc] initWithFormat:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=%@&flon=%@&tlat=%@&tlon=%@&v=motorcar&fast=1&layer=mapnik" , point1, point2, point3, point4];
+    NSURL *url = [NSURL URLWithString:urlString];
     
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    
     
     NSHTTPURLResponse *response = nil;
     NSError *error = nil;
@@ -94,6 +112,22 @@ MKMapView *mapView;
     pa.coordinate = touchMapCoordinate;
     pa.title = [[NSString alloc] initWithFormat:@"%f, %f", pa.coordinate.latitude, pa.coordinate.longitude];
     [mapView addAnnotation:pa];
+    if (numberOfPoints == 0 || numberOfPoints == 2) {
+        [coordinates replaceObjectAtIndex: 0  withObject: [NSNumber numberWithDouble:pa.coordinate.latitude]];
+        [coordinates replaceObjectAtIndex: 1  withObject: [NSNumber numberWithDouble:pa.coordinate.longitude]];
+        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(pa.coordinate.latitude, pa.coordinate.longitude);
+        MKMapPoint point = MKMapPointForCoordinate(coord);
+        points[0] = point;
+        numberOfPoints = 1;
+
+    } else {
+        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(pa.coordinate.latitude, pa.coordinate.longitude);
+        [coordinates replaceObjectAtIndex: 2  withObject: [NSNumber numberWithDouble:pa.coordinate.latitude]];
+         [coordinates replaceObjectAtIndex: 3  withObject: [NSNumber numberWithDouble:pa.coordinate.longitude]];
+        MKMapPoint point = MKMapPointForCoordinate(coord);
+        points[1] = point;
+        numberOfPoints++;
+    }
 }
 
 
