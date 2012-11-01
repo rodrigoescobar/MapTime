@@ -12,18 +12,7 @@
 #import "TBXML.h"
 #import "LongLatPair.h"
 
-
-@interface MapTimeViewController ()
-
-@end
-
 @implementation MapTimeViewController
-
-NSMutableArray *coordinates; 
-MKMapView *mapView;
-NSMutableArray *longLatPairs;
-MKMapPoint *points;
-int numberOfPoints;
 
 - (void)viewDidLoad
 {
@@ -60,8 +49,10 @@ int numberOfPoints;
     return YES;
 }
 
--(NSData *)downloadData:(NSMutableArray *)array
+-(void)downloadData:(NSMutableArray *)array
 {
+    xmlData = [[NSMutableData alloc] init];
+    
     NSString *point1 =[[array objectAtIndex:0] stringValue];
     NSString *point2 =[[array objectAtIndex:1] stringValue];
     NSString *point3 =[[array objectAtIndex:2] stringValue];
@@ -69,19 +60,9 @@ int numberOfPoints;
     NSString *urlString = [[NSString alloc] initWithFormat:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=%@&flon=%@&tlat=%@&tlon=%@&v=motorcar&fast=1&layer=mapnik" , point1, point2, point3, point4];
     NSURL *url = [NSURL URLWithString:urlString];
     
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
     
-    
-    NSHTTPURLResponse *response = nil;
-    NSError *error = nil;
-    
-    NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-    
-    if(error != nil) {
-        NSLog(@"%@", [error localizedDescription]);
-    }
-    
-    return data;
+    (void) [[NSURLConnection alloc] initWithRequest:request delegate:self];
     
 }
 
@@ -121,11 +102,13 @@ int numberOfPoints;
         MKMapPoint point = MKMapPointForCoordinate(coord);
         points[1] = point;
         numberOfPoints++;
-        NSData *xml = [[NSData alloc] initWithData:[self downloadData:coordinates]];
-        NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xml]];
-        [self plotRoute:pairs];
+        // Kick of the download of the data here!
+
+        [self downloadData:coordinates];
+
     }
 }
+
 
 
 
@@ -140,8 +123,8 @@ int numberOfPoints;
         TBXMLElement *Folder = [TBXML childElementNamed:@"Folder" parentElement:Document];
         TBXMLElement *Placemark = [TBXML childElementNamed:@"Placemark" parentElement:Folder];
         TBXMLElement *LineString = [TBXML childElementNamed:@"LineString" parentElement:Placemark];
-        TBXMLElement *coordinates = [TBXML childElementNamed:@"coordinates" parentElement:LineString];
-        return [TBXML textForElement:coordinates];
+        TBXMLElement *coords = [TBXML childElementNamed:@"coordinates" parentElement:LineString];
+        return [TBXML textForElement:coords];
     }
     return nil;
 }
@@ -185,11 +168,11 @@ int numberOfPoints;
             MKMapPoint point1 = MKMapPointForCoordinate(co1);
             MKMapPoint point2 = MKMapPointForCoordinate(co2);
             
-            MKMapPoint *points = malloc(sizeof(CLLocationCoordinate2D)*2);
-            points[0] = point1;
-            points[1] = point2;
+            MKMapPoint *pts = malloc(sizeof(CLLocationCoordinate2D)*2);
+            pts[0] = point1;
+            pts[1] = point2;
             
-            MKPolyline *line = [MKPolyline polylineWithPoints:points count:2];
+            MKPolyline *line = [MKPolyline polylineWithPoints:pts count:2];
             [mapView addOverlay:line];
         }
         
@@ -212,6 +195,32 @@ int numberOfPoints;
     }
     
     return nil;
+}
+
+/*
+ Delegate methods that handle the asynchronous network connectivity
+ */
+
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    NSLog(@"Responce received");
+}
+
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [xmlData appendData:data];
+}
+
+-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    NSLog(@"FAILED %@", [error localizedDescription]);
+}
+
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    NSLog(@"Finished");
+    NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xmlData]];
+    [self plotRoute:pairs];
 }
 
 
