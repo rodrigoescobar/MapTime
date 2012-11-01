@@ -35,12 +35,6 @@
                                           initWithTarget:self action:@selector(handleGesture:)];
     lpgr.minimumPressDuration = 1.0;  //user must press for half second
     [mapView addGestureRecognizer:lpgr];
-      
-//    NSData *xml = [[NSData alloc] initWithData:[self downloadData:coordinates]];
-//    NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xml]];
-//    [self plotRoute:pairs];
-    
-    //[self parseXML:xml];
                     
 }
 
