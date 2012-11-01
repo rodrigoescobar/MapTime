@@ -12,6 +12,6 @@
 
 -(NSData *)downloadData;
 
--(void)parseXML;
+-(void)parseXML:(NSData *)xml;
 
 @end
