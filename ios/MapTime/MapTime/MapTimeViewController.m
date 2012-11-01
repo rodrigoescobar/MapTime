@@ -33,6 +33,12 @@ int numberOfPoints;
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     coordinates = [[NSMutableArray alloc]init];
+    
+    [coordinates addObject: [NSNumber numberWithDouble:0.5000]];
+    [coordinates addObject: [NSNumber numberWithDouble:3.0050]];
+    [coordinates addObject: [NSNumber numberWithDouble:4.0040]];
+    [coordinates addObject: [NSNumber numberWithDouble:5.0040]];
+    
     points = malloc(sizeof(CLLocationCoordinate2D)*2);
     numberOfPoints = 0;
 
@@ -41,36 +47,11 @@ int numberOfPoints;
     lpgr.minimumPressDuration = 1.0;  //user must press for half second
     [mapView addGestureRecognizer:lpgr];
       
-    NSData *xml = [[NSData alloc] initWithData:[self downloadData]];
-    NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xml]];
-    [self plotRoute:pairs];
+//    NSData *xml = [[NSData alloc] initWithData:[self downloadData:coordinates]];
+//    NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xml]];
+//    [self plotRoute:pairs];
     
-    
-    CLLocationDegrees lat1 = 50.876004;
-    CLLocationDegrees lon1 = -1.373291;
-
-    [coordinates addObject: [NSNumber numberWithDouble:lat1]];
-    [coordinates addObject: [NSNumber numberWithDouble:lon1]];
-    CLLocationCoordinate2D coords1 = CLLocationCoordinate2DMake(lat1, lon1);
-    MKMapPoint point1 = MKMapPointForCoordinate(coords1);
-    
-    CLLocationDegrees lat2 = 51.475225;
-    CLLocationDegrees lon2 = -0.131836;
-    [coordinates addObject: [NSNumber numberWithDouble:lat2]];
-    [coordinates addObject: [NSNumber numberWithDouble:lon2]];
-    CLLocationCoordinate2D coords2 = CLLocationCoordinate2DMake(lat2, lon2);
-    MKMapPoint point2 = MKMapPointForCoordinate(coords2);
-    
-    //MKMapPoint *points = malloc(sizeof(CLLocationCoordinate2D)*2);
-    points[0] = point1;
-    points[1] = point2;
-    
-    MKPolyline *line = [MKPolyline polylineWithPoints:points count:2];
-    
-    [mapView addOverlay:line];
-    
-    NSData *xml = [[NSData alloc] initWithData:[self downloadData:coordinates]];
-    [self parseXML:xml];
+    //[self parseXML:xml];
                     
 }
 
@@ -140,6 +121,9 @@ int numberOfPoints;
         MKMapPoint point = MKMapPointForCoordinate(coord);
         points[1] = point;
         numberOfPoints++;
+        NSData *xml = [[NSData alloc] initWithData:[self downloadData:coordinates]];
+        NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xml]];
+        [self plotRoute:pairs];
     }
 }
 
