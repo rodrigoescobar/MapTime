@@ -13,6 +13,7 @@ public class Timeline implements Parcelable{
 
 	private ArrayList<TimePoint> timePoints;
 	private int lineID;
+	private int size = 0;
 	
 	public Timeline(String xml) {
 		
@@ -37,6 +38,7 @@ public class Timeline implements Parcelable{
 				bf.readLine();//pass over second description tag (it's a duplicate)
 				double time = Double.parseDouble(bf.readLine().trim().substring(10).split("</yea")[0]);;
 				timePoints.add(new TimePoint(time, id, name, desc, month, day));
+				size++;
 				bf.readLine(); //skip over </timepoint>
 				line = bf.readLine();
 			}
@@ -50,6 +52,10 @@ public class Timeline implements Parcelable{
 		return lineID;
 	}
 
+	public int size() {
+		return size;
+	}
+	
 	public TimePoint getPoint(int point) {
 		return timePoints.get(point);
 	}
@@ -57,6 +63,7 @@ public class Timeline implements Parcelable{
 	public Timeline (Parcel source) {
 		timePoints = new ArrayList<TimePoint>();
 		lineID = source.readInt();
+		size = source.readInt();
 		source.readList(timePoints, TimePoint.class.getClassLoader());
 	}
 	
@@ -68,6 +75,7 @@ public class Timeline implements Parcelable{
 	public void writeToParcel(Parcel dest, int flags) {
 		// TODO Auto-generated method stub
 		dest.writeInt(lineID);
+		dest.writeInt(size);
 		dest.writeList(timePoints);
 	}
 	
