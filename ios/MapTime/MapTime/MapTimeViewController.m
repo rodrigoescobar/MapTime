@@ -19,21 +19,13 @@
 
 MKMapView *mapView;
 
-
--(id)init
-{
-    self = [super init];
-    if(self) {
-        mapView = (MKMapView *)[self.view viewWithTag:1001];
-    }
-    
-    return self;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    
+    mapView = (MKMapView *)[self.view viewWithTag:1001];
+
     
     UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(handleGesture:)];
