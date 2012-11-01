@@ -111,16 +111,22 @@ int numberOfPoints;
     MKPointAnnotation *pa = [[MKPointAnnotation alloc] init];
     pa.coordinate = touchMapCoordinate;
     pa.title = [[NSString alloc] initWithFormat:@"%f, %f", pa.coordinate.latitude, pa.coordinate.longitude];
-    [mapView addAnnotation:pa];
-    if (numberOfPoints == 0 || numberOfPoints == 2) {
+    
+    if (numberOfPoints == 2){
+        [mapView removeAnnotations:mapView.annotations];
+        numberOfPoints = 0;
+    }
+    if (numberOfPoints == 0) {
+        [mapView addAnnotation:pa];
         [coordinates replaceObjectAtIndex: 0  withObject: [NSNumber numberWithDouble:pa.coordinate.latitude]];
         [coordinates replaceObjectAtIndex: 1  withObject: [NSNumber numberWithDouble:pa.coordinate.longitude]];
         CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(pa.coordinate.latitude, pa.coordinate.longitude);
         MKMapPoint point = MKMapPointForCoordinate(coord);
         points[0] = point;
-        numberOfPoints = 1;
+        numberOfPoints++;
 
     } else {
+        [mapView addAnnotation:pa];
         CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(pa.coordinate.latitude, pa.coordinate.longitude);
         [coordinates replaceObjectAtIndex: 2  withObject: [NSNumber numberWithDouble:pa.coordinate.latitude]];
          [coordinates replaceObjectAtIndex: 3  withObject: [NSNumber numberWithDouble:pa.coordinate.longitude]];
