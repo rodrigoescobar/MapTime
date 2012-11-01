@@ -10,6 +10,7 @@
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import "TBXML.h"
+#import "LongLatPair.h"
 
 @interface MapTimeViewController ()
 
@@ -18,6 +19,7 @@
 @implementation MapTimeViewController
 
 MKMapView *mapView;
+NSMutableArray *longLatPairs;
 
 - (void)viewDidLoad
 {
@@ -25,33 +27,16 @@ MKMapView *mapView;
 	// Do any additional setup after loading the view, typically from a nib.
     
     mapView = (MKMapView *)[self.view viewWithTag:1001];
-
+    longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     
     UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(handleGesture:)];
     lpgr.minimumPressDuration = 2.0;  //user must press for 2 seconds
     [mapView addGestureRecognizer:lpgr];
-    
-    CLLocationDegrees lat1 = 50.876004;
-    CLLocationDegrees lon1 = -1.373291;
-    CLLocationCoordinate2D coords1 = CLLocationCoordinate2DMake(lat1, lon1);
-    MKMapPoint point1 = MKMapPointForCoordinate(coords1);
-    
-    CLLocationDegrees lat2 = 51.475225;
-    CLLocationDegrees lon2 = -0.131836;
-    CLLocationCoordinate2D coords2 = CLLocationCoordinate2DMake(lat2, lon2);
-    MKMapPoint point2 = MKMapPointForCoordinate(coords2);
-    
-    MKMapPoint *points = malloc(sizeof(CLLocationCoordinate2D)*2);
-    points[0] = point1;
-    points[1] = point2;
-    
-    MKPolyline *line = [MKPolyline polylineWithPoints:points count:2];
-    
-    [mapView addOverlay:line];
-    
+      
     NSData *xml = [[NSData alloc] initWithData:[self downloadData]];
-    [self parseXML:xml];
+    NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xml]];
+    [self plotRoute:pairs];
                     
 }
 
@@ -97,6 +82,81 @@ MKMapView *mapView;
 }
 
 
+
+-(NSString *)parseXML:(NSData *)xml
+{
+    NSError *error;
+    TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:&error];
+    if(error) {
+        NSLog(@"%@ %@", [error localizedDescription], [error userInfo]);
+    } else {
+        TBXMLElement *Document = [TBXML childElementNamed:@"Document" parentElement:tbxml.rootXMLElement];
+        TBXMLElement *Folder = [TBXML childElementNamed:@"Folder" parentElement:Document];
+        TBXMLElement *Placemark = [TBXML childElementNamed:@"Placemark" parentElement:Folder];
+        TBXMLElement *LineString = [TBXML childElementNamed:@"LineString" parentElement:Placemark];
+        TBXMLElement *coordinates = [TBXML childElementNamed:@"coordinates" parentElement:LineString];
+        return [TBXML textForElement:coordinates];
+    }
+    return nil;
+}
+
+-(void)plotRoute:(NSString *)pairs
+{
+    // pairs is the comma seperated value of long and lat pairs
+    NSArray *lines = [pairs componentsSeparatedByString:@"\n"];
+    for(NSString *str in lines)
+    {
+        NSArray *arr = [str componentsSeparatedByString:@","];
+        NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
+        [f setNumberStyle:NSNumberFormatterDecimalStyle];
+        NSNumber *longitude = [f numberFromString:arr[0]];
+        NSNumber *lattide = [f numberFromString:arr[1]];
+        LongLatPair *pair = [[LongLatPair alloc] initWithLon:longitude andWithLat:lattide];
+
+        [longLatPairs addObject:pair];
+    }
+    
+    [self drawRoute];
+}
+
+-(void)drawRoute
+{
+    
+    int count = longLatPairs.count;
+    int index = 0; 
+    for(int i = 0; i < count; i++)
+    {
+        
+        index = i;
+        index++;
+        if(index < count) {
+
+            LongLatPair *first = [longLatPairs objectAtIndex:i];
+            LongLatPair *second = [longLatPairs objectAtIndex:index];
+            CLLocationCoordinate2D co1 = CLLocationCoordinate2DMake([[first getLatitude] doubleValue], [[first getLongitude] doubleValue]);
+            CLLocationCoordinate2D co2 = CLLocationCoordinate2DMake([[second getLatitude] doubleValue], [[second getLongitude] doubleValue]);
+            
+            MKMapPoint point1 = MKMapPointForCoordinate(co1);
+            MKMapPoint point2 = MKMapPointForCoordinate(co2);
+            
+            MKMapPoint *points = malloc(sizeof(CLLocationCoordinate2D)*2);
+            points[0] = point1;
+            points[1] = point2;
+            
+            MKPolyline *line = [MKPolyline polylineWithPoints:points count:2];
+            [mapView addOverlay:line];
+        }
+        
+    }
+     
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
 -(MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id)overlay
 {
     if([overlay isKindOfClass:[MKPolyline class]]) {
@@ -108,29 +168,5 @@ MKMapView *mapView;
     return nil;
 }
 
--(void)parseXML:(NSData *)xml
-{
-    NSError *error;
-    TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:&error];
-    if(error) {
-        NSLog(@"%@ %@", [error localizedDescription], [error userInfo]);
-    } else {
-        
-        //NSLog(@"%@", [TBXML elementName:tbxml.rootXMLElement]); // element name
-        NSLog(@"%@", [TBXML textForElement:tbxml.rootXMLElement]);
-        TBXMLElement *Document = [TBXML childElementNamed:@"Document" parentElement:tbxml.rootXMLElement];
-        TBXMLElement *Folder = [TBXML childElementNamed:@"Folder" parentElement:Document];
-        TBXMLElement *Placemark = [TBXML childElementNamed:@"Placemark" parentElement:Folder];
-        TBXMLElement *LineString = [TBXML childElementNamed:@"LineString" parentElement:Placemark];
-        TBXMLElement *coordinates = [TBXML childElementNamed:@"coordinates" parentElement:LineString];
-        NSLog(@"%@", [TBXML textForElement:coordinates]);
-    }
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 @end

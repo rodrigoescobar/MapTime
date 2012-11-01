@@ -12,6 +12,8 @@
 
 -(NSData *)downloadData;
 
--(void)parseXML:(NSData *)xml;
+-(NSString *)parseXML:(NSData *)xml;
+
+-(void)plotRoute;
 
 @end
