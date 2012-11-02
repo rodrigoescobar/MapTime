@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		894D71261642B638005580EC /* LongLatPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 894D71251642B638005580EC /* LongLatPair.m */; };
+		89667A6E1643FC8A002AC728 /* TimeLineDownloaderDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 89667A6D1643FC8A002AC728 /* TimeLineDownloaderDelegate.m */; };
+		89667A7216440D01002AC728 /* TimePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 89667A7116440D01002AC728 /* TimePoint.m */; };
+		89667A7516446F67002AC728 /* TimeLine.m in Sources */ = {isa = PBXBuildFile; fileRef = 89667A7416446F67002AC728 /* TimeLine.m */; };
 		89685EF516433C67009CF1ED /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 89685EF416433C67009CF1ED /* Default.png */; };
 		89685EF816433C74009CF1ED /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 89685EF716433C74009CF1ED /* Default@2x.png */; };
 		89685EFA16433D34009CF1ED /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 89685EF916433D34009CF1ED /* Default-568h@2x.png */; };
@@ -29,6 +32,12 @@
 /* Begin PBXFileReference section */
 		894D71241642B638005580EC /* LongLatPair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongLatPair.h; sourceTree = "<group>"; };
 		894D71251642B638005580EC /* LongLatPair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LongLatPair.m; sourceTree = "<group>"; };
+		89667A6C1643FC8A002AC728 /* TimeLineDownloaderDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLineDownloaderDelegate.h; sourceTree = "<group>"; };
+		89667A6D1643FC8A002AC728 /* TimeLineDownloaderDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLineDownloaderDelegate.m; sourceTree = "<group>"; };
+		89667A7016440D01002AC728 /* TimePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimePoint.h; sourceTree = "<group>"; };
+		89667A7116440D01002AC728 /* TimePoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimePoint.m; sourceTree = "<group>"; };
+		89667A7316446F67002AC728 /* TimeLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLine.h; sourceTree = "<group>"; };
+		89667A7416446F67002AC728 /* TimeLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLine.m; sourceTree = "<group>"; };
 		89685EF416433C67009CF1ED /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Default.png; sourceTree = "<group>"; };
 		89685EF716433C74009CF1ED /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "../Default@2x.png"; sourceTree = "<group>"; };
 		89685EF916433D34009CF1ED /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -108,6 +117,12 @@
 				8982F425164030270067E7DC /* MapTimeViewController.m */,
 				894D71241642B638005580EC /* LongLatPair.h */,
 				894D71251642B638005580EC /* LongLatPair.m */,
+				89667A6D1643FC8A002AC728 /* TimeLineDownloaderDelegate.m */,
+				89667A6C1643FC8A002AC728 /* TimeLineDownloaderDelegate.h */,
+				89667A7016440D01002AC728 /* TimePoint.h */,
+				89667A7116440D01002AC728 /* TimePoint.m */,
+				89667A7316446F67002AC728 /* TimeLine.h */,
+				89667A7416446F67002AC728 /* TimeLine.m */,
 				898444CD16429E2B00BD9C3F /* TBXML */,
 				8982F410164030270067E7DC /* Supporting Files */,
 			);
@@ -214,6 +229,9 @@
 				8982F426164030270067E7DC /* MapTimeViewController.m in Sources */,
 				898444D116429E4100BD9C3F /* TBXML.m in Sources */,
 				894D71261642B638005580EC /* LongLatPair.m in Sources */,
+				89667A6E1643FC8A002AC728 /* TimeLineDownloaderDelegate.m in Sources */,
+				89667A7216440D01002AC728 /* TimePoint.m in Sources */,
+				89667A7516446F67002AC728 /* TimeLine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

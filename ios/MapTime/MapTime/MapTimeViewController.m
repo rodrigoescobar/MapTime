@@ -11,6 +11,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "TBXML.h"
 #import "LongLatPair.h"
+#import "TimeLineDownloaderDelegate.h"
 
 @implementation MapTimeViewController
 
@@ -77,9 +78,10 @@
 
 -(void)downloadTimeLineData
 {
-    NSURL *url = [NSURL URLWithString:@"http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php"];
+    TimeLineDownloaderDelegate *delegate = [[TimeLineDownloaderDelegate alloc] init];
+    NSURL *url = [NSURL URLWithString:@"http://kanga-na8g09c.ecs.soton.ac.uk/api/example.xml"];
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
-    (void) [[NSURLConnection alloc] initWithRequest:request delegate:self];
+    (void) [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
 }
 
 - (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer
