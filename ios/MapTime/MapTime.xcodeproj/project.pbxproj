@@ -8,25 +8,30 @@
 
 /* Begin PBXBuildFile section */
 		894D71261642B638005580EC /* LongLatPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 894D71251642B638005580EC /* LongLatPair.m */; };
+		89685EF516433C67009CF1ED /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 89685EF416433C67009CF1ED /* Default.png */; };
+		89685EF816433C74009CF1ED /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 89685EF716433C74009CF1ED /* Default@2x.png */; };
+		89685EFA16433D34009CF1ED /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 89685EF916433D34009CF1ED /* Default-568h@2x.png */; };
 		8982F40A164030270067E7DC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8982F409164030270067E7DC /* UIKit.framework */; };
 		8982F40C164030270067E7DC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8982F40B164030270067E7DC /* Foundation.framework */; };
 		8982F40E164030270067E7DC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8982F40D164030270067E7DC /* CoreGraphics.framework */; };
 		8982F414164030270067E7DC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8982F412164030270067E7DC /* InfoPlist.strings */; };
 		8982F416164030270067E7DC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8982F415164030270067E7DC /* main.m */; };
 		8982F41A164030270067E7DC /* MapTimeAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8982F419164030270067E7DC /* MapTimeAppDelegate.m */; };
-		8982F41C164030270067E7DC /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 8982F41B164030270067E7DC /* Default.png */; };
-		8982F41E164030270067E7DC /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8982F41D164030270067E7DC /* Default@2x.png */; };
-		8982F420164030270067E7DC /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8982F41F164030270067E7DC /* Default-568h@2x.png */; };
 		8982F423164030270067E7DC /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8982F421164030270067E7DC /* MainStoryboard.storyboard */; };
 		8982F426164030270067E7DC /* MapTimeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8982F425164030270067E7DC /* MapTimeViewController.m */; };
 		8982F42D164030770067E7DC /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8982F42C164030770067E7DC /* CoreLocation.framework */; };
 		8982F42F1640307C0067E7DC /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8982F42E1640307C0067E7DC /* MapKit.framework */; };
 		898444D116429E4100BD9C3F /* TBXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 898444D016429E4100BD9C3F /* TBXML.m */; };
+		89D1ECA4164336FE0058C4AA /* maptime.png in Resources */ = {isa = PBXBuildFile; fileRef = 89D1ECA3164336FE0058C4AA /* maptime.png */; };
+		89D1ECA71643371E0058C4AA /* map-time-low.png in Resources */ = {isa = PBXBuildFile; fileRef = 89D1ECA61643371E0058C4AA /* map-time-low.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		894D71241642B638005580EC /* LongLatPair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongLatPair.h; sourceTree = "<group>"; };
 		894D71251642B638005580EC /* LongLatPair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LongLatPair.m; sourceTree = "<group>"; };
+		89685EF416433C67009CF1ED /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Default.png; sourceTree = "<group>"; };
+		89685EF716433C74009CF1ED /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "../Default@2x.png"; sourceTree = "<group>"; };
+		89685EF916433D34009CF1ED /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
 		8982F405164030270067E7DC /* MapTime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapTime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8982F409164030270067E7DC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		8982F40B164030270067E7DC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -37,9 +42,6 @@
 		8982F417164030270067E7DC /* MapTime-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MapTime-Prefix.pch"; sourceTree = "<group>"; };
 		8982F418164030270067E7DC /* MapTimeAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapTimeAppDelegate.h; sourceTree = "<group>"; };
 		8982F419164030270067E7DC /* MapTimeAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapTimeAppDelegate.m; sourceTree = "<group>"; };
-		8982F41B164030270067E7DC /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
-		8982F41D164030270067E7DC /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
-		8982F41F164030270067E7DC /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		8982F422164030270067E7DC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		8982F424164030270067E7DC /* MapTimeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapTimeViewController.h; sourceTree = "<group>"; };
 		8982F425164030270067E7DC /* MapTimeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapTimeViewController.m; sourceTree = "<group>"; };
@@ -47,6 +49,8 @@
 		8982F42E1640307C0067E7DC /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		898444CF16429E4100BD9C3F /* TBXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TBXML.h; path = MapTime/TBXML.h; sourceTree = "<group>"; };
 		898444D016429E4100BD9C3F /* TBXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TBXML.m; path = MapTime/TBXML.m; sourceTree = "<group>"; };
+		89D1ECA3164336FE0058C4AA /* maptime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = maptime.png; path = ../maptime.png; sourceTree = "<group>"; };
+		89D1ECA61643371E0058C4AA /* map-time-low.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map-time-low.png"; path = "../map-time-low.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,13 +117,15 @@
 		8982F410164030270067E7DC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				89D1ECA61643371E0058C4AA /* map-time-low.png */,
+				89D1ECA3164336FE0058C4AA /* maptime.png */,
 				8982F411164030270067E7DC /* MapTime-Info.plist */,
 				8982F412164030270067E7DC /* InfoPlist.strings */,
 				8982F415164030270067E7DC /* main.m */,
 				8982F417164030270067E7DC /* MapTime-Prefix.pch */,
-				8982F41B164030270067E7DC /* Default.png */,
-				8982F41D164030270067E7DC /* Default@2x.png */,
-				8982F41F164030270067E7DC /* Default-568h@2x.png */,
+				89685EF916433D34009CF1ED /* Default-568h@2x.png */,
+				89685EF716433C74009CF1ED /* Default@2x.png */,
+				89685EF416433C67009CF1ED /* Default.png */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -187,10 +193,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				8982F414164030270067E7DC /* InfoPlist.strings in Resources */,
-				8982F41C164030270067E7DC /* Default.png in Resources */,
-				8982F41E164030270067E7DC /* Default@2x.png in Resources */,
-				8982F420164030270067E7DC /* Default-568h@2x.png in Resources */,
 				8982F423164030270067E7DC /* MainStoryboard.storyboard in Resources */,
+				89D1ECA4164336FE0058C4AA /* maptime.png in Resources */,
+				89D1ECA71643371E0058C4AA /* map-time-low.png in Resources */,
+				89685EF516433C67009CF1ED /* Default.png in Resources */,
+				89685EF816433C74009CF1ED /* Default@2x.png in Resources */,
+				89685EFA16433D34009CF1ED /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

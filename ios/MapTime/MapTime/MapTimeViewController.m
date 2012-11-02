@@ -19,6 +19,9 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
+    // as soon as the view has loaded, we should download the timeline/timepoint data from the server
+    [self downloadTimeLineData];
+    
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     
     spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
@@ -28,7 +31,6 @@
     spinner.hidden = YES;
     
     [mapView addSubview:spinner];
-    
     
     
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
@@ -54,7 +56,7 @@
     return YES;
 }
 
--(void)downloadData:(NSMutableArray *)array
+-(void)downloadNavigationData:(NSMutableArray *)array
 {
     spinner.hidden = NO;
     [spinner startAnimating];
@@ -71,6 +73,13 @@
     
     (void) [[NSURLConnection alloc] initWithRequest:request delegate:self];
     
+}
+
+-(void)downloadTimeLineData
+{
+    NSURL *url = [NSURL URLWithString:@"http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php"];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
+    (void) [[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
 
 - (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer
@@ -111,7 +120,7 @@
         numberOfPoints++;
         // Kick of the download of the data here!
 
-        [self downloadData:coordinates];
+        [self downloadNavigationData:coordinates];
 
     }
 }

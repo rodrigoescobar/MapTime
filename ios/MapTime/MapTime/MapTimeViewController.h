@@ -20,7 +20,9 @@
     UIActivityIndicatorView *spinner;
 }
 
--(void)downloadData:(NSMutableArray *)array;
+-(void)downloadNavigationData:(NSMutableArray *)array;
+
+-(void)downloadTimeLineData;
 
 -(NSString *)parseXML:(NSData *)xml;
 
