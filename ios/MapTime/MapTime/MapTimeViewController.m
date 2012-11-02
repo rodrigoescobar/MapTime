@@ -20,6 +20,17 @@
 	// Do any additional setup after loading the view, typically from a nib.
     
     mapView = (MKMapView *)[self.view viewWithTag:1001];
+    
+    spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    spinner.color = [UIColor blackColor];
+    spinner.center = CGPointMake(160, 240);
+    spinner.hidesWhenStopped = NO;
+    spinner.hidden = YES;
+    
+    [mapView addSubview:spinner];
+    
+    
+    
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     coordinates = [[NSMutableArray alloc]init];
     
@@ -45,6 +56,8 @@
 
 -(void)downloadData:(NSMutableArray *)array
 {
+    spinner.hidden = NO;
+    [spinner startAnimating];
     xmlData = [[NSMutableData alloc] init];
     
     NSString *point1 =[[array objectAtIndex:0] stringValue];
@@ -213,6 +226,8 @@
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     NSLog(@"Finished");
+    [spinner stopAnimating];
+    spinner.hidden = YES;
     NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xmlData]];
     [self plotRoute:pairs];
 }

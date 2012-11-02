@@ -17,6 +17,7 @@
     MKMapPoint *points;
     int numberOfPoints;
     NSMutableData *xmlData;
+    UIActivityIndicatorView *spinner;
 }
 
 -(void)downloadData:(NSMutableArray *)array;
