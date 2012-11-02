@@ -21,7 +21,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
     
     // as soon as the view has loaded, we should download the timeline/timepoint data from the server
-    //[self downloadTimeLineData];
+    [self downloadTimeLineData];
     
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     
