@@ -41,7 +41,7 @@ public class MainActivity extends MapActivity {
 	private List<Overlay> mapOverlays;
 	private GeoPoint point, point2;
 	private ArrayList<OverlayItem> timePoints;
-	private Timeline curTimeline;
+	private Timeline curTimeline; 
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
