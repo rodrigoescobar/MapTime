@@ -8,4 +8,5 @@
     android:layout_height="fill_parent"
     android:clickable="true"
     android:apiKey="0De-kbV0g6PXwj9l0Zmwix5WLuO9Ow3Q732AeRQ"
+    style="@style/mapview"
 />
