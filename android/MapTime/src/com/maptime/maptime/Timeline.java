@@ -5,6 +5,13 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -17,6 +24,12 @@ public class Timeline implements Parcelable{
 	
 	public Timeline(String xml) {
 		
+		try {
+			readXML(xml);
+		} catch (Exception e) {}
+		
+		/*
+		 * REDUNDANT DUE TO JAKOB'S CODE
 		timePoints = new ArrayList<TimePoint>();
 		BufferedReader bf = new BufferedReader(new StringReader(xml));
 		String line;
@@ -41,11 +54,11 @@ public class Timeline implements Parcelable{
 				size++;
 				bf.readLine(); //skip over </timepoint>
 				line = bf.readLine();
-			}
-	
+			}	
 		} catch (IOException e){
 			e.printStackTrace();
 		}
+		*/
 	}
 	
 	public int getLineID() {
@@ -89,5 +102,80 @@ public class Timeline implements Parcelable{
 			return new Timeline[size];
 		}
 	};
+	
+	/*
+	 * Read the XML file in a nice way
+	 */
+	private void readXML(String xmlFile) throws ParserConfigurationException, SAXException, IOException {
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		SAXParser saxParser = factory.newSAXParser();
+		timePoints = new ArrayList<TimePoint>();
+	 
+		DefaultHandler handler = new DefaultHandler() {
+			boolean btime = false;
+			boolean bname = false;
+			boolean bdesc = false;
+			boolean bmonth = false;
+			boolean bday = false;
+			
+			String name;
+			Double time;
+			String desc;
+			int month;
+			int day;			
+			String timelineName;
+			int timepointID;
+		 
+			public void startElement(String uri, String localName,String qName, Attributes attributes) throws SAXException {	 
+				if (qName.equalsIgnoreCase("name")) { bname = true; }	 
+				if (qName.equalsIgnoreCase("description")) { bdesc = true; }	 
+				if (qName.equalsIgnoreCase("month")) { bmonth = true; }	 
+				if (qName.equalsIgnoreCase("day")) { bday = true; }
+				if (qName.equalsIgnoreCase("yearInBC")) { btime = true; }
+				
+				for (int i = 0; i < attributes.getLength(); i++) {
+					if (attributes.getQName(i).equalsIgnoreCase("timelineName")) {
+						timelineName = attributes.getValue(i);
+					}
+					if (attributes.getQName(i).equalsIgnoreCase("timepointID")) {
+						timepointID = Integer.parseInt(attributes.getValue(i));
+					}
+				}
+			}
+			
+			public void endElement(String uri, String localName, String qName) throws SAXException {
+					if(qName.equalsIgnoreCase("timepoint"));
+					timePoints.add(new TimePoint(time, timepointID, name, desc, month, day));
+					size++;
+					//TODO: Add a timelineName option to get the different timeline names
+			}
+		 
+			public void characters(char ch[], int start, int length) throws SAXException {
+				if (bname) {
+					name = new String(ch, start, length);
+					bname = false;
+				}
+				if (bdesc) {
+					desc = new String(ch, start, length);
+					bdesc = false;
+				}
+				if (bmonth) {
+					month = Integer.parseInt(new String(ch, start, length));
+					bmonth = false;
+				}
+				if (bday) {
+					day = Integer.parseInt(new String(ch, start, length));
+					bday = false;
+				}
+				if (btime) {
+					time = Double.parseDouble(new String(ch, start, length));
+					btime = false;
+				}
+		 
+			}
+			
+	    };
+		saxParser.parse(xmlFile, handler);
+	}
 	
 }
