@@ -64,10 +64,10 @@ public class Timelinechoice extends Activity {
 			String curLine = in.readLine();
 			while (!curLine.equals("</timelines>")) {
 				while (!curLine.trim().startsWith("</timeli")) {
-					total = total + curLine + '\n';
+					total = total + curLine.trim();// + '\n';
 					curLine = in.readLine();
 				}
-				total = total + curLine + '\n';
+				total = total + curLine.trim();// + '\n';
 				timelines.add(new Timeline(total));
 				total = "";
 				curLine = in.readLine(); //cut closing <timeline> tag

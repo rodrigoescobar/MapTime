@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -19,7 +20,7 @@ import android.util.Log;
 
 public class Timeline implements Parcelable{
 
-	private ArrayList<TimePoint> timePoints;
+	private ArrayList<TimePoint> timePoints = new ArrayList<TimePoint>();
 	private String lineID;
 	private int size = 0;
 	
@@ -28,11 +29,11 @@ public class Timeline implements Parcelable{
 		try {
 			readXML(xml);
 			Collections.sort(timePoints);
-		} catch (Exception e) {}
+		} catch (Exception e) {e.printStackTrace();}
 		
 		/*
 		 * REDUNDANT DUE TO JAKOB'S CODE
-		timePoints = new ArrayList<TimePoint>();
+		//timePoints = new ArrayList<TimePoint>();
 		BufferedReader bf = new BufferedReader(new StringReader(xml));
 		String line;
 		try {
@@ -53,7 +54,6 @@ public class Timeline implements Parcelable{
 				//bf.readLine();//pass over second description tag (it's a duplicate) (it also doesn't exist anymore
 				double time = Double.parseDouble(bf.readLine().trim().substring(10).split("</yea")[0]);;
 				timePoints.add(new TimePoint(time, id, name, desc, month, day));
-				size++;
 				bf.readLine(); //skip over </timepoint>
 				line = bf.readLine();
 			}	
@@ -69,7 +69,7 @@ public class Timeline implements Parcelable{
 	}
 
 	public int size() {
-		return size;
+		return timePoints.size();
 	}
 	
 	public TimePoint getPoint(int point) {
@@ -77,7 +77,7 @@ public class Timeline implements Parcelable{
 	}
 	
 	public Timeline (Parcel source) {
-		timePoints = new ArrayList<TimePoint>();
+		//timePoints = new ArrayList<TimePoint>();
 		lineID = source.readString();
 		size = source.readInt();
 		source.readList(timePoints, TimePoint.class.getClassLoader());
@@ -127,7 +127,7 @@ public class Timeline implements Parcelable{
 			String desc;
 			int month;
 			int day;			
-			String timelineName;
+			//String timelineName;
 			int timepointID;
 		 
 			public void startElement(String uri, String localName,String qName, Attributes attributes) throws SAXException {	 
@@ -139,7 +139,8 @@ public class Timeline implements Parcelable{
 				
 				for (int i = 0; i < attributes.getLength(); i++) {
 					if (attributes.getQName(i).equalsIgnoreCase("timelineName")) {
-						timelineName = attributes.getValue(i);
+						//timelineName = attributes.getValue(i);
+						lineID = attributes.getValue(i);
 					}
 					if (attributes.getQName(i).equalsIgnoreCase("timepointID")) {
 						timepointID = Integer.parseInt(attributes.getValue(i));
@@ -148,9 +149,9 @@ public class Timeline implements Parcelable{
 			}
 			
 			public void endElement(String uri, String localName, String qName) throws SAXException {
-					if(qName.equalsIgnoreCase("timepoint"));
-					timePoints.add(new TimePoint(time, timepointID, name, desc, month, day));
-					size++;
+					if(qName.equalsIgnoreCase("timepoint")) {
+						timePoints.add(new TimePoint(time, timepointID, name, desc, month, day));
+					}
 					//TODO: Add a timelineName option to get the different timeline names
 			}
 		 
@@ -179,7 +180,8 @@ public class Timeline implements Parcelable{
 			}
 			
 	    };
-		saxParser.parse(xmlFile, handler);
+	    InputSource source = new InputSource(new StringReader(xmlFile));
+	    saxParser.parse(source, handler);
 	}
 	
 }
