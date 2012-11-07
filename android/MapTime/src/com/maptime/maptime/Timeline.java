@@ -5,47 +5,36 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class Timeline implements Parcelable{
+public class Timeline implements Parcelable {
 
-	private ArrayList<TimePoint> timePoints;
+	private ArrayList<TimePoint> timePoints = new ArrayList<TimePoint>();
 	private int lineID;
 	private int size = 0;
+	private String timelineName;
+	private int timelineNo;
 	
-	public Timeline(String xml) {
-		
-		timePoints = new ArrayList<TimePoint>();
-		BufferedReader bf = new BufferedReader(new StringReader(xml));
-		String line;
-		try {
-			line = bf.readLine();
-			lineID = Integer.parseInt(line.split("\'")[1]);
-			line = bf.readLine();
-			//extract each timepoint, create its object and shove it in the arraylist
-			while(!line.trim().startsWith("</timel")) {
-				int id = Integer.parseInt(line.split("\'")[1]);
-				String name = bf.readLine().trim().substring(6).split("</na")[0];
-				String desc = bf.readLine().trim().substring(13).split("</des")[0];
-				bf.readLine();//pass over sourceName tag
-				bf.readLine();//pass over sourceURL tag
-				bf.readLine();//pass over year tag
-				bf.readLine();//pass over yearUnitID tag
-				int month = Integer.parseInt(bf.readLine().trim().substring(7).split("</mo")[0]);
-				int day = Integer.parseInt(bf.readLine().trim().substring(5).split("</day")[0]);
-				bf.readLine();//pass over second description tag (it's a duplicate)
-				double time = Double.parseDouble(bf.readLine().trim().substring(10).split("</yea")[0]);;
-				timePoints.add(new TimePoint(time, id, name, desc, month, day));
-				size++;
-				bf.readLine(); //skip over </timepoint>
-				line = bf.readLine();
-			}
+	public Timeline(String name, int number) {
+		timelineName = name;
+		timelineNo = number;
+	}
 	
-		} catch (IOException e){
-			e.printStackTrace();
-		}
+	public void addTimePoint(double time, int timepointID, String name, String desc, int month, int day) {
+		timePoints.add(new TimePoint(time, timepointID, name, desc, month, day));
+	}
+	
+	public String getLineName() {
+		return timelineName;
 	}
 	
 	public int getLineID() {

@@ -7,7 +7,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
 import com.google.android.maps.GeoPoint;
+import com.google.android.maps.OverlayItem;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,7 +38,7 @@ import android.support.v4.app.NavUtils;
 public class Timelinechoice extends Activity {
 
 	public final static String GEOPOINTS = "com.maptime.maptime.GEOPOINTS";
-	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
+	private final static String APIURL = "http://jakob-aungiers.com/misc/example.xml";
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
 	private int timelineChoice = -1;
 	
@@ -52,31 +61,90 @@ public class Timelinechoice extends Activity {
 
     
     private void retrieveTimelines() {
-    	String total = "";
-		try {
-			// Create a URL for the desired page
-			URL url = new URL(APIURL);
-
-			// Read all the text returned by the server
-			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-			in.readLine();//remove<?xml etc. line
-			String curLine = in.readLine();
-			while (curLine != null) {
-				while (!curLine.trim().startsWith("</timeli")) {
-					total = total + curLine + '\n';
-					curLine = in.readLine();
+    	try {
+			readXML();
+		} catch (Exception e) {}		
+	}
+    
+    /*
+	 * Read the XML file in a nice way
+	 */
+	private void readXML() throws ParserConfigurationException, SAXException, IOException {
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		SAXParser saxParser = factory.newSAXParser();
+		
+		System.out.println("Starting Read...");
+		DefaultHandler handler = new DefaultHandler() {
+			int noOfTimelines = 0;
+			boolean btime = false;
+			boolean bname = false;
+			boolean bdesc = false;
+			boolean bmonth = false;
+			boolean bday = false;
+			
+			String name;
+			Double time;
+			String desc;
+			int month;
+			int day;			
+			int timepointID;
+		 
+			public void startElement(String uri, String localName,String qName, Attributes attributes) throws SAXException {
+				System.out.println("Start Element: " + qName);
+				if (qName.equalsIgnoreCase("name")) { bname = true; }	 
+				if (qName.equalsIgnoreCase("description")) { bdesc = true; }	 
+				if (qName.equalsIgnoreCase("month")) { bmonth = true; }	 
+				if (qName.equalsIgnoreCase("day")) { bday = true; }
+				if (qName.equalsIgnoreCase("yearInBC")) { btime = true; }
+				
+				for (int i = 0; i < attributes.getLength(); i++) {
+					if (attributes.getQName(i).equalsIgnoreCase("timelineName")) {
+						timelines.add(noOfTimelines, new Timeline(attributes.getValue(i), noOfTimelines));
+						noOfTimelines++;
+					}
+					if (attributes.getQName(i).equalsIgnoreCase("timepointID")) {
+						timepointID = Integer.parseInt(attributes.getValue(i));
+					}
 				}
-				total = total + curLine + '\n';
-				timelines.add(new Timeline(total));
-				total = "";
-				curLine = in.readLine();
 			}
-			in.close();
-		} catch (MalformedURLException e) {
-		} catch (IOException e) {
-		}
-    	
-    }
+			
+			public void endElement(String uri, String localName, String qName) throws SAXException {
+					System.out.println("End Element: " + qName);
+					if(qName.equalsIgnoreCase("timepoint")) {
+						timelines.get(noOfTimelines - 1).addTimePoint(time, timepointID, name, desc, month, day);
+						System.out.println("+ TP [" + timelines.get(noOfTimelines - 1).getLineName() + "]: " + time + "|" + timepointID + "|" + name + "|" + desc + "|" + month + "|" + day);
+						//size++;
+					}
+					//TODO: Add a timelineName option to get the different timeline names
+			}
+		 
+			public void characters(char ch[], int start, int length) throws SAXException {
+				if (bname) {
+					name = new String(ch, start, length);
+					bname = false;
+				}
+				if (bdesc) {
+					desc = new String(ch, start, length);
+					bdesc = false;
+				}
+				if (bmonth) {
+					month = Integer.parseInt(new String(ch, start, length));
+					bmonth = false;
+				}
+				if (bday) {
+					day = Integer.parseInt(new String(ch, start, length));
+					bday = false;
+				}
+				if (btime) {
+					time = Double.parseDouble(new String(ch, start, length));
+					btime = false;
+				}
+		 
+			}
+			
+	    };
+		saxParser.parse(APIURL, handler);
+	}
     
     
     @Override
@@ -117,11 +185,11 @@ public class Timelinechoice extends Activity {
 		@Override
 		protected void onPostExecute(Void result) {
 			// TODO Auto-generated method stub
-			String[] tlIDs = new String[timelines.size()];
+			String[] tlNames = new String[timelines.size()];
 	        for (int i = 0; i < timelines.size(); i++) {
-	        	tlIDs[i] = "Timeline "+Integer.toString(timelines.get(i).getLineID());
-	        }
-	        ArrayAdapter ad=new ArrayAdapter(context,android.R.layout.simple_list_item_1,tlIDs);
+	        	tlNames[i] = timelines.get(i).getLineName();
+	        } 
+	        ArrayAdapter ad=new ArrayAdapter(context,android.R.layout.simple_list_item_1,tlNames);
 	        final ListView list=(ListView)findViewById(R.id.tlcList);
 	        list.setAdapter(ad);
 	        list.setOnItemClickListener(new OnItemClickListener() {
