@@ -3,7 +3,7 @@ package com.maptime.maptime;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class TimePoint implements Parcelable{
+public class TimePoint implements Parcelable, Comparable<TimePoint>{
 
 	private double timeInBC;
 	private int id;
@@ -86,5 +86,23 @@ public class TimePoint implements Parcelable{
 			return new TimePoint[size];
 		}
 	};
+
+	/*
+	 * Note: this class has a natural ordering that is inconsistent with equals.(non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 * Also, greatest timeInBC is considered the 'smallest' element
+	 */
+	public int compareTo(TimePoint arg0) { //comparable on timeInBC
+		// TODO Auto-generated method stub
+		if (this.getTimeInBC() < arg0.getTimeInBC()) {
+			return -1;
+		}
+		else if(this.getTimeInBC() > arg0.getTimeInBC()) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
 	
 }

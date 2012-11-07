@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -19,13 +20,14 @@ import android.util.Log;
 public class Timeline implements Parcelable{
 
 	private ArrayList<TimePoint> timePoints;
-	private int lineID;
+	private String lineID;
 	private int size = 0;
 	
 	public Timeline(String xml) {
 		
 		try {
 			readXML(xml);
+			Collections.sort(timePoints);
 		} catch (Exception e) {}
 		
 		/*
@@ -35,7 +37,7 @@ public class Timeline implements Parcelable{
 		String line;
 		try {
 			line = bf.readLine();
-			lineID = Integer.parseInt(line.split("\'")[1]);
+			lineID = (line.split("\'"))[1];
 			line = bf.readLine();
 			//extract each timepoint, create its object and shove it in the arraylist
 			while(!line.trim().startsWith("</timel")) {
@@ -48,20 +50,21 @@ public class Timeline implements Parcelable{
 				bf.readLine();//pass over yearUnitID tag
 				int month = Integer.parseInt(bf.readLine().trim().substring(7).split("</mo")[0]);
 				int day = Integer.parseInt(bf.readLine().trim().substring(5).split("</day")[0]);
-				bf.readLine();//pass over second description tag (it's a duplicate)
+				//bf.readLine();//pass over second description tag (it's a duplicate) (it also doesn't exist anymore
 				double time = Double.parseDouble(bf.readLine().trim().substring(10).split("</yea")[0]);;
 				timePoints.add(new TimePoint(time, id, name, desc, month, day));
 				size++;
 				bf.readLine(); //skip over </timepoint>
 				line = bf.readLine();
 			}	
+			Collections.sort(timePoints);
 		} catch (IOException e){
 			e.printStackTrace();
 		}
 		*/
 	}
 	
-	public int getLineID() {
+	public String getLineID() {
 		return lineID;
 	}
 
@@ -75,7 +78,7 @@ public class Timeline implements Parcelable{
 	
 	public Timeline (Parcel source) {
 		timePoints = new ArrayList<TimePoint>();
-		lineID = source.readInt();
+		lineID = source.readString();
 		size = source.readInt();
 		source.readList(timePoints, TimePoint.class.getClassLoader());
 	}
@@ -87,7 +90,7 @@ public class Timeline implements Parcelable{
 
 	public void writeToParcel(Parcel dest, int flags) {
 		// TODO Auto-generated method stub
-		dest.writeInt(lineID);
+		dest.writeString(lineID);
 		dest.writeInt(size);
 		dest.writeList(timePoints);
 	}
@@ -110,6 +113,7 @@ public class Timeline implements Parcelable{
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		SAXParser saxParser = factory.newSAXParser();
 		timePoints = new ArrayList<TimePoint>();
+		lineID = "We still need this";
 	 
 		DefaultHandler handler = new DefaultHandler() {
 			boolean btime = false;

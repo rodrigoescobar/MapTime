@@ -42,13 +42,14 @@ public class MainActivity extends MapActivity {
 	private GeoPoint point, point2;
 	private ArrayList<OverlayItem> timePoints;
 	private Timeline curTimeline; 
+	public MapView mapView;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 		
         setContentView(R.layout.activity_main);
-        MapView mapView = (MapView) findViewById(R.id.mapview);
+        mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(true);
         mapOverlays = mapView.getOverlays();
 		Drawable drawable = this.getResources().getDrawable(android.R.drawable.arrow_down_float);
@@ -146,6 +147,12 @@ public class MainActivity extends MapActivity {
 	    return false;
 	}
 
+	/*@Override
+	public void onResume() {
+		super.onResume();
+		mapView.invalidate();
+	}*/
+	
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;

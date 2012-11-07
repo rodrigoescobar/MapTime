@@ -60,8 +60,9 @@ public class Timelinechoice extends Activity {
 			// Read all the text returned by the server
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			in.readLine();//remove<?xml etc. line
+			in.readLine();//remove <timelines> tag
 			String curLine = in.readLine();
-			while (curLine != null) {
+			while (!curLine.equals("</timelines>")) {
 				while (!curLine.trim().startsWith("</timeli")) {
 					total = total + curLine + '\n';
 					curLine = in.readLine();
@@ -69,7 +70,7 @@ public class Timelinechoice extends Activity {
 				total = total + curLine + '\n';
 				timelines.add(new Timeline(total));
 				total = "";
-				curLine = in.readLine();
+				curLine = in.readLine(); //cut closing <timeline> tag
 			}
 			in.close();
 		} catch (MalformedURLException e) {
@@ -119,7 +120,7 @@ public class Timelinechoice extends Activity {
 			// TODO Auto-generated method stub
 			String[] tlIDs = new String[timelines.size()];
 	        for (int i = 0; i < timelines.size(); i++) {
-	        	tlIDs[i] = "Timeline "+Integer.toString(timelines.get(i).getLineID());
+	        	tlIDs[i] = "Timeline "+timelines.get(i).getLineID();
 	        }
 	        ArrayAdapter ad=new ArrayAdapter(context,android.R.layout.simple_list_item_1,tlIDs);
 	        final ListView list=(ListView)findViewById(R.id.tlcList);
