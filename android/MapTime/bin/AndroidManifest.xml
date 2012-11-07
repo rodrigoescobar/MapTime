@@ -2,8 +2,6 @@
     package="com.maptime.maptime"
     android:versionCode="1"
     android:versionName="1.0" >
-    
-    <category android:name="android.intent.category.DEFAULT" />
 
     <uses-sdk
         android:minSdkVersion="8"

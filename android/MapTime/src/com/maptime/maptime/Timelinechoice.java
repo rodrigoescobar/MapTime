@@ -73,7 +73,6 @@ public class Timelinechoice extends Activity {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		SAXParser saxParser = factory.newSAXParser();
 		
-		System.out.println("Starting Read...");
 		DefaultHandler handler = new DefaultHandler() {
 			int noOfTimelines = 0;
 			boolean btime = false;
@@ -90,7 +89,6 @@ public class Timelinechoice extends Activity {
 			int timepointID;
 		 
 			public void startElement(String uri, String localName,String qName, Attributes attributes) throws SAXException {
-				System.out.println("Start Element: " + qName);
 				if (qName.equalsIgnoreCase("name")) { bname = true; }	 
 				if (qName.equalsIgnoreCase("description")) { bdesc = true; }	 
 				if (qName.equalsIgnoreCase("month")) { bmonth = true; }	 
@@ -109,13 +107,9 @@ public class Timelinechoice extends Activity {
 			}
 			
 			public void endElement(String uri, String localName, String qName) throws SAXException {
-					System.out.println("End Element: " + qName);
 					if(qName.equalsIgnoreCase("timepoint")) {
 						timelines.get(noOfTimelines - 1).addTimePoint(time, timepointID, name, desc, month, day);
-						System.out.println("+ TP [" + timelines.get(noOfTimelines - 1).getLineName() + "]: " + time + "|" + timepointID + "|" + name + "|" + desc + "|" + month + "|" + day);
-						//size++;
 					}
-					//TODO: Add a timelineName option to get the different timeline names
 			}
 		 
 			public void characters(char ch[], int start, int length) throws SAXException {
