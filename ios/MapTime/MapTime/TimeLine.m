@@ -15,6 +15,7 @@
     self = [super init];
     if(self != nil) {
         name = aName;
+        timePoints = [[NSMutableArray alloc] initWithCapacity:30];
     }
     return self;
 }
@@ -29,7 +30,10 @@
     return name;
 }
 
-
+-(NSMutableArray *)getTimePoints
+{
+    return timePoints;
+}
 
 
 @end

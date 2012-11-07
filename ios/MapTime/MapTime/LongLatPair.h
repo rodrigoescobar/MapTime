@@ -19,4 +19,5 @@
 
 -(NSNumber *)getLatitude;
 
+
 @end

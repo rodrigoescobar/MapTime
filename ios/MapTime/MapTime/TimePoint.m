@@ -55,4 +55,15 @@
     yearInBC = aYearInBC;
 }
 
+-(NSString *)getYearInBc
+{
+    return yearInBC;
+}
+
+-(NSString *)getName
+{
+    return name;
+}
+
+
 @end

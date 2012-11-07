@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "TimeLine.h"
 #import "TimePoint.h"
+#import "TBXML.h"
 
 @interface TimeLineDownloaderDelegate : NSObject <NSURLConnectionDataDelegate>
 {
@@ -25,5 +26,10 @@
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection;
 
 -(void)parseXML:(NSData *)xml;
+
+-(NSMutableArray *)getTimeLines;
+
+-(void)traverseTimeLineElement:(TBXMLElement *)element withTimeLineObject:(TimeLine *)timeLine;
+
 
 @end

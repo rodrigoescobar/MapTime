@@ -46,6 +46,11 @@
     [self parseXML:timeLineData];
 }
 
+-(NSMutableArray *)getTimeLines
+{
+    return timeLines;
+}
+
 -(void)parseXML:(NSData *)xml
 {
     TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:nil];
@@ -53,40 +58,38 @@
     timeLines = [[NSMutableArray alloc] init];
        
     if(rootXMlElement) {
-        [self traverseElement:rootXMlElement];
+        [self traverseElement:rootXMlElement->firstChild];
         
         for(TimeLine *tl in timeLines) {
             NSLog(@"%@", [tl getName]);
         }
         
     }
+    
 }
 
 -(void)traverseElement:(TBXMLElement *)element
 {
+    // should have the first child element of <timelines>, i.e. should be a timeline object
     do {
-        if([[TBXML elementName:element] isEqualToString:@"timeline"]) {
-            NSString *name = [TBXML valueOfAttributeNamed:@"id" forElement:element];
-            TimeLine *timeLine = [[TimeLine alloc] initWithName:name];
-            NSLog(@"TimeLine Found: %@", name);
-            [self traverseTimePoints:element withTimeLine:timeLine];
-            [timeLines addObject:timeLine];
-            
-           // codycodecodecodecode lucy is awesome. so very awesome. i love her. yay.
+        
+        if([[TBXML elementName:element] isEqualToString:@"timeline"]) { // sanity check, should always be
+            NSString *name = [TBXML valueOfAttributeNamed:@"timelineName" forElement:element];
+            TimeLine *tl = [[TimeLine alloc] initWithName:name];
+            NSLog(@"Timeline found with name: %@", [tl getName]);
+            [self traverseTimeLineElement:element->firstChild withTimeLineObject:tl];
+            [timeLines addObject:tl];
         }
         
-        if(element->firstChild) {
-            [self traverseElement:element->firstChild];
-        }
-                
-    } while ((element = element->nextSibling));
+    } while((element = element->nextSibling));
 }
 
--(void)traverseTimePoints:(TBXMLElement *)element withTimeLine:(TimeLine *)timeLine
+-(void)traverseTimeLineElement:(TBXMLElement *)element withTimeLineObject:(TimeLine *)timeLine
 {
+    // we should now just have one timeline object
     do {
         
-        if([[TBXML elementName:element] isEqualToString:@"timepoint"]) {
+        if([[TBXML elementName:element] isEqualToString:@"timepoint"]) { 
             TBXMLElement *name = [TBXML childElementNamed:@"name" parentElement:element];
             TBXMLElement *description = [TBXML childElementNamed:@"description" parentElement:element];
             TBXMLElement *sourceName = [TBXML childElementNamed:@"sourceName" parentElement:element];
@@ -96,7 +99,7 @@
             TBXMLElement *month = [TBXML childElementNamed:@"month" parentElement:element];
             TBXMLElement *day = [TBXML childElementNamed:@"day" parentElement:element];
             TBXMLElement *yearInBC = [TBXML childElementNamed:@"yearInBC" parentElement:element];
-
+            
             NSString *timePointname = [TBXML textForElement:name];
             NSString *timePointDescription = [TBXML textForElement:description];
             NSString *timePointSourceName = [TBXML textForElement:sourceName];
@@ -118,16 +121,12 @@
             [timePoint setDay:timePointDay];
             [timePoint setYearInBC:timePointYearInBC];
             
+            NSLog(@"Adding TimePoint to timeline %@", timeLine);
             [timeLine addTimePoint:timePoint];
-            
         }
-        
-        if(element->firstChild) {
-            [self traverseTimePoints:element->firstChild withTimeLine:timeLine];
-        }
-        
         
     } while((element = element->nextSibling));
 }
+
 
 @end

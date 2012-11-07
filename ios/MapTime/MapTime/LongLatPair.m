@@ -32,4 +32,5 @@
     return latitude;
 }
 
+
 @end

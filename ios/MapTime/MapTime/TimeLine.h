@@ -22,4 +22,6 @@
 
 -(NSString *)getName;
 
+-(NSMutableArray *)getTimePoints;
+
 @end
