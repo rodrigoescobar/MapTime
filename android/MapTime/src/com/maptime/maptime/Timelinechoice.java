@@ -1,10 +1,6 @@
 package com.maptime.maptime;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,17 +11,16 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.OverlayItem;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,9 +29,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.support.v4.app.NavUtils;
-
 
 public class Timelinechoice extends Activity {
 
@@ -44,9 +37,8 @@ public class Timelinechoice extends Activity {
 	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
 	private int timelineChoice = -1;
-	
+
     @SuppressLint({ "NewApi", "NewApi" }) //so it doesn't error on getActionBar()
-	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timelinechoice);
@@ -59,6 +51,7 @@ public class Timelinechoice extends Activity {
         //prob at after user selects a timeline from the list. Every time user selects timeline from list
         
         //new Thread(new TimelineRetriever(this)).start();
+        		
         new TimelineRetrieverTask(this).execute();
     }
 
@@ -67,9 +60,24 @@ public class Timelinechoice extends Activity {
     	try {
 			readXML();
 		} catch (Exception e) {
-			System.err.println("ERROR: Something went wrong reading XML");
-		}		
+			handler .sendEmptyMessage(0);
+		}
 	}
+    
+    /*
+     * Handles the caught error for fetching XML (can't put dialogs inside the actual catch(){} method without app breaking)
+     */
+    private Handler handler = new Handler() {
+        public void handleMessage(Message message) {
+        	String errorTitle = getResources().getString(R.string.error_title);
+			String errorMessage = getResources().getString(R.string.error_readXML);
+			
+			AlertDialog errDialog = new AlertDialog.Builder(Timelinechoice.this).create();
+			errDialog.setTitle(errorTitle);
+			errDialog.setMessage(errorMessage);
+			errDialog.show();
+        }
+    };
     
     /*
 	 * Read the XML file in a nice way
@@ -178,7 +186,7 @@ public class Timelinechoice extends Activity {
 		protected void onPreExecute() {
 			String progressTitle = getResources().getString(R.string.progress_loading);
 			String progressMessage = getResources().getString(R.string.progress_fetchingTimlines);
-			progressDialog = ProgressDialog.show(Timelinechoice.this, progressTitle , progressMessage);
+			progressDialog = ProgressDialog.show(context, progressTitle , progressMessage);
 		}
 		
 		protected Void doInBackground(Void... params) {

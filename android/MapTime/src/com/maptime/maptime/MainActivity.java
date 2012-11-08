@@ -135,7 +135,7 @@ public class MainActivity extends MapActivity {
 	        startActivityForResult(intent, 0);
 	        return true;
 	    case R.id.menu_startnav:
-	    	AlertDialog.Builder  dialog = new AlertDialog.Builder(this);
+	    	AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Navigation Mode");
 			dialog.setMessage("Tap where you want to start your timeline");
 			dialog.show();
