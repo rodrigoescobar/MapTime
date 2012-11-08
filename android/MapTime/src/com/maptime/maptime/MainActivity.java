@@ -28,6 +28,7 @@ import android.os.Parcelable;
 import android.os.StrictMode;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -45,6 +46,7 @@ public class MainActivity extends MapActivity {
 	private ArrayList<OverlayItem> timePoints;
 	private Timeline curTimeline; 
 	public MapView mapView;
+	private ProgressDialog progressDialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -163,7 +165,8 @@ public class MainActivity extends MapActivity {
 			dialog.show();
 	    	Thread nst = new Thread(new NavStartThread());
 			nst.start();
-	    	
+	    	//TODO: Add progress bar here (?)
+			//progressDialog = ProgressDialog.show(MainActivity.this, "Loading" , "Calculating Route...");
 	    	return true;
 	    }
 	    return false;
