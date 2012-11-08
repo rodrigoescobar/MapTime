@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
+#import "TimeLineDownloaderDelegate.h"
+#import "LongLatPair.h"
 
 @interface MapTimeViewController : UIViewController
 {
@@ -18,6 +20,10 @@
     int numberOfPoints;
     NSMutableData *xmlData;
     UIActivityIndicatorView *spinner;
+    TimeLineDownloaderDelegate *delegate;
+    NSString *distanceBetweenPoints; // KM distance between the plotted points
+    NSMutableArray *distanceBetweenLongLatPairs;
+    NSMutableArray *cumulativeDistanceBetweenPairs;
 }
 
 -(void)downloadNavigationData:(NSMutableArray *)array;
@@ -27,6 +33,7 @@
 -(NSString *)parseXML:(NSData *)xml;
 
 -(void)plotRoute:(NSString *)pairs;
+
 -(void)drawRoute;
 
 - (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer;
@@ -42,6 +49,12 @@
 -(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection;
+
+-(void)dropTimePoints;
+
+-(float)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2;
+
+-(NSArray *)betweenWhichPointsIs:(float)distanceToDraw withPercentage:(float)percentage;
 
 
 @end

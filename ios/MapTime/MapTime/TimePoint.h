@@ -39,5 +39,9 @@
 
 -(void)setYearInBC:(NSString *)aYearInBC;
 
+-(NSString *)getYearInBc;
+
+-(NSString *)getName;
+
 
 @end

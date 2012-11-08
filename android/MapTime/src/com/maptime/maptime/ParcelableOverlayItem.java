@@ -13,6 +13,10 @@ public class ParcelableOverlayItem extends OverlayItem implements Parcelable{
 		// TODO Auto-generated constructor stub
 	}
 
+	public ParcelableOverlayItem(OverlayItem oi) {
+		super(new ParcelableGeoPoint(oi.getPoint()), oi.getTitle(), oi.getSnippet());
+	}
+	
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;

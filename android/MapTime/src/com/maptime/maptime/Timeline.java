@@ -4,13 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -18,53 +16,27 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class Timeline implements Parcelable{
+public class Timeline implements Parcelable {
 
 	private ArrayList<TimePoint> timePoints = new ArrayList<TimePoint>();
-	private String lineID;
-	private int size = 0;
+	private int lineID;
+	private String timelineName;
+	private int timelineNo;
 	
-	public Timeline(String xml) {
-		
-		try {
-			readXML(xml);
-			Collections.sort(timePoints);
-		} catch (Exception e) {e.printStackTrace();}
-		
-		/*
-		 * REDUNDANT DUE TO JAKOB'S CODE
-		//timePoints = new ArrayList<TimePoint>();
-		BufferedReader bf = new BufferedReader(new StringReader(xml));
-		String line;
-		try {
-			line = bf.readLine();
-			lineID = (line.split("\'"))[1];
-			line = bf.readLine();
-			//extract each timepoint, create its object and shove it in the arraylist
-			while(!line.trim().startsWith("</timel")) {
-				int id = Integer.parseInt(line.split("\'")[1]);
-				String name = bf.readLine().trim().substring(6).split("</na")[0];
-				String desc = bf.readLine().trim().substring(13).split("</des")[0];
-				bf.readLine();//pass over sourceName tag
-				bf.readLine();//pass over sourceURL tag
-				bf.readLine();//pass over year tag
-				bf.readLine();//pass over yearUnitID tag
-				int month = Integer.parseInt(bf.readLine().trim().substring(7).split("</mo")[0]);
-				int day = Integer.parseInt(bf.readLine().trim().substring(5).split("</day")[0]);
-				//bf.readLine();//pass over second description tag (it's a duplicate) (it also doesn't exist anymore
-				double time = Double.parseDouble(bf.readLine().trim().substring(10).split("</yea")[0]);;
-				timePoints.add(new TimePoint(time, id, name, desc, month, day));
-				bf.readLine(); //skip over </timepoint>
-				line = bf.readLine();
-			}	
-			Collections.sort(timePoints);
-		} catch (IOException e){
-			e.printStackTrace();
-		}
-		*/
+	public Timeline(String name, int number) {
+		timelineName = name;
+		timelineNo = number;
 	}
 	
-	public String getLineID() {
+	public void addTimePoint(double time, int timepointID, String name, String desc, int month, int day) {
+		timePoints.add(new TimePoint(time, timepointID, name, desc, month, day));
+	}
+	
+	public String getLineName() {
+		return timelineName;
+	}
+	
+	public int getLineID() {
 		return lineID;
 	}
 
@@ -77,9 +49,8 @@ public class Timeline implements Parcelable{
 	}
 	
 	public Timeline (Parcel source) {
-		//timePoints = new ArrayList<TimePoint>();
-		lineID = source.readString();
-		size = source.readInt();
+		timePoints = new ArrayList<TimePoint>();
+		lineID = source.readInt();
 		source.readList(timePoints, TimePoint.class.getClassLoader());
 	}
 	
@@ -90,8 +61,7 @@ public class Timeline implements Parcelable{
 
 	public void writeToParcel(Parcel dest, int flags) {
 		// TODO Auto-generated method stub
-		dest.writeString(lineID);
-		dest.writeInt(size);
+		dest.writeInt(lineID);
 		dest.writeList(timePoints);
 	}
 	
@@ -105,83 +75,5 @@ public class Timeline implements Parcelable{
 			return new Timeline[size];
 		}
 	};
-	
-	/*
-	 * Read the XML file in a nice way
-	 */
-	private void readXML(String xmlFile) throws ParserConfigurationException, SAXException, IOException {
-		SAXParserFactory factory = SAXParserFactory.newInstance();
-		SAXParser saxParser = factory.newSAXParser();
-		timePoints = new ArrayList<TimePoint>();
-		lineID = "We still need this";
-	 
-		DefaultHandler handler = new DefaultHandler() {
-			boolean btime = false;
-			boolean bname = false;
-			boolean bdesc = false;
-			boolean bmonth = false;
-			boolean bday = false;
-			
-			String name;
-			Double time;
-			String desc;
-			int month;
-			int day;			
-			//String timelineName;
-			int timepointID;
-		 
-			public void startElement(String uri, String localName,String qName, Attributes attributes) throws SAXException {	 
-				if (qName.equalsIgnoreCase("name")) { bname = true; }	 
-				if (qName.equalsIgnoreCase("description")) { bdesc = true; }	 
-				if (qName.equalsIgnoreCase("month")) { bmonth = true; }	 
-				if (qName.equalsIgnoreCase("day")) { bday = true; }
-				if (qName.equalsIgnoreCase("yearInBC")) { btime = true; }
-				
-				for (int i = 0; i < attributes.getLength(); i++) {
-					if (attributes.getQName(i).equalsIgnoreCase("timelineName")) {
-						//timelineName = attributes.getValue(i);
-						lineID = attributes.getValue(i);
-					}
-					if (attributes.getQName(i).equalsIgnoreCase("timepointID")) {
-						timepointID = Integer.parseInt(attributes.getValue(i));
-					}
-				}
-			}
-			
-			public void endElement(String uri, String localName, String qName) throws SAXException {
-					if(qName.equalsIgnoreCase("timepoint")) {
-						timePoints.add(new TimePoint(time, timepointID, name, desc, month, day));
-					}
-					//TODO: Add a timelineName option to get the different timeline names
-			}
-		 
-			public void characters(char ch[], int start, int length) throws SAXException {
-				if (bname) {
-					name = new String(ch, start, length);
-					bname = false;
-				}
-				if (bdesc) {
-					desc = new String(ch, start, length);
-					bdesc = false;
-				}
-				if (bmonth) {
-					month = Integer.parseInt(new String(ch, start, length));
-					bmonth = false;
-				}
-				if (bday) {
-					day = Integer.parseInt(new String(ch, start, length));
-					bday = false;
-				}
-				if (btime) {
-					time = Double.parseDouble(new String(ch, start, length));
-					btime = false;
-				}
-		 
-			}
-			
-	    };
-	    InputSource source = new InputSource(new StringReader(xmlFile));
-	    saxParser.parse(source, handler);
-	}
 	
 }

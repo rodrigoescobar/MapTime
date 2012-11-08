@@ -1,6 +1,7 @@
 package com.maptime.maptime;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -28,6 +29,18 @@ public class PointsOverlay extends ItemizedOverlay {
 		mContext = context;
 	}
 	
+	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context) {
+		super(boundCenterBottom(defaultMarker));
+		mContext = context;
+		ArrayList<OverlayItem> newOIs = new ArrayList<OverlayItem>();
+		for (ParcelableOverlayItem poi:ois) {
+			newOIs.add(new OverlayItem(poi.getPoint(), poi.getTitle(), poi.getSnippet()));
+		}
+		mOverlays = newOIs;
+		startPoint = new GeoPoint(start.getLatitudeE6(), start.getLongitudeE6());
+		endPoint = new GeoPoint(end.getLatitudeE6(), end.getLongitudeE6());
+	}
+	
 	public void addOverlay(OverlayItem overlay) {
 		mOverlays.add(overlay);
 		populate();
@@ -51,6 +64,10 @@ public class PointsOverlay extends ItemizedOverlay {
 	@Override
 	protected OverlayItem createItem(int i) {
 		return this.mOverlays.get(i);
+	}
+	
+	public ArrayList<OverlayItem> getMOverLays() {
+		return mOverlays;
 	}
 	
 	@Override

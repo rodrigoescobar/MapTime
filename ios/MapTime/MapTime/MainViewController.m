@@ -1,62 +1,72 @@
 //
-//  TimeLineDownloaderDelegate.m
+//  MainViewController.m
 //  MapTime
 //
-//  Created by Nicholas Angeli on 02/11/2012.
+//  Created by Nicholas Angeli on 07/11/2012.
 //  Copyright (c) 2012 MapTime. All rights reserved.
 //
 
+#import "MainViewController.h"
+#import "MBProgressHUD.h"
 #import "TimeLineDownloaderDelegate.h"
-#import "TBXML.h"
 
+@implementation MainViewController
 
-@implementation TimeLineDownloaderDelegate
-
--(id)init
+-(void)viewDidLoad
 {
-    self = [super init];
-    if(self != nil) {
-        timeLineData = [[NSMutableData alloc] init];
-    }
-    return self;
+    [super viewDidLoad];
+    
+    picker = (UIPickerView *) [self.view viewWithTag:2000];
+    timeLineData = [[NSMutableData alloc] init];
+    timeLines = [[NSMutableArray alloc] initWithCapacity:30];
+    
+    NSData *data = [self downloadTimelines];
+    [self parseXML:data];
+    
+    contents = [[NSMutableArray alloc] initWithCapacity:30];
+    
+    [contents addObject:@"Hello"];
+    [contents addObject:@"Is it me"];
+    [contents addObject:@"your looking for"];
+        
 }
 
--(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+-(NSData *)downloadTimelines
 {
-    NSLog(@"TIMELINE RESPONSE");
+        
+    NSURL *url = [[NSURL alloc] initWithString:@"http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php"];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+        
+    NSHTTPURLResponse *response = nil;
+    NSError *error = nil;
+        
+    NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+
+    return data;
 }
 
--(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-    NSLog(@"TIMELINE DATA RECEIVED");
-    [timeLineData appendData:data];
 
+
+-(NSInteger)numberOfComponentsInPickerView:(UIPickerView *)thePickerView
+{
+    return 1;
 }
 
--(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+-(NSInteger)pickerView:(UIPickerView *)thePickerView numberOfRowsInComponent:(NSInteger)component
 {
-    NSLog(@"TIMELINE ERROR");
-
+    return [timeLines count];
 }
 
--(void)connectionDidFinishLoading:(NSURLConnection *)connection
+-(NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-    NSLog(@"Finished Downloading");
-
-    [self parseXML:timeLineData];
-}
-
--(NSMutableArray *)getTimeLines
-{
-    return timeLines;
+    return [[timeLines objectAtIndex:row] getName];
 }
 
 -(void)parseXML:(NSData *)xml
 {
     TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:nil];
     TBXMLElement * rootXMlElement = tbxml.rootXMLElement;
-    timeLines = [[NSMutableArray alloc] init];
-       
+    
     if(rootXMlElement) {
         [self traverseElement:rootXMlElement->firstChild];
         
@@ -90,7 +100,7 @@
     // we should now just have one timeline object
     do {
         
-        if([[TBXML elementName:element] isEqualToString:@"timepoint"]) { 
+        if([[TBXML elementName:element] isEqualToString:@"timepoint"]) {
             TBXMLElement *name = [TBXML childElementNamed:@"name" parentElement:element];
             TBXMLElement *description = [TBXML childElementNamed:@"description" parentElement:element];
             TBXMLElement *sourceName = [TBXML childElementNamed:@"sourceName" parentElement:element];
@@ -128,6 +138,7 @@
         
     } while((element = element->nextSibling));
 }
+
 
 
 @end

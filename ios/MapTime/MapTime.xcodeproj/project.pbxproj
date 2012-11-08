@@ -25,6 +25,8 @@
 		8982F42D164030770067E7DC /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8982F42C164030770067E7DC /* CoreLocation.framework */; };
 		8982F42F1640307C0067E7DC /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8982F42E1640307C0067E7DC /* MapKit.framework */; };
 		898444D116429E4100BD9C3F /* TBXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 898444D016429E4100BD9C3F /* TBXML.m */; };
+		89852DCF164B1E140051EE86 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 89852DCE164B1E140051EE86 /* MBProgressHUD.m */; };
+		89852DD3164B280A0051EE86 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 89852DD2164B280A0051EE86 /* MainViewController.m */; };
 		89D1ECA4164336FE0058C4AA /* maptime.png in Resources */ = {isa = PBXBuildFile; fileRef = 89D1ECA3164336FE0058C4AA /* maptime.png */; };
 		89D1ECA71643371E0058C4AA /* map-time-low.png in Resources */ = {isa = PBXBuildFile; fileRef = 89D1ECA61643371E0058C4AA /* map-time-low.png */; };
 /* End PBXBuildFile section */
@@ -58,6 +60,10 @@
 		8982F42E1640307C0067E7DC /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		898444CF16429E4100BD9C3F /* TBXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TBXML.h; path = MapTime/TBXML.h; sourceTree = "<group>"; };
 		898444D016429E4100BD9C3F /* TBXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TBXML.m; path = MapTime/TBXML.m; sourceTree = "<group>"; };
+		89852DCD164B1E140051EE86 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		89852DCE164B1E140051EE86 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		89852DD1164B280A0051EE86 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
+		89852DD2164B280A0051EE86 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 		89D1ECA3164336FE0058C4AA /* maptime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = maptime.png; path = ../maptime.png; sourceTree = "<group>"; };
 		89D1ECA61643371E0058C4AA /* map-time-low.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map-time-low.png"; path = "../map-time-low.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -113,6 +119,8 @@
 				8982F418164030270067E7DC /* MapTimeAppDelegate.h */,
 				8982F419164030270067E7DC /* MapTimeAppDelegate.m */,
 				8982F421164030270067E7DC /* MainStoryboard.storyboard */,
+				89852DD1164B280A0051EE86 /* MainViewController.h */,
+				89852DD2164B280A0051EE86 /* MainViewController.m */,
 				8982F424164030270067E7DC /* MapTimeViewController.h */,
 				8982F425164030270067E7DC /* MapTimeViewController.m */,
 				894D71241642B638005580EC /* LongLatPair.h */,
@@ -132,6 +140,8 @@
 		8982F410164030270067E7DC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				89852DCD164B1E140051EE86 /* MBProgressHUD.h */,
+				89852DCE164B1E140051EE86 /* MBProgressHUD.m */,
 				89D1ECA61643371E0058C4AA /* map-time-low.png */,
 				89D1ECA3164336FE0058C4AA /* maptime.png */,
 				8982F411164030270067E7DC /* MapTime-Info.plist */,
@@ -232,6 +242,8 @@
 				89667A6E1643FC8A002AC728 /* TimeLineDownloaderDelegate.m in Sources */,
 				89667A7216440D01002AC728 /* TimePoint.m in Sources */,
 				89667A7516446F67002AC728 /* TimeLine.m in Sources */,
+				89852DCF164B1E140051EE86 /* MBProgressHUD.m in Sources */,
+				89852DD3164B280A0051EE86 /* MainViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
