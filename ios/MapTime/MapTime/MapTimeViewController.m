@@ -13,6 +13,7 @@
 #import "LongLatPair.h"
 #import "TimeLineDownloaderDelegate.h"
 #import "MapPoint.h"
+#import "MBProgressHUD.h"
 
 #define degreesToRadians( degrees ) ( ( degrees ) / 180.0 * M_PI )
 
@@ -37,7 +38,7 @@
     spinner.center = CGPointMake(160, 240);
     spinner.hidesWhenStopped = NO;
     spinner.hidden = YES;
-    
+        
     [mapView addSubview:spinner];
     
     
@@ -66,6 +67,7 @@
 
 -(void)downloadNavigationData:(NSMutableArray *)array
 {
+
     spinner.hidden = NO;
     [spinner startAnimating];
     xmlData = [[NSMutableData alloc] init];
@@ -159,22 +161,23 @@
 }
 
 -(void)plotRoute:(NSString *)pairs
-{
-    // pairs is the comma seperated value of long and lat pairs
-    NSArray *lines = [pairs componentsSeparatedByString:@"\n"];
-    for(NSString *str in lines)
-    {
-        NSArray *arr = [str componentsSeparatedByString:@","];
-        NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
-        [f setNumberStyle:NSNumberFormatterDecimalStyle];
-        NSNumber *longitude = [f numberFromString:arr[0]];
-        NSNumber *lattide = [f numberFromString:arr[1]];
-        LongLatPair *pair = [[LongLatPair alloc] initWithLon:longitude andWithLat:lattide];
+{      
+        // pairs is the comma seperated value of long and lat pairs
+        NSArray *lines = [pairs componentsSeparatedByString:@"\n"];
+        for(NSString *str in lines)
+        {
+            NSArray *arr = [str componentsSeparatedByString:@","];
+            NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
+            [f setNumberStyle:NSNumberFormatterDecimalStyle];
+            NSNumber *longitude = [f numberFromString:arr[0]];
+            NSNumber *lattide = [f numberFromString:arr[1]];
+            LongLatPair *pair = [[LongLatPair alloc] initWithLon:longitude andWithLat:lattide];
+            
+            [longLatPairs addObject:pair];
+        }
+        
+        [self drawRoute];
 
-        [longLatPairs addObject:pair];
-    }
-    
-    [self drawRoute];
 }
 
 -(void)drawRoute
@@ -243,37 +246,53 @@
      yearInBc - startYear / (abs(startYear) + abs(endYear)
      
      */
-    NSLog(@"Dropping time points");
-    NSMutableArray *timeLines = [delegate getTimeLines];
-    TimeLine *timeLine = [timeLines objectAtIndex:0];
-    NSMutableArray *timePoints = [timeLine getTimePoints];
+    
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.mode = MBProgressHUDModeAnnularDeterminate;
+    hud.labelText = @"Placing TimePoints";
+    
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        // Do something...
+        
+        NSLog(@"Dropping time points");
+        NSMutableArray *timeLines = [delegate getTimeLines];
+        TimeLine *timeLine = [timeLines objectAtIndex:0];
+        NSMutableArray *timePoints = [timeLine getTimePoints];
+        
+        NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
+        [f setNumberStyle:NSNumberFormatterDecimalStyle];
+        
+        NSNumber *firstYear = [f numberFromString:[[timePoints objectAtIndex:0] getYearInBc]];
+        NSNumber *lastYear = [f numberFromString:[[timePoints objectAtIndex:([timePoints count]-1)] getYearInBc]];
+        
+        float diff = fabsf([firstYear floatValue]) + fabsf([lastYear floatValue]);
+        
+        // We now need to work out the distance between each of our long and lat pairs, so we can work out where to place the timepoints
+        
+        int count = 0;
+        for(TimePoint *tp in timePoints) {
+            NSLog(@"%i", count);
+            NSNumber *bcYear = [f numberFromString:[tp getYearInBc]];
+            NSString *name = [tp getName];
+            float percentage = ([bcYear floatValue] - [firstYear floatValue]) / diff;
+            float distance = [[f numberFromString:distanceBetweenPoints] floatValue];
+            float distanceToDrawPoint = distance * percentage;
+            NSLog(@"%@ should be drawn %f%% from the start, which is: %f km", name, percentage, distanceToDrawPoint);
+            // [self betweenWhichPointsIs:distanceToDrawPoint withPercentage:percentage];
+            
+            // [self plotPoint:percentage withDistanceToDraw:distanceToDrawPoint];
+            [self plot:percentage distance:distanceToDrawPoint timepoint:tp];
+            count++;
+        }
 
-    NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
-    [f setNumberStyle:NSNumberFormatterDecimalStyle];
-    
-    NSNumber *firstYear = [f numberFromString:[[timePoints objectAtIndex:0] getYearInBc]];
-    NSNumber *lastYear = [f numberFromString:[[timePoints objectAtIndex:([timePoints count]-1)] getYearInBc]];
         
-    float diff = fabsf([firstYear floatValue]) + fabsf([lastYear floatValue]);
-    
-    // We now need to work out the distance between each of our long and lat pairs, so we can work out where to place the timepoints
-    
-    int count = 0; 
-    for(TimePoint *tp in timePoints) {
-        NSLog(@"%i", count);      
-        NSNumber *bcYear = [f numberFromString:[tp getYearInBc]];
-        NSString *name = [tp getName];
-        float percentage = ([bcYear floatValue] - [firstYear floatValue]) / diff;
-        float distance = [[f numberFromString:distanceBetweenPoints] floatValue];
-        float distanceToDrawPoint = distance * percentage;
-        NSLog(@"%@ should be drawn %f%% from the start, which is: %f km", name, percentage, distanceToDrawPoint);
-       // [self betweenWhichPointsIs:distanceToDrawPoint withPercentage:percentage];
         
-       // [self plotPoint:percentage withDistanceToDraw:distanceToDrawPoint];
-        [self plot:percentage distance:distanceToDrawPoint timepoint:tp];
-        count++;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [MBProgressHUD hideHUDForView:self.view animated:YES];
+        });
+    });
+    
     }
-}
 
 // which index of the cumulativeBetweenPairs does our point fall between? Hideous I know. 
 -(int)whichIndex:(float)distance
