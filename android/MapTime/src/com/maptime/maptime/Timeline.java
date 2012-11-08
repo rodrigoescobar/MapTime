@@ -20,7 +20,6 @@ public class Timeline implements Parcelable {
 
 	private ArrayList<TimePoint> timePoints = new ArrayList<TimePoint>();
 	private int lineID;
-	private int size = 0;
 	private String timelineName;
 	private int timelineNo;
 	
@@ -42,7 +41,7 @@ public class Timeline implements Parcelable {
 	}
 
 	public int size() {
-		return size;
+		return timePoints.size();
 	}
 	
 	public TimePoint getPoint(int point) {
@@ -52,7 +51,6 @@ public class Timeline implements Parcelable {
 	public Timeline (Parcel source) {
 		timePoints = new ArrayList<TimePoint>();
 		lineID = source.readInt();
-		size = source.readInt();
 		source.readList(timePoints, TimePoint.class.getClassLoader());
 	}
 	
@@ -64,7 +62,6 @@ public class Timeline implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		// TODO Auto-generated method stub
 		dest.writeInt(lineID);
-		dest.writeInt(size);
 		dest.writeList(timePoints);
 	}
 	

@@ -23,6 +23,8 @@ import com.google.android.maps.OverlayItem;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -42,21 +44,42 @@ public class MainActivity extends MapActivity {
 	private List<Overlay> mapOverlays;
 	private GeoPoint point, point2;
 	private ArrayList<OverlayItem> timePoints;
-	private Timeline curTimeline;
+	private Timeline curTimeline; 
+	public MapView mapView;
 	private ProgressDialog progressDialog;
 	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 		
         setContentView(R.layout.activity_main);
-        MapView mapView = (MapView) findViewById(R.id.mapview);
+        mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(true);
         mapOverlays = mapView.getOverlays();
 		Drawable drawable = this.getResources().getDrawable(android.R.drawable.arrow_down_float);
-		itemizedOverlay = new PointsOverlay(drawable, this);
-		itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
-		itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
+		/*if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
+			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
+			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
+				listOIs.add((ParcelableOverlayItem)p);
+			}
+			itemizedOverlay = new PointsOverlay(listOIs,
+					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayStart")),
+					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), drawable, this);
+		}
+		else {*/
+			itemizedOverlay = new PointsOverlay(drawable, this);
+			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
+			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
+		//}
 		mapOverlays.add(itemizedOverlay);
+		/*if (savedInstanceState != null && savedInstanceState.containsKey("navOverlayList")) {
+			ArrayList<ParcelableGeoPoint> listGPs = new ArrayList<ParcelableGeoPoint>();
+			for (Parcelable p: savedInstanceState.getParcelableArrayList("navOverlayList")) {
+				listGPs.add((ParcelableGeoPoint)p);
+			}
+			mapOverlays.add(new NavOverlay(listGPs, 
+					savedInstanceState.getDouble("navOverlayLength")));
+		}*/
     }    
     
 	private void timeToPlace() {
@@ -93,6 +116,7 @@ public class MainActivity extends MapActivity {
 			}
 			lengthSoFar += length;
 		}
+		mapView.postInvalidate();
 		/*work out how far down route each TimePoint should be, normalised to dist, then
 		 *work out how far each geopoint is using distanceKm(), and if TimePoints should go 
 		 *between the two geopoints, and if so, for each timepoint that should go, work out how far between, and...
@@ -135,7 +159,7 @@ public class MainActivity extends MapActivity {
 	        startActivityForResult(intent, 0);
 	        return true;
 	    case R.id.menu_startnav:
-	    	AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+	    	AlertDialog.Builder  dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Navigation Mode");
 			dialog.setMessage("Tap where you want to start your timeline");
 			dialog.show();
@@ -148,6 +172,29 @@ public class MainActivity extends MapActivity {
 	    return false;
 	}
 
+	/*@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		ArrayList<OverlayItem> loi = itemizedOverlay.getMOverLays();
+		ArrayList<ParcelableOverlayItem> ploi = new ArrayList<ParcelableOverlayItem>();
+		for (OverlayItem oi : loi) {
+			ploi.add(new ParcelableOverlayItem(oi));
+		}
+		outState.putParcelableArrayList("pointsOverlayList", ploi);
+		outState.putParcelable("pointsOverlayStart",new ParcelableGeoPoint(itemizedOverlay.getStartPoint()));
+		outState.putParcelable("pointsOverlayEnd",new ParcelableGeoPoint(itemizedOverlay.getEndPoint()));
+		if (mapOverlays.size() > 1) {
+			ArrayList<GeoPoint> lgp = ((NavOverlay)mapOverlays.get(1)).getNavGPs();
+			ArrayList<ParcelableGeoPoint> plgp = new ArrayList<ParcelableGeoPoint>();
+			for (GeoPoint gp: lgp) {
+				plgp.add(new ParcelableGeoPoint(gp));
+			}
+			outState.putParcelableArrayList("navOverlayList", plgp);
+			outState.putDouble("navOverlayLength", ((NavOverlay)mapOverlays.get(1)).getLength());
+		}
+	}*/
+	
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
@@ -186,6 +233,9 @@ public class MainActivity extends MapActivity {
 			}
 			if(curTimeline != null) {
 				timeToPlace();
+			}
+			else {
+				mapView.postInvalidate();
 			}
 			//Log.i("MAP_OVERLAYS", Integer.toString(mapOverlays.size()));
 		}
