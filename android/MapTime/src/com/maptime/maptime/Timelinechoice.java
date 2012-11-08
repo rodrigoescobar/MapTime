@@ -22,8 +22,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +34,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 
 
@@ -166,21 +169,25 @@ public class Timelinechoice extends Activity {
 	private class TimelineRetrieverTask extends AsyncTask<Void, Void, Void> {
 
 		private Context context;
+		private ProgressDialog progressDialog;
 		
 		public TimelineRetrieverTask(Context ct) {
 			context = ct;
 		}
 		
-		@Override
+		protected void onPreExecute() {
+			String progressTitle = getResources().getString(R.string.progress_loading);
+			String progressMessage = getResources().getString(R.string.progress_fetchingTimlines);
+			progressDialog = ProgressDialog.show(Timelinechoice.this, progressTitle , progressMessage);
+		}
+		
 		protected Void doInBackground(Void... params) {
-			// TODO Auto-generated method stub
 			retrieveTimelines();
 			return null;
 		}
 		
-		@Override
 		protected void onPostExecute(Void result) {
-			// TODO Auto-generated method stub
+			progressDialog.cancel();
 			String[] tlNames = new String[timelines.size()];
 	        for (int i = 0; i < timelines.size(); i++) {
 	        	tlNames[i] = timelines.get(i).getLineName();
@@ -191,7 +198,6 @@ public class Timelinechoice extends Activity {
 	        list.setOnItemClickListener(new OnItemClickListener() {
 
 	        	public void onItemClick(AdapterView arg0, View arg1, int arg2, long arg3) {
-	        		// TODO Auto-generated method stub
 	        		TextView txt=(TextView)findViewById(R.id.tlcTXT);
 	        		txt.setText(list.getItemAtPosition(arg2).toString());
 	        		timelineChoice = arg2;

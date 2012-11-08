@@ -36,6 +36,8 @@ public final class R {
         public static final int menu_refresh=0x7f040002;
         public static final int menu_startnav=0x7f040005;
         public static final int menu_timelines=0x7f040001;
+        public static final int progress_fetchingTimlines=0x7f040007;
+        public static final int progress_loading=0x7f040006;
         public static final int title_activity_main=0x7f040003;
         public static final int title_activity_timelinechoice=0x7f040004;
     }
