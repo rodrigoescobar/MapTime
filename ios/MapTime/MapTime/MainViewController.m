@@ -21,14 +21,7 @@
     timeLines = [[NSMutableArray alloc] initWithCapacity:30];
     
     NSData *data = [self downloadTimelines];
-    [self parseXML:data];
-    
-    contents = [[NSMutableArray alloc] initWithCapacity:30];
-    
-    [contents addObject:@"Hello"];
-    [contents addObject:@"Is it me"];
-    [contents addObject:@"your looking for"];
-        
+    [self parseXML:data];        
 }
 
 -(NSData *)downloadTimelines
