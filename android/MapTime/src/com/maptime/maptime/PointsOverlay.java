@@ -91,6 +91,7 @@ public class PointsOverlay extends ItemizedOverlay {
 				}
 				else if (navMode && endPoint == null){
 					endPoint = p;
+					((MainActivity)mContext).mapView.postInvalidate();
 				}
 				return super.onTap(p, map);            // We handled the tap
 			}

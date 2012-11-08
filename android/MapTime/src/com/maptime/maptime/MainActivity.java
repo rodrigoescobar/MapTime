@@ -57,6 +57,7 @@ public class MainActivity extends MapActivity {
 		itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
 		itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
 		mapOverlays.add(itemizedOverlay);
+		//savedInstanceState.
     }    
     
 	private void timeToPlace() {
@@ -93,6 +94,7 @@ public class MainActivity extends MapActivity {
 			}
 			lengthSoFar += length;
 		}
+		mapView.postInvalidate();
 		/*work out how far down route each TimePoint should be, normalised to dist, then
 		 *work out how far each geopoint is using distanceKm(), and if TimePoints should go 
 		 *between the two geopoints, and if so, for each timepoint that should go, work out how far between, and...
@@ -147,11 +149,7 @@ public class MainActivity extends MapActivity {
 	    return false;
 	}
 
-	/*@Override
-	public void onResume() {
-		super.onResume();
-		mapView.invalidate();
-	}*/
+	
 	
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -191,6 +189,9 @@ public class MainActivity extends MapActivity {
 			}
 			if(curTimeline != null) {
 				timeToPlace();
+			}
+			else {
+				mapView.postInvalidate();
 			}
 			//Log.i("MAP_OVERLAYS", Integer.toString(mapOverlays.size()));
 		}
