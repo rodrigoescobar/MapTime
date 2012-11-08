@@ -9,8 +9,14 @@
 #import "MainViewController.h"
 #import "MBProgressHUD.h"
 #import "TimeLineDownloaderDelegate.h"
+#import <CoreLocation/CoreLocation.h>
+#import <MapKit/MapKit.h>
 
 @implementation MainViewController
+
+@synthesize toField;
+@synthesize fromField;
+@synthesize testButton;
 
 -(void)viewDidLoad
 {
@@ -22,6 +28,21 @@
     
     NSData *data = [self downloadTimelines];
     [self parseXML:data];        
+}
+
+-(IBAction)testButtonClicked:(id)sender
+{
+    NSLog(@"%@", toField.text);
+    
+    CLGeocoder *geocoder  = [[CLGeocoder alloc] init];
+    [geocoder geocodeAddressString:@"SO17 3SF" completionHandler:^(NSArray *placemarks, NSError *error) {
+       
+        for(CLPlacemark *aPlacemark in placemarks) {
+            CLLocation *location = [aPlacemark location];
+            NSLog(@"Placemark found: Longitiude: %f Latitude: %f", location.coordinate.longitude, location.coordinate.latitude);
+        }
+        
+    }];
 }
 
 -(NSData *)downloadTimelines
@@ -130,6 +151,12 @@
         }
         
     } while((element = element->nextSibling));
+}
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return NO;
 }
 
 

@@ -23,8 +23,6 @@
 -(id)init{
     self = [super init];
     if(self != nil) {
-        mapView = (MKMapView *)[self.view viewWithTag:1001];
-        mapView.centerCoordinate = CLLocationCoordinate2DMake(51.944942, -0.428467);
     }
     return self;
 }
@@ -37,6 +35,8 @@
     // as soon as the view has loaded, we should download the timeline/timepoint data from the server
     [self downloadTimeLineData];
     
+    mapView = (MKMapView *)[self.view viewWithTag:1001];
+
     
     distanceBetweenLongLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     cumulativeDistanceBetweenPairs = [[NSMutableArray alloc] initWithCapacity:30]; // holds the cumulative distance between long lat pairs

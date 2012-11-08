@@ -33,16 +33,23 @@
                                     <outlet property="delegate" destination="YLa-f0-811" id="PhW-KW-0R1"/>
                                 </connections>
                             </pickerView>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xAN-qW-0zs">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Current Location" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xAN-qW-0zs">
                                 <constraints>
                                     <constraint firstAttribute="width" constant="218" id="D3p-h4-JTK"/>
                                 </constraints>
+                                <color key="textColor" red="0.0" green="0.36767651436572574" blue="0.59153778698979598" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="YLa-f0-811" id="0Gd-nf-THg"/>
+                                </connections>
                             </textField>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="EUF-bg-Hlc">
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="YLa-f0-811" id="vaE-62-c8Z"/>
+                                </connections>
                             </textField>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="From:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xKk-we-vwr">
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -54,12 +61,27 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="F7c-b9-1a8">
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="TEST!">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="testButtonClicked:" destination="YLa-f0-811" eventType="touchUpInside" id="dJf-3T-BFb"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="EUF-bg-Hlc" firstAttribute="top" secondItem="EoH-dX-T84" secondAttribute="top" constant="122" id="1oP-ab-Tko"/>
                             <constraint firstItem="EUF-bg-Hlc" firstAttribute="trailing" secondItem="xAN-qW-0zs" secondAttribute="trailing" type="default" id="4B6-3I-RxG"/>
+                            <constraint firstItem="F7c-b9-1a8" firstAttribute="leading" secondItem="EoH-dX-T84" secondAttribute="leading" constant="79" id="6RB-Wq-NBe"/>
                             <constraint firstItem="jR7-hB-u27" firstAttribute="leading" secondItem="EoH-dX-T84" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="8Z6-Z5-rrZ"/>
+                            <constraint firstAttribute="bottom" secondItem="F7c-b9-1a8" secondAttribute="bottom" constant="10" id="Giy-du-bQG"/>
                             <constraint firstAttribute="trailing" secondItem="lIT-cf-JjA" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="IRm-om-7qv"/>
                             <constraint firstItem="TOo-SW-wQf" firstAttribute="leading" secondItem="EoH-dX-T84" secondAttribute="leading" type="default" id="SrW-cB-AUX"/>
                             <constraint firstItem="jR7-hB-u27" firstAttribute="baseline" secondItem="EUF-bg-Hlc" secondAttribute="baseline" type="default" id="T8z-0c-vjb"/>
@@ -73,6 +95,11 @@
                             <constraint firstItem="lIT-cf-JjA" firstAttribute="top" secondItem="TOo-SW-wQf" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="wFN-68-2fj"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="fromField" destination="xAN-qW-0zs" id="fTw-u8-Hyx"/>
+                        <outlet property="testButton" destination="F7c-b9-1a8" id="awj-Ln-eQ2"/>
+                        <outlet property="toField" destination="EUF-bg-Hlc" id="AcF-Ed-tIY"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="r6C-J2-h3i" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -91,22 +118,13 @@
                                     <outlet property="delegate" destination="2" id="mwo-83-2iM"/>
                                 </connections>
                             </mapView>
-                            <searchBar contentMode="redraw" text="" translatesAutoresizingMaskIntoConstraints="NO" id="hcp-rc-eBV">
-                                <textInputTraits key="textInputTraits"/>
-                                <connections>
-                                    <outlet property="delegate" destination="2" id="JRZ-ZU-oHN"/>
-                                </connections>
-                            </searchBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="hcp-rc-eBV" firstAttribute="top" secondItem="3" secondAttribute="top" type="default" id="AZG-7V-fLm"/>
                             <constraint firstItem="fsP-xP-JVd" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="KiN-DS-DPw"/>
                             <constraint firstItem="fsP-xP-JVd" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="default" id="Kx2-oI-5Ki"/>
                             <constraint firstItem="fsP-xP-JVd" firstAttribute="top" secondItem="3" secondAttribute="top" type="default" id="g4H-ge-M0A"/>
                             <constraint firstItem="fsP-xP-JVd" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="kSu-8m-h92"/>
-                            <constraint firstItem="hcp-rc-eBV" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="mbd-Sq-aqN"/>
-                            <constraint firstItem="hcp-rc-eBV" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="zM8-zn-TcJ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="8pu-sG-UBT"/>
@@ -126,7 +144,6 @@
                 <searchDisplayController id="kaa-KM-otW">
                     <connections>
                         <outlet property="delegate" destination="2" id="eRE-os-i7H"/>
-                        <outlet property="searchBar" destination="hcp-rc-eBV" id="vxl-KV-MLu"/>
                         <outlet property="searchContentsController" destination="2" id="jDr-z9-BXf"/>
                         <outlet property="searchResultsDataSource" destination="2" id="ug4-WP-oLS"/>
                         <outlet property="searchResultsDelegate" destination="2" id="rzb-4Y-I8h"/>
@@ -139,6 +156,12 @@
     <classes>
         <class className="MainViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/MainViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="testButtonClicked:"/>
+                <relationship kind="outlet" name="fromField" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="testButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="toField" candidateClass="UITextField"/>
+            </relationships>
         </class>
         <class className="MapTimeViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/MapTimeViewController.h"/>
