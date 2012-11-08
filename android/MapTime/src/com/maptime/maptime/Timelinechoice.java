@@ -38,7 +38,7 @@ import android.support.v4.app.NavUtils;
 public class Timelinechoice extends Activity {
 
 	public final static String GEOPOINTS = "com.maptime.maptime.GEOPOINTS";
-	private final static String APIURL = "http://jakob-aungiers.com/misc/example.xml";
+	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
 	private int timelineChoice = -1;
 	
@@ -63,7 +63,9 @@ public class Timelinechoice extends Activity {
     private void retrieveTimelines() {
     	try {
 			readXML();
-		} catch (Exception e) {}		
+		} catch (Exception e) {
+			System.err.println("ERROR: Something went wrong reading XML");
+		}		
 	}
     
     /*
