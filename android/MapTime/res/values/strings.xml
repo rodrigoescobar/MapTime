@@ -10,5 +10,7 @@
     <string name="progress_fetchingTimlines">Fetching Timelines...</string>
     <string name="error_title">Error</string>
     <string name="error_readXML">Could not contact the MapTime API server!</string>
+    <string name="progress_calculating">Calculating</string>
+    <string name="progress_calculatingRoute">Calculating Route...</string>
 
 </resources>
