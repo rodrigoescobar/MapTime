@@ -95,6 +95,7 @@
                             <constraint firstItem="lIT-cf-JjA" firstAttribute="top" secondItem="TOo-SW-wQf" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="wFN-68-2fj"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="haq-fJ-awO"/>
                     <connections>
                         <outlet property="fromField" destination="xAN-qW-0zs" id="fTw-u8-Hyx"/>
                         <outlet property="testButton" destination="F7c-b9-1a8" id="awj-Ln-eQ2"/>
@@ -103,7 +104,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="r6C-J2-h3i" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-37" y="-16"/>
+            <point key="canvasLocation" x="489" y="-16"/>
         </scene>
         <!--Map Time View Controller-->
         <scene sceneID="5">
@@ -150,7 +151,7 @@
                     </connections>
                 </searchDisplayController>
             </objects>
-            <point key="canvasLocation" x="393" y="-16"/>
+            <point key="canvasLocation" x="919" y="-16"/>
         </scene>
     </scenes>
     <classes>
