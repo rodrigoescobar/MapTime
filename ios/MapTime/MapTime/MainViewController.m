@@ -35,11 +35,20 @@
     NSLog(@"%@", toField.text);
     
     CLGeocoder *geocoder  = [[CLGeocoder alloc] init];
-    [geocoder geocodeAddressString:@"SO17 3SF" completionHandler:^(NSArray *placemarks, NSError *error) {
+    [geocoder geocodeAddressString:toField.text completionHandler:^(NSArray *placemarks, NSError *error) {
        
         for(CLPlacemark *aPlacemark in placemarks) {
             CLLocation *location = [aPlacemark location];
-            NSLog(@"Placemark found: Longitiude: %f Latitude: %f", location.coordinate.longitude, location.coordinate.latitude);
+            NSLog(@"To Location: Longitiude: %f Latitude: %f", location.coordinate.longitude, location.coordinate.latitude);
+        }
+        
+    }];
+    
+    [geocoder geocodeAddressString:fromField.text completionHandler:^(NSArray *placemarks, NSError *error) {
+       
+        for(CLPlacemark *aPlacemark in placemarks) {
+            CLLocation *location = [aPlacemark location];
+            NSLog(@"From Location: Longitude: %f Latitude: %f", location.coordinate.longitude, location.coordinate.latitude);
         }
         
     }];

@@ -22,7 +22,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <segue destination="2" kind="modal" id="Ej1-6b-tcF"/>
+                                    <segue destination="2" kind="modal" identifier="MoveToMap" id="Ej1-6b-tcF"/>
                                 </connections>
                             </button>
                             <pickerView tag="2000" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TOo-SW-wQf">
