@@ -16,7 +16,6 @@
     NSMutableArray *coordinates;
     MKMapView *mapView;
     NSMutableArray *longLatPairs;
-    MKMapPoint *points;
     int numberOfPoints;
     NSMutableData *xmlData;
     UIActivityIndicatorView *spinner;
