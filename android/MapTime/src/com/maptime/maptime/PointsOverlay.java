@@ -1,6 +1,7 @@
 package com.maptime.maptime;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -28,6 +29,18 @@ public class PointsOverlay extends ItemizedOverlay {
 		mContext = context;
 	}
 	
+	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context) {
+		super(boundCenterBottom(defaultMarker));
+		mContext = context;
+		ArrayList<OverlayItem> newOIs = new ArrayList<OverlayItem>();
+		for (ParcelableOverlayItem poi:ois) {
+			newOIs.add(new OverlayItem(poi.getPoint(), poi.getTitle(), poi.getSnippet()));
+		}
+		mOverlays = newOIs;
+		startPoint = new GeoPoint(start.getLatitudeE6(), start.getLongitudeE6());
+		endPoint = new GeoPoint(end.getLatitudeE6(), end.getLongitudeE6());
+	}
+	
 	public void addOverlay(OverlayItem overlay) {
 		mOverlays.add(overlay);
 		populate();
@@ -53,6 +66,10 @@ public class PointsOverlay extends ItemizedOverlay {
 		return this.mOverlays.get(i);
 	}
 	
+	public ArrayList<OverlayItem> getMOverLays() {
+		return mOverlays;
+	}
+	
 	@Override
 	public int size() {
 		return mOverlays.size();
@@ -70,14 +87,9 @@ public class PointsOverlay extends ItemizedOverlay {
 
 	@Override
 	public boolean onTap(GeoPoint p, MapView map){
-		
-		if ( isPinch ) {
-			
+		if (isPinch) {
 			return false;
-		} 
-		
-		else {
-			
+		} else {
 			Log.i(TAG,"TAP!"); //TODO: Debug code, not needed
 			if ( p!=null ) {
 				
@@ -88,16 +100,13 @@ public class PointsOverlay extends ItemizedOverlay {
 					dialog.setTitle("Navigation Mode");
 					dialog.setMessage("Now tap the endPoint of your route");
 					dialog.show();
-				}
-				else if (navMode && endPoint == null){
+				} else if (navMode && endPoint == null) {
 					endPoint = p;
+					((MainActivity)mContext).mapView.postInvalidate();
 				}
-				return super.onTap(p, map);            // We handled the tap
-			}
-			
-			else {
-				
-				return false;           // Null GeoPoint
+				return super.onTap(p, map); // We handled the tap
+			} else {			
+				return false; // Null GeoPoint
 			}
 			
 		}
@@ -122,7 +131,6 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	public void setNavMode(boolean b) {
-		
 		navMode = b;
 	}
 	

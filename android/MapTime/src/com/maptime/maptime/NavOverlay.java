@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,15 +20,17 @@ import com.google.android.maps.Projection;
 
 public class NavOverlay extends Overlay {
 
-    private GeoPoint gp1;
-    private GeoPoint gp2;
     private ArrayList<GeoPoint> navGPs;
     private ArrayList<Point> navPoints;
     private double length;
 
+    /**
+     * 
+     * @param gp1 Start of Route
+     * @param gp2 End of Route
+     */
+    
     public NavOverlay(GeoPoint gp1, GeoPoint gp2) {
-        this.gp1 = gp1;
-        this.gp2 = gp2;
         navGPs = new ArrayList<GeoPoint>();
         navPoints = new ArrayList<Point>();
         navGPs.add(gp1);
@@ -63,6 +66,16 @@ public class NavOverlay extends Overlay {
         navGPs.add(gp2);
     }
 
+    public NavOverlay(ArrayList<ParcelableGeoPoint> gps, double routeLength) {
+    	navPoints = new ArrayList<Point>();
+    	ArrayList<GeoPoint> geopoints = new ArrayList<GeoPoint>();
+    	for (ParcelableGeoPoint pgp : gps) {
+    		geopoints.add(new GeoPoint(pgp.getLatitudeE6(), pgp.getLongitudeE6()));
+    	}
+    	navGPs = geopoints;
+    	length = routeLength;
+    }
+    
     private URL makeURL (GeoPoint g1, GeoPoint g2) throws MalformedURLException { //using YOURS example server for navigation for now
     	
     	return new URL("http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat="+

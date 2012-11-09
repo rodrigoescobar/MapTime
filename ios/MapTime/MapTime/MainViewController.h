@@ -17,6 +17,10 @@
     NSMutableArray *timeLines;
     TimeLineDownloaderDelegate *delegate;
 }
+@property (strong, nonatomic) IBOutlet UITextField *fromField;
+@property (strong, nonatomic) IBOutlet UITextField *toField;
+@property (strong, nonatomic) IBOutlet UIButton *testButton;
 
+-(IBAction)testButtonClicked:(id)sender;
 
 @end

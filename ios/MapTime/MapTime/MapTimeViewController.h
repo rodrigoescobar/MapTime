@@ -10,6 +10,7 @@
 #import <MapKit/MapKit.h>
 #import "TimeLineDownloaderDelegate.h"
 #import "LongLatPair.h"
+#import <CoreLocation/CoreLocation.h>
 
 @interface MapTimeViewController : UIViewController
 {
@@ -24,6 +25,9 @@
     NSMutableArray *distanceBetweenLongLatPairs;
     NSMutableArray *cumulativeDistanceBetweenPairs;
 }
+
+@property (nonatomic, strong) LongLatPair *fromLocation;
+@property (nonatomic, strong) LongLatPair *toLocation;
 
 -(void)downloadNavigationData:(NSMutableArray *)array;
 
