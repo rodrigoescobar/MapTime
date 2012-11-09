@@ -23,6 +23,7 @@ import com.google.android.maps.OverlayItem;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.StrictMode;
@@ -46,7 +47,6 @@ public class MainActivity extends MapActivity {
 	private ArrayList<OverlayItem> timePoints;
 	private Timeline curTimeline; 
 	public MapView mapView;
-	private ProgressDialog progressDialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -159,14 +159,12 @@ public class MainActivity extends MapActivity {
 	        startActivityForResult(intent, 0);
 	        return true;
 	    case R.id.menu_startnav:
-	    	AlertDialog.Builder  dialog = new AlertDialog.Builder(this);
+	    	AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Navigation Mode");
 			dialog.setMessage("Tap where you want to start your timeline");
 			dialog.show();
-	    	Thread nst = new Thread(new NavStartThread());
+	    	Thread nst = new Thread(new NavStartThread(this));
 			nst.start();
-	    	//TODO: Add progress bar here (?)
-			//progressDialog = ProgressDialog.show(MainActivity.this, "Loading" , "Calculating Route...");
 	    	return true;
 	    }
 	    return false;
@@ -199,8 +197,18 @@ public class MainActivity extends MapActivity {
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
+
+	public void test() {
+		
+	}
 	
 	private class NavStartThread implements Runnable {
+		public MainActivity ma;
+		public ProgressDialog progressDialog;
+		
+		public NavStartThread(MainActivity m) {
+			ma = m;
+		}
 		
 		public void run() {
 			itemizedOverlay.clearPoints();
@@ -220,8 +228,11 @@ public class MainActivity extends MapActivity {
 				}
 			}
 			itemizedOverlay.setNavMode(false);
+			
+			waitHandler.sendEmptyMessage(0); //Start the pop-up progress bar
+			
 			point = itemizedOverlay.getStartPoint();
-			point2 = itemizedOverlay.getEndPoint();
+			point2 = itemizedOverlay.getEndPoint();			
 			itemizedOverlay.setStartPointOverlay(new OverlayItem(point, "Start", "Start of TimeLine"));
 			itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
 			//TODO: An asynctask which does the following since we can't network on main thread
@@ -237,8 +248,27 @@ public class MainActivity extends MapActivity {
 			else {
 				mapView.postInvalidate();
 			}
+			
+			waitHandler.sendEmptyMessage(1); //Dismiss the pop-up progress bar
+			
 			//Log.i("MAP_OVERLAYS", Integer.toString(mapOverlays.size()));
 		}
+		
+		/*
+		 * Handler to display a progress pop-up while the route is being calculated
+		 */
+		private Handler waitHandler = new Handler() {
+            public void handleMessage(Message msg) {
+            	if(msg.what == 0) {
+            		String progressTitle = getString(R.string.progress_calculating);
+        			String progressMessage = getString(R.string.progress_calculatingRoute);
+            		progressDialog = ProgressDialog.show(ma, progressTitle, progressMessage);
+            	}
+            	if(msg.what == 1) {
+            		progressDialog.dismiss();
+            	}
+            }
+		};
 		
 	}
 }

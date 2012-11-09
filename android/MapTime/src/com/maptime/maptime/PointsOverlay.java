@@ -87,14 +87,9 @@ public class PointsOverlay extends ItemizedOverlay {
 
 	@Override
 	public boolean onTap(GeoPoint p, MapView map){
-		
-		if ( isPinch ) {
-			
+		if (isPinch) {
 			return false;
-		} 
-		
-		else {
-			
+		} else {
 			Log.i(TAG,"TAP!"); //TODO: Debug code, not needed
 			if ( p!=null ) {
 				
@@ -105,17 +100,13 @@ public class PointsOverlay extends ItemizedOverlay {
 					dialog.setTitle("Navigation Mode");
 					dialog.setMessage("Now tap the endPoint of your route");
 					dialog.show();
-				}
-				else if (navMode && endPoint == null){
+				} else if (navMode && endPoint == null) {
 					endPoint = p;
 					((MainActivity)mContext).mapView.postInvalidate();
 				}
-				return super.onTap(p, map);            // We handled the tap
-			}
-			
-			else {
-				
-				return false;           // Null GeoPoint
+				return super.onTap(p, map); // We handled the tap
+			} else {			
+				return false; // Null GeoPoint
 			}
 			
 		}
@@ -140,7 +131,6 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	public void setNavMode(boolean b) {
-		
 		navMode = b;
 	}
 	

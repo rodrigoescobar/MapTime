@@ -184,8 +184,8 @@ public class Timelinechoice extends Activity {
 		}
 		
 		protected void onPreExecute() {
-			String progressTitle = getResources().getString(R.string.progress_loading);
-			String progressMessage = getResources().getString(R.string.progress_fetchingTimlines);
+			String progressTitle = getString(R.string.progress_loading);
+			String progressMessage = getString(R.string.progress_fetchingTimlines);
 			progressDialog = ProgressDialog.show(context, progressTitle , progressMessage);
 		}
 		
@@ -195,7 +195,7 @@ public class Timelinechoice extends Activity {
 		}
 		
 		protected void onPostExecute(Void result) {
-			progressDialog.cancel();
+			progressDialog.dismiss();
 			String[] tlNames = new String[timelines.size()];
 	        for (int i = 0; i < timelines.size(); i++) {
 	        	tlNames[i] = timelines.get(i).getLineName();
