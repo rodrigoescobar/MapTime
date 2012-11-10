@@ -170,7 +170,7 @@ public class MainActivity extends MapActivity {
 	    return false;
 	}
 
-	/*@Override
+	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
@@ -180,9 +180,11 @@ public class MainActivity extends MapActivity {
 			ploi.add(new ParcelableOverlayItem(oi));
 		}
 		outState.putParcelableArrayList("pointsOverlayList", ploi);
-		outState.putParcelable("pointsOverlayStart",new ParcelableGeoPoint(itemizedOverlay.getStartPoint()));
-		outState.putParcelable("pointsOverlayEnd",new ParcelableGeoPoint(itemizedOverlay.getEndPoint()));
-		if (mapOverlays.size() > 1) {
+		if(itemizedOverlay.getStartPoint() != null) {
+			outState.putParcelable("pointsOverlayStart",new ParcelableGeoPoint(itemizedOverlay.getStartPoint()));
+			outState.putParcelable("pointsOverlayEnd",new ParcelableGeoPoint(itemizedOverlay.getEndPoint()));
+		}
+		if (mapOverlays.size() > 1 && ((NavOverlay)mapOverlays.get(1)).isCreated()) { //NOTE! the second check is basically a race condition!)
 			ArrayList<GeoPoint> lgp = ((NavOverlay)mapOverlays.get(1)).getNavGPs();
 			ArrayList<ParcelableGeoPoint> plgp = new ArrayList<ParcelableGeoPoint>();
 			for (GeoPoint gp: lgp) {
@@ -191,7 +193,7 @@ public class MainActivity extends MapActivity {
 			outState.putParcelableArrayList("navOverlayList", plgp);
 			outState.putDouble("navOverlayLength", ((NavOverlay)mapOverlays.get(1)).getLength());
 		}
-	}*/
+	}
 	
 	@Override
 	protected boolean isRouteDisplayed() {

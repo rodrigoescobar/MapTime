@@ -23,6 +23,7 @@ public class NavOverlay extends Overlay {
     private ArrayList<GeoPoint> navGPs;
     private ArrayList<Point> navPoints;
     private double length;
+    private boolean isFullyCreated = false;
 
     /**
      * 
@@ -64,6 +65,7 @@ public class NavOverlay extends Overlay {
         } catch (IOException e) {
 		}
         navGPs.add(gp2);
+        isFullyCreated = true;
     }
 
     public NavOverlay(ArrayList<ParcelableGeoPoint> gps, double routeLength) {
@@ -74,6 +76,7 @@ public class NavOverlay extends Overlay {
     	}
     	navGPs = geopoints;
     	length = routeLength;
+    	isFullyCreated = true;
     }
     
     private URL makeURL (GeoPoint g1, GeoPoint g2) throws MalformedURLException { //using YOURS example server for navigation for now
@@ -119,6 +122,10 @@ public class NavOverlay extends Overlay {
     public double getLength() {
 		return length;
 	}
+    
+    public boolean isCreated() {
+    	return isFullyCreated;
+    }
     
     public ArrayList<GeoPoint> getNavGPs() {
 		return navGPs;
