@@ -21,7 +21,7 @@ import com.google.android.maps.Projection;
 public class NavOverlay extends Overlay {
 
     private ArrayList<GeoPoint> navGPs;
-    private ArrayList<Point> navPoints;
+    private ArrayList<Point> navPoints = new ArrayList<Point>();;
     private double length;
     private boolean isFullyCreated = false;
 
@@ -33,7 +33,6 @@ public class NavOverlay extends Overlay {
     
     public NavOverlay(GeoPoint gp1, GeoPoint gp2) {
         navGPs = new ArrayList<GeoPoint>();
-        navPoints = new ArrayList<Point>();
         navGPs.add(gp1);
         try {
         	URL url = makeURL(gp1,gp2);
@@ -69,7 +68,6 @@ public class NavOverlay extends Overlay {
     }
 
     public NavOverlay(ArrayList<ParcelableGeoPoint> gps, double routeLength) {
-    	navPoints = new ArrayList<Point>();
     	ArrayList<GeoPoint> geopoints = new ArrayList<GeoPoint>();
     	for (ParcelableGeoPoint pgp : gps) {
     		geopoints.add(new GeoPoint(pgp.getLatitudeE6(), pgp.getLongitudeE6()));

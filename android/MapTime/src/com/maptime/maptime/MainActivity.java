@@ -57,7 +57,7 @@ public class MainActivity extends MapActivity {
         mapView.setBuiltInZoomControls(true);
         mapOverlays = mapView.getOverlays();
 		Drawable drawable = this.getResources().getDrawable(android.R.drawable.arrow_down_float);
-		/*if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
+		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
 			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
 				listOIs.add((ParcelableOverlayItem)p);
@@ -66,20 +66,20 @@ public class MainActivity extends MapActivity {
 					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayStart")),
 					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), drawable, this);
 		}
-		else {*/
+		else {
 			itemizedOverlay = new PointsOverlay(drawable, this);
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
-		//}
+		}
 		mapOverlays.add(itemizedOverlay);
-		/*if (savedInstanceState != null && savedInstanceState.containsKey("navOverlayList")) {
+		if (savedInstanceState != null && savedInstanceState.containsKey("navOverlayList")) {
 			ArrayList<ParcelableGeoPoint> listGPs = new ArrayList<ParcelableGeoPoint>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("navOverlayList")) {
 				listGPs.add((ParcelableGeoPoint)p);
 			}
 			mapOverlays.add(new NavOverlay(listGPs, 
 					savedInstanceState.getDouble("navOverlayLength")));
-		}*/
+		}
     }    
     
 	private void timeToPlace() {

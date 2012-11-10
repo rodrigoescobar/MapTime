@@ -37,8 +37,11 @@ public class PointsOverlay extends ItemizedOverlay {
 			newOIs.add(new OverlayItem(poi.getPoint(), poi.getTitle(), poi.getSnippet()));
 		}
 		mOverlays = newOIs;
-		startPoint = new GeoPoint(start.getLatitudeE6(), start.getLongitudeE6());
-		endPoint = new GeoPoint(end.getLatitudeE6(), end.getLongitudeE6());
+		if (start != null) {
+			startPoint = new GeoPoint(start.getLatitudeE6(), start.getLongitudeE6());
+			endPoint = new GeoPoint(end.getLatitudeE6(), end.getLongitudeE6());
+		}
+		populate();
 	}
 	
 	public void addOverlay(OverlayItem overlay) {
