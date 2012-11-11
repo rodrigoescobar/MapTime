@@ -2,7 +2,7 @@
 //  MapTimeViewController.m
 //  MapTime
 //
-//  Created by Nicholas Angeli on 30/10/2012.
+//  Created by Nicholas Angeli & Rodrigo Escobar on 30/10/2012.
 //  Copyright (c) 2012 MapTime. All rights reserved.
 //
 
@@ -20,24 +20,22 @@
 
 @implementation MapTimeViewController
 
--(id)init{
-    self = [super init];
-    if(self != nil) {
-    }
-    return self;
-}
+@synthesize fromLocation;
+@synthesize toLocation;
+
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    
+
+    mapView = (MKMapView *)[self.view viewWithTag:1001];
+    [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
+
     // as soon as the view has loaded, we should download the timeline/timepoint data from the server
     [self downloadTimeLineData];
     
-    mapView = (MKMapView *)[self.view viewWithTag:1001];
 
-    
     distanceBetweenLongLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     cumulativeDistanceBetweenPairs = [[NSMutableArray alloc] initWithCapacity:30]; // holds the cumulative distance between long lat pairs
     
@@ -49,23 +47,42 @@
         
     [mapView addSubview:spinner];
     
-    
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
-    coordinates = [[NSMutableArray alloc]init];
     
-    [coordinates addObject: [NSNumber numberWithDouble:0.5000]];
-    [coordinates addObject: [NSNumber numberWithDouble:3.0050]];
-    [coordinates addObject: [NSNumber numberWithDouble:4.0040]];
-    [coordinates addObject: [NSNumber numberWithDouble:5.0040]];
-    
-    points = malloc(sizeof(CLLocationCoordinate2D)*2);
+    coordinates = [[NSMutableArray alloc] initWithCapacity:4];
+
     numberOfPoints = 0;
 
-    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
-                                          initWithTarget:self action:@selector(handleGesture:)];
-    lpgr.minimumPressDuration = 1.0;  //user must press for half second
-    [mapView addGestureRecognizer:lpgr];
-                    
+    UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleGesture:)];
+    longPressGestureRecognizer.minimumPressDuration = 0.8;
+    [mapView addGestureRecognizer:longPressGestureRecognizer];
+    
+    if(![fromLocation isEqualToString:@""] && ![toLocation isEqualToString:@""]) {
+        [self forwardGeocode];
+    }
+    
+}
+
+-(void)forwardGeocode
+{
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init]; // creates a geocoder object
+    
+    __block NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:4]; // stores the longlat of start and end, needs the __block modifier as is used in below blocks
+    
+    [geocoder geocodeAddressString:fromLocation completionHandler:^(NSArray *placemarks, NSError *error) { // forward geocode the address from the from field
+        CLLocation *location = [placemarks[0] location];
+        [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+        [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+        
+        [geocoder geocodeAddressString:toLocation completionHandler:^(NSArray *placemarks, NSError *error) { // once from location has finished, perform forward geocode on address in toField
+            CLLocation *location = [placemarks[0] location];
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]];
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]];
+            
+            [self downloadNavigationData:points]; // once all geocoding has complete, download all the data and kick it all off
+        }];
+        
+    }];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -80,10 +97,11 @@
     [spinner startAnimating];
     xmlData = [[NSMutableData alloc] init];
     
-    NSString *point1 =[[array objectAtIndex:0] stringValue];
-    NSString *point2 =[[array objectAtIndex:1] stringValue];
-    NSString *point3 =[[array objectAtIndex:2] stringValue];
-    NSString *point4 =[[array objectAtIndex:3] stringValue];
+    NSString *point1 =[array objectAtIndex:0];
+    NSString *point2 =[array objectAtIndex:1];
+    NSString *point3 =[array objectAtIndex:2];
+    NSString *point4 =[array objectAtIndex:3];
+
     NSString *urlString = [[NSString alloc] initWithFormat:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=%@&flon=%@&tlat=%@&tlon=%@&v=motorcar&fast=1&layer=mapnik" , point1, point2, point3, point4];
     NSURL *url = [NSURL URLWithString:urlString];
     
@@ -104,7 +122,6 @@
 - (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer
 {
     
-    NSLog(@"I'm in the gesture recogniser");
     if (gestureRecognizer.state != UIGestureRecognizerStateEnded)
         return;
     
@@ -112,43 +129,35 @@
     CLLocationCoordinate2D touchMapCoordinate =
     [mapView convertPoint:touchPoint toCoordinateFromView:mapView];
     
-    MKPointAnnotation *pa = [[MKPointAnnotation alloc] init];
-    pa.coordinate = touchMapCoordinate;
-    pa.title = [[NSString alloc] initWithFormat:@"%f, %f", pa.coordinate.latitude, pa.coordinate.longitude];
+    MKPointAnnotation *pointAnnotation = [[MKPointAnnotation alloc] init];
+    pointAnnotation.coordinate = touchMapCoordinate;
+    pointAnnotation.title = [[NSString alloc] initWithFormat:@"%f, %f", pointAnnotation.coordinate.latitude, pointAnnotation.coordinate.longitude];
     
     if (numberOfPoints == 2){
         [mapView removeAnnotations:mapView.annotations];
-        [longLatPairs removeAllObjects];
         [mapView removeOverlays: mapView.overlays];
+        [longLatPairs removeAllObjects];
+        [cumulativeDistanceBetweenPairs removeAllObjects];
+        [distanceBetweenLongLatPairs removeAllObjects];
+        [coordinates removeAllObjects];
         numberOfPoints = 0;
     }
     if (numberOfPoints == 0) {
-        [mapView addAnnotation:pa];
-        [coordinates replaceObjectAtIndex: 0  withObject: [NSNumber numberWithDouble:pa.coordinate.latitude]];
-        [coordinates replaceObjectAtIndex: 1  withObject: [NSNumber numberWithDouble:pa.coordinate.longitude]];
-        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(pa.coordinate.latitude, pa.coordinate.longitude);
-        MKMapPoint point = MKMapPointForCoordinate(coord);
-        points[0] = point;
+        [mapView addAnnotation:pointAnnotation];
+        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
+        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
         numberOfPoints++;
 
     } else {
-        [mapView addAnnotation:pa];
-        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(pa.coordinate.latitude, pa.coordinate.longitude);
-        [coordinates replaceObjectAtIndex: 2  withObject: [NSNumber numberWithDouble:pa.coordinate.latitude]];
-         [coordinates replaceObjectAtIndex: 3  withObject: [NSNumber numberWithDouble:pa.coordinate.longitude]];
-        MKMapPoint point = MKMapPointForCoordinate(coord);
-        points[1] = point;
+        [mapView addAnnotation:pointAnnotation];
+        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
+        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
         numberOfPoints++;
-        // Kick of the download of the data here!
-
         [self downloadNavigationData:coordinates];
-
     }
 }
 
-
-
-
+		
 -(NSString *)parseXML:(NSData *)xml
 {
     NSError *error;
@@ -190,43 +199,32 @@
 
 -(void)drawRoute
 {
-    
     int count = longLatPairs.count;
-    int index = 0;
+    MKMapPoint *points = malloc(sizeof(CLLocationCoordinate2D)*count);
     for(int i = 0; i < count; i++)
     {
-        
-        index = i;
-        index++;
-        if(index < count) {
-
-            LongLatPair *first = [longLatPairs objectAtIndex:i];
-            LongLatPair *second = [longLatPairs objectAtIndex:index];
-            
-            NSNumber *distanceBetween = [[NSNumber alloc] initWithFloat:[self distanceBetween:first and:second]];
-            [distanceBetweenLongLatPairs addObject:distanceBetween];
-                    
-            CLLocationCoordinate2D co1 = CLLocationCoordinate2DMake([[first getLatitude] doubleValue], [[first getLongitude] doubleValue]);
-            CLLocationCoordinate2D co2 = CLLocationCoordinate2DMake([[second getLatitude] doubleValue], [[second getLongitude] doubleValue]);
-            
-            MKMapPoint point1 = MKMapPointForCoordinate(co1);
-            MKMapPoint point2 = MKMapPointForCoordinate(co2);
-            
-            MKMapPoint *pts = malloc(sizeof(CLLocationCoordinate2D)*2);
-            pts[0] = point1;
-            pts[1] = point2;
-            
-            MKPolyline *line = [MKPolyline polylineWithPoints:pts count:2];
-            [mapView addOverlay:line];
-        }
-        
+        LongLatPair *pair = [longLatPairs objectAtIndex:i];
+        [self calculateDistanceInBetween:i:count];
+        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake([[pair getLatitude] doubleValue], [[pair getLongitude] doubleValue]);
+        MKMapPoint point = MKMapPointForCoordinate(coor);
+        points[i] = point;        
     }
     
     // The Route Has Been Plotted and the timepoints should be added here
-    
-    
+    MKPolyline *line = [MKPolyline polylineWithPoints:points count:count];
+    [mapView addOverlay:line];
     [self populateCumulativeTotal];
     [self dropTimePoints];
+}
+
+- (void)calculateDistanceInBetween:(int) index:(int)count
+{
+    if(index < count-1) {
+        LongLatPair *current = [longLatPairs objectAtIndex:index];
+        LongLatPair *next = [longLatPairs objectAtIndex:index+1];
+        NSNumber *distanceBetween = [[NSNumber alloc] initWithFloat:[self distanceBetween:current and:next]];
+        [distanceBetweenLongLatPairs addObject:distanceBetween];
+    }
 }
 
 -(void)populateCumulativeTotal
@@ -236,12 +234,11 @@
         if(count == 0) {
             [cumulativeDistanceBetweenPairs addObject:[distanceBetweenLongLatPairs objectAtIndex:0]];
         } else {
-            float cum = [[cumulativeDistanceBetweenPairs objectAtIndex:i-1] floatValue] + [[distanceBetweenLongLatPairs objectAtIndex:i] floatValue];
-            [cumulativeDistanceBetweenPairs addObject:[[NSNumber alloc] initWithFloat:cum]];
+            float cumulativeDistance = [[cumulativeDistanceBetweenPairs objectAtIndex:i-1] floatValue] + [[distanceBetweenLongLatPairs objectAtIndex:i] floatValue];
+            [cumulativeDistanceBetweenPairs addObject:[[NSNumber alloc] initWithFloat:cumulativeDistance]];
         }
         count++;
     }
-    
 }
 
 -(void)dropTimePoints
@@ -262,7 +259,7 @@
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Do something...
         
-        NSLog(@"Dropping time points");
+       // NSLog(@"Dropping time points");
         NSMutableArray *timeLines = [delegate getTimeLines];
         TimeLine *timeLine = [timeLines objectAtIndex:0];
         NSMutableArray *timePoints = [timeLine getTimePoints];
@@ -279,13 +276,12 @@
         
         int count = 0;
         for(TimePoint *tp in timePoints) {
-            NSLog(@"%i", count);
+           // NSLog(@"%i", count);
             NSNumber *bcYear = [f numberFromString:[tp getYearInBc]];
-            NSString *name = [tp getName];
             float percentage = ([bcYear floatValue] - [firstYear floatValue]) / diff;
             float distance = [[f numberFromString:distanceBetweenPoints] floatValue];
             float distanceToDrawPoint = distance * percentage;
-            NSLog(@"%@ should be drawn %f%% from the start, which is: %f km", name, percentage, distanceToDrawPoint);
+           //NSLog(@"%@ should be drawn %f%% from the start, which is: %f km", name, percentage, distanceToDrawPoint);
             // [self betweenWhichPointsIs:distanceToDrawPoint withPercentage:percentage];
             
             // [self plotPoint:percentage withDistanceToDraw:distanceToDrawPoint];
@@ -300,7 +296,7 @@
         });
     });
     
-    }
+}
 
 // which index of the cumulativeBetweenPairs does our point fall between? Hideous I know. 
 -(int)whichIndex:(float)distance
@@ -313,6 +309,8 @@
     return cumulativeDistanceBetweenPairs.count;
 }
 
+
+
 -(void)plot:(float)percentage distance:(float)distance timepoint:(TimePoint *)tp
 {
     NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
@@ -322,7 +320,7 @@
     
     int index = [self whichIndex:distance];
 
-    NSLog(@"INDEX IS: %i", index);
+   // NSLog(@"INDEX IS: %i", index);
 
     if(index == -1) {
         index = 1;

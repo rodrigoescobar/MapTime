@@ -12,12 +12,11 @@
 #import "LongLatPair.h"
 #import <CoreLocation/CoreLocation.h>
 
-@interface MapTimeViewController : UIViewController
+@interface MapTimeViewController : UIViewController <NSURLConnectionDelegate>
 {
     NSMutableArray *coordinates;
     MKMapView *mapView;
     NSMutableArray *longLatPairs;
-    MKMapPoint *points;
     int numberOfPoints;
     NSMutableData *xmlData;
     UIActivityIndicatorView *spinner;
@@ -27,12 +26,20 @@
     NSMutableArray *cumulativeDistanceBetweenPairs;
 }
 
-@property (nonatomic, strong) LongLatPair *fromLocation;
-@property (nonatomic, strong) LongLatPair *toLocation;
+@property (nonatomic, strong) NSString *fromLocation;
+@property (nonatomic, strong) NSString *toLocation;
+
+- (void)viewDidLoad;
+
+-(void)forwardGeocode;
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
 
 -(void)downloadNavigationData:(NSMutableArray *)array;
 
 -(void)downloadTimeLineData;
+
+- (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer;
 
 -(NSString *)parseXML:(NSData *)xml;
 
@@ -40,25 +47,27 @@
 
 -(void)drawRoute;
 
-- (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer;
+- (void)calculateDistanceInBetween:(int) index:(int)count;
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
+-(void)populateCumulativeTotal;
+
+-(void)dropTimePoints;
+
+-(int)whichIndex:(float)distance;
+
+-(void)plot:(float)percentage distance:(float)distance timepoint:(TimePoint *)tp;
+
+-(float)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2;
+
+- (void)didReceiveMemoryWarning;
 
 -(MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id)overlay;
 
 -(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response;
-
 -(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data;
-
 -(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
-
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection;
 
--(void)dropTimePoints;
-
--(float)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2;
-
--(NSArray *)betweenWhichPointsIs:(float)distanceToDraw withPercentage:(float)percentage;
 
 
 @end

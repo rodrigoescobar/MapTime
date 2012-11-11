@@ -19,8 +19,25 @@
 }
 @property (strong, nonatomic) IBOutlet UITextField *fromField;
 @property (strong, nonatomic) IBOutlet UITextField *toField;
-@property (strong, nonatomic) IBOutlet UIButton *testButton;
+ 
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender;
 
--(IBAction)testButtonClicked:(id)sender;
+-(BOOL)textFieldShouldReturn:(UITextField *)textField;
+
+-(void)traverseTimeLineElement:(TBXMLElement *)element withTimeLineObject:(TimeLine *)timeLine;
+
+-(void)traverseElement:(TBXMLElement *)element;
+
+-(void)parseXML:(NSData *)xml;
+
+-(NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component;
+
+-(NSInteger)pickerView:(UIPickerView *)thePickerView numberOfRowsInComponent:(NSInteger)component;
+
+-(NSInteger)numberOfComponentsInPickerView:(UIPickerView *)thePickerView;
+
+-(NSData *)downloadTimelines;
+
+-(void)viewDidLoad;
 
 @end
