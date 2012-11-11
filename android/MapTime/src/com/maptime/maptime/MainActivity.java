@@ -182,6 +182,8 @@ public class MainActivity extends MapActivity {
 		outState.putParcelableArrayList("pointsOverlayList", ploi);
 		if(itemizedOverlay.getStartPoint() != null) {
 			outState.putParcelable("pointsOverlayStart",new ParcelableGeoPoint(itemizedOverlay.getStartPoint()));
+		}
+		if(itemizedOverlay.getEndPoint() != null) {
 			outState.putParcelable("pointsOverlayEnd",new ParcelableGeoPoint(itemizedOverlay.getEndPoint()));
 		}
 		if (mapOverlays.size() > 1 && ((NavOverlay)mapOverlays.get(1)).isCreated()) { //NOTE! the second check is basically a race condition!)
