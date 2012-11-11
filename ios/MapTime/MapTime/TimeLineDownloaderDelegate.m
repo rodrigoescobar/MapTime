@@ -60,10 +60,6 @@
     if(rootXMlElement) {
         [self traverseElement:rootXMlElement->firstChild];
         
-        for(TimeLine *tl in timeLines) {
-            NSLog(@"%@", [tl getName]);
-        }
-        
     }
     
 }
@@ -76,7 +72,7 @@
         if([[TBXML elementName:element] isEqualToString:@"timeline"]) { // sanity check, should always be
             NSString *name = [TBXML valueOfAttributeNamed:@"timelineName" forElement:element];
             TimeLine *tl = [[TimeLine alloc] initWithName:name];
-            NSLog(@"Timeline found with name: %@", [tl getName]);
+            //NSLog(@"Timeline found with name: %@", [tl getName]);
             [self traverseTimeLineElement:element->firstChild withTimeLineObject:tl];
             [timeLines addObject:tl];
             
@@ -122,7 +118,7 @@
             [timePoint setDay:timePointDay];
             [timePoint setYearInBC:timePointYearInBC];
             
-            NSLog(@"Adding TimePoint to timeline %@", timeLine);
+            //NSLog(@"Adding TimePoint to timeline %@", timeLine);
             [timeLine addTimePoint:timePoint];
         }
         

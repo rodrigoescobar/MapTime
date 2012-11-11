@@ -20,28 +20,21 @@
 
 @implementation MapTimeViewController
 
-- (id)init{
-    self = [super init];
-    if(self != nil) {
+@synthesize fromLocation;
+@synthesize toLocation;
 
-        
-        NSLog(@"I'm centred");
-
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
 
+    mapView = (MKMapView *)[self.view viewWithTag:1001];
+    [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
+
     // as soon as the view has loaded, we should download the timeline/timepoint data from the server
     [self downloadTimeLineData];
     
-    mapView = (MKMapView *)[self.view viewWithTag:1001];
-
-    [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
 
     distanceBetweenLongLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     cumulativeDistanceBetweenPairs = [[NSMutableArray alloc] initWithCapacity:30]; // holds the cumulative distance between long lat pairs
@@ -63,7 +56,33 @@
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleGesture:)];
     longPressGestureRecognizer.minimumPressDuration = 0.8;
     [mapView addGestureRecognizer:longPressGestureRecognizer];
-                    
+    
+    if(![fromLocation isEqualToString:@""] && ![toLocation isEqualToString:@""]) {
+        [self forwardGeocode];
+    }
+    
+}
+
+-(void)forwardGeocode
+{
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init]; // creates a geocoder object
+    
+    __block NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:4]; // stores the longlat of start and end, needs the __block modifier as is used in below blocks
+    
+    [geocoder geocodeAddressString:fromLocation completionHandler:^(NSArray *placemarks, NSError *error) { // forward geocode the address from the from field
+        CLLocation *location = [placemarks[0] location];
+        [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+        [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+        
+        [geocoder geocodeAddressString:toLocation completionHandler:^(NSArray *placemarks, NSError *error) { // once from location has finished, perform forward geocode on address in toField
+            CLLocation *location = [placemarks[0] location];
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]];
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]];
+            
+            [self downloadNavigationData:points]; // once all geocoding has complete, download all the data and kick it all off
+        }];
+        
+    }];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -240,7 +259,7 @@
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Do something...
         
-        NSLog(@"Dropping time points");
+       // NSLog(@"Dropping time points");
         NSMutableArray *timeLines = [delegate getTimeLines];
         TimeLine *timeLine = [timeLines objectAtIndex:0];
         NSMutableArray *timePoints = [timeLine getTimePoints];
@@ -257,13 +276,12 @@
         
         int count = 0;
         for(TimePoint *tp in timePoints) {
-            NSLog(@"%i", count);
+           // NSLog(@"%i", count);
             NSNumber *bcYear = [f numberFromString:[tp getYearInBc]];
-            NSString *name = [tp getName];
             float percentage = ([bcYear floatValue] - [firstYear floatValue]) / diff;
             float distance = [[f numberFromString:distanceBetweenPoints] floatValue];
             float distanceToDrawPoint = distance * percentage;
-            NSLog(@"%@ should be drawn %f%% from the start, which is: %f km", name, percentage, distanceToDrawPoint);
+           //NSLog(@"%@ should be drawn %f%% from the start, which is: %f km", name, percentage, distanceToDrawPoint);
             // [self betweenWhichPointsIs:distanceToDrawPoint withPercentage:percentage];
             
             // [self plotPoint:percentage withDistanceToDraw:distanceToDrawPoint];
@@ -302,7 +320,7 @@
     
     int index = [self whichIndex:distance];
 
-    NSLog(@"INDEX IS: %i", index);
+   // NSLog(@"INDEX IS: %i", index);
 
     if(index == -1) {
         index = 1;

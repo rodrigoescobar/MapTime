@@ -17,7 +17,6 @@
 
 @synthesize toField;
 @synthesize fromField;
-@synthesize testButton;
 
 -(void)viewDidLoad
 {
@@ -29,30 +28,6 @@
     
     NSData *data = [self downloadTimelines];
     [self parseXML:data];        
-}
-
--(IBAction)testButtonClicked:(id)sender
-{
-    NSLog(@"%@", toField.text);
-    
-    CLGeocoder *geocoder  = [[CLGeocoder alloc] init];
-    [geocoder geocodeAddressString:toField.text completionHandler:^(NSArray *placemarks, NSError *error) {
-       
-        for(CLPlacemark *aPlacemark in placemarks) {
-            CLLocation *location = [aPlacemark location];
-            NSLog(@"To Location: Longitiude: %f Latitude: %f", location.coordinate.longitude, location.coordinate.latitude);
-        }
-        
-    }];
-    
-    [geocoder geocodeAddressString:fromField.text completionHandler:^(NSArray *placemarks, NSError *error) {
-       
-        for(CLPlacemark *aPlacemark in placemarks) {
-            CLLocation *location = [aPlacemark location];
-            NSLog(@"From Location: Longitude: %f Latitude: %f", location.coordinate.longitude, location.coordinate.latitude);
-        }
-        
-    }];
 }
 
 -(NSData *)downloadTimelines
@@ -93,11 +68,6 @@
     
     if(rootXMlElement) {
         [self traverseElement:rootXMlElement->firstChild];
-        
-        for(TimeLine *tl in timeLines) {
-            NSLog(@"%@", [tl getName]);
-        }
-        
     }
     
 }
@@ -110,7 +80,7 @@
         if([[TBXML elementName:element] isEqualToString:@"timeline"]) { // sanity check, should always be
             NSString *name = [TBXML valueOfAttributeNamed:@"timelineName" forElement:element];
             TimeLine *tl = [[TimeLine alloc] initWithName:name];
-            NSLog(@"Timeline found with name: %@", [tl getName]);
+           // NSLog(@"Timeline found with name: %@", [tl getName]);
             [self traverseTimeLineElement:element->firstChild withTimeLineObject:tl];
             [timeLines addObject:tl];
             
@@ -156,7 +126,7 @@
             [timePoint setDay:timePointDay];
             [timePoint setYearInBC:timePointYearInBC];
             
-            NSLog(@"Adding TimePoint to timeline %@", timeLine);
+            //NSLog(@"Adding TimePoint to timeline %@", timeLine);
             [timeLine addTimePoint:timePoint];
         }
         
@@ -175,36 +145,10 @@
     NSLog(@"Prepare for segue is called");
     if([segue.identifier isEqualToString:@"MoveToMap"]) {
         MapTimeViewController *destinationViewController = segue.destinationViewController;
-       
-        CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-        [geocoder geocodeAddressString:fromField.text completionHandler:^(NSArray *placemarks, NSError *error) {
-           //destinationViewController.fromLocation = CLLocationCoordinate2DMake(placemarks[0].coordinates.latitude, <#CLLocationDegrees longitude#>)
-            CLLocation *location = [placemarks[0] location];
-            NSNumber *longitude = [[NSNumber alloc] initWithFloat:location.coordinate.longitude];
-            NSNumber *latitude = [[NSNumber alloc] initWithFloat:location.coordinate.latitude];
-            destinationViewController.fromLocation = [[LongLatPair alloc] initWithLon:longitude andWithLat:latitude];
-            
-        }];
-        
-        [geocoder geocodeAddressString:toField.text completionHandler:^(NSArray *placemarks, NSError *error) {
-            CLLocation *location = [placemarks[0] location];
-            NSNumber *longitude = [[NSNumber alloc] initWithFloat:location.coordinate.longitude];
-            NSNumber *latitude = [[NSNumber alloc] initWithFloat:location.coordinate.latitude];
-            destinationViewController.toLocation = [[LongLatPair alloc] initWithLon:longitude andWithLat:latitude];
-        }];
-        
-        
+        destinationViewController.fromLocation = fromField.text;
+        destinationViewController.toLocation = toField.text;
         
     }
-}
-
-
--(CLLocation *)getLongLatFromString:(NSString *)string
-{
-    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-    [geocoder geocodeAddressString:fromField.text completionHandler:^(NSArray *placemarks, NSError *error) {
-        CLLocation *location = placemarks[0];
-    }];
 }
 
 @end
