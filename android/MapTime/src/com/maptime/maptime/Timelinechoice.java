@@ -37,6 +37,7 @@ public class Timelinechoice extends Activity {
 	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
 	private int timelineChoice = -1;
+	private ArrayAdapter<String> ad;
 
     @SuppressLint({ "NewApi", "NewApi" }) //so it doesn't error on getActionBar()
     public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +86,7 @@ public class Timelinechoice extends Activity {
 	private void readXML() throws ParserConfigurationException, SAXException, IOException {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		SAXParser saxParser = factory.newSAXParser();
+		timelines.clear(); //Reset timelines to stop duplication
 		
 		DefaultHandler handler = new DefaultHandler() {
 			int noOfTimelines = 0;
@@ -199,15 +201,13 @@ public class Timelinechoice extends Activity {
 			String[] tlNames = new String[timelines.size()];
 	        for (int i = 0; i < timelines.size(); i++) {
 	        	tlNames[i] = timelines.get(i).getLineName();
-	        } 
-	        ArrayAdapter ad=new ArrayAdapter(context,android.R.layout.simple_list_item_1,tlNames);
-	        final ListView list=(ListView)findViewById(R.id.tlcList);
+	        }
+	        ad = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, tlNames);
+	        final ListView list = (ListView)findViewById(R.id.tlcList);
 	        list.setAdapter(ad);
 	        list.setOnItemClickListener(new OnItemClickListener() {
 
 	        	public void onItemClick(AdapterView arg0, View arg1, int arg2, long arg3) {
-	        		TextView txt=(TextView)findViewById(R.id.tlcTXT);
-	        		txt.setText(list.getItemAtPosition(arg2).toString());
 	        		timelineChoice = arg2;
 	        		//the following is quick/dirty purely for making-work purposes
 	        		Intent result = new Intent();
