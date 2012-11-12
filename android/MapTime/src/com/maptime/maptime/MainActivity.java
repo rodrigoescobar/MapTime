@@ -56,7 +56,7 @@ public class MainActivity extends MapActivity {
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(true);
         mapOverlays = mapView.getOverlays();
-		Drawable drawable = this.getResources().getDrawable(android.R.drawable.arrow_down_float);
+		Drawable drawable = this.getResources().getDrawable(R.drawable.map_marker);
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
 			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
