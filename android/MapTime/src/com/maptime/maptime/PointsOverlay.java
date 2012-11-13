@@ -30,6 +30,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
 		lMan = locMan;
+		//new Thread(new GeoFenceTask()).start();
 	}
 	
 	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context, LocationManager locMan) {
