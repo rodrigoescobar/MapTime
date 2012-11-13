@@ -31,6 +31,7 @@
 
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
+    mapView.showsUserLocation = YES;
 
     // as soon as the view has loaded, we should download the timeline/timepoint data from the server
     [self downloadTimeLineData];
@@ -412,6 +413,12 @@
     spinner.hidden = YES;
     NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xmlData]];
     [self plotRoute:pairs];
+}
+
+-(void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
+{
+    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(userLocation.coordinate, 800, 800);
+    [mapView setRegion:[mapView regionThatFits:region] animated:YES];
 }
 
 
