@@ -53,15 +53,30 @@ public class PointsOverlay extends ItemizedOverlay {
 		populate();
 	}
 	
+	/**
+	 * Adds an OverlayItem to the Overlay
+	 * @param overlay The OverlayItem to add
+	 */
+	
 	public void addOverlay(OverlayItem overlay) {
 		mOverlays.add(overlay);
 		populate();
 	}
 	
+	/**
+	 * Sets the 
+	 * @param oi
+	 */
+	
 	public void setStartPointOverlay(OverlayItem oi) {
 		mOverlays.set(0, oi);
 		populate();
 	}
+	
+	/**
+	 * 
+	 * @param oi
+	 */
 	
 	public void setEndPointOverlay(OverlayItem oi) {
 		if (mOverlays.size() == 1) {
@@ -73,14 +88,27 @@ public class PointsOverlay extends ItemizedOverlay {
 		populate();
 	}
 	
+	/**
+	 * 
+	 */
+	
 	@Override
 	protected OverlayItem createItem(int i) {
 		return this.mOverlays.get(i);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	
 	public ArrayList<OverlayItem> getMOverLays() {
 		return mOverlays;
 	}
+	
+	/**
+	 * 
+	 */
 	
 	@Override
 	public int size() {
@@ -146,23 +174,54 @@ public class PointsOverlay extends ItemizedOverlay {
 		navMode = b;
 	}
 	
+	/**
+	 * Getter for startPoint
+	 * @return This PointsOverlay's startPoint
+	 */
+	
 	public GeoPoint getStartPoint() {
 		return startPoint;
 	}
 	
+	/**
+	 * Getter for endPoint
+	 * @return This PointsOverlay's endPoint
+	 */
+	
 	public GeoPoint getEndPoint() {
 		return endPoint;
 	}
+	
+	/**
+	 * Clears startPoint and endPoint from this PointsOverlay
+	 */
 	
 	public void clearPoints() {
 		startPoint = null;
 		endPoint = null;
 	}
 	
+	/**
+	 * Clears the OverlayItem list except for the first two in the list, 
+	 * which correspond to the start and end of the route.
+	 */
+	
 	public void clearTimePoints(){
 		for (int i = mOverlays.size()-1; i > 1; i--) {
 			mOverlays.remove(i);
 		}
+	}
+	
+	/**
+	 * Function which is called once the user gets within a certain radius of an OverlayItem
+	 * @param oi The OverlayItem the user is now close to
+	 */
+	
+	private void alertUser(OverlayItem oi) {
+		AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
+		dialog.setTitle(oi.getTitle());
+		dialog.setMessage(oi.getSnippet());
+		dialog.show();
 	}
 	
 	private class GeoFenceTask implements Runnable {
@@ -199,7 +258,7 @@ public class PointsOverlay extends ItemizedOverlay {
 								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
 								(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0);
 							if (curDist < threshold && distances.get(i) > threshold) {
-								//alertUser();
+								alertUser(mOverlays.get(i));
 							}
 							distances.set(i, (MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
 								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
@@ -208,7 +267,7 @@ public class PointsOverlay extends ItemizedOverlay {
 					}
 				}
 				try {
-					Thread.sleep(6000); //Wait for a minute before rechecking in order to conserve battery life
+					Thread.sleep(60000); //Wait for a minute before rechecking in order to conserve battery life
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
