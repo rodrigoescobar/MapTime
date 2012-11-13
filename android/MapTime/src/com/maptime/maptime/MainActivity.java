@@ -24,7 +24,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.StrictMode;
 import android.app.Activity;
@@ -37,6 +36,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.location.LocationManager;
 
 public class MainActivity extends MapActivity {
 	
@@ -64,10 +64,11 @@ public class MainActivity extends MapActivity {
 			}
 			itemizedOverlay = new PointsOverlay(listOIs,
 					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayStart")),
-					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), drawable, this);
+					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), drawable, this, 
+					((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
 		}
 		else {
-			itemizedOverlay = new PointsOverlay(drawable, this);
+			itemizedOverlay = new PointsOverlay(drawable, this, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
 		}

@@ -1,11 +1,12 @@
 package com.maptime.maptime;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -17,6 +18,7 @@ import com.google.android.maps.OverlayItem;
 
 public class PointsOverlay extends ItemizedOverlay {
 	
+	LocationManager lMan;
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 	private Context mContext;
 	private boolean isPinch  =  false;
@@ -24,14 +26,16 @@ public class PointsOverlay extends ItemizedOverlay {
 	private boolean navMode = false;
 	private GeoPoint startPoint, endPoint;
 	
-	public PointsOverlay(Drawable defaultMarker, Context context) {
+	public PointsOverlay(Drawable defaultMarker, Context context, LocationManager locMan) {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
+		lMan = locMan;
 	}
 	
-	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context) {
+	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context, LocationManager locMan) {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
+		lMan = locMan;
 		ArrayList<OverlayItem> newOIs = new ArrayList<OverlayItem>();
 		for (ParcelableOverlayItem poi:ois) {
 			newOIs.add(new OverlayItem(poi.getPoint(), poi.getTitle(), poi.getSnippet()));
@@ -156,6 +160,50 @@ public class PointsOverlay extends ItemizedOverlay {
 		for (int i = mOverlays.size()-1; i > 1; i--) {
 			mOverlays.remove(i);
 		}
+	}
+	
+	private class GeoFenceTask implements Runnable {
+
+		ArrayList<Double> distances = new ArrayList<Double>();
+		boolean isInit = false;
+		boolean end = false;
+		Location curLoc = lMan.getLastKnownLocation(lMan.getBestProvider(new Criteria(), true));
+		double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
+		
+		public void run() {
+			// TODO Auto-generated method stub
+			while (!end) {
+			if (!isInit || distances.size() != mOverlays.size()) {
+				distances.clear();
+				for (OverlayItem oi: mOverlays) {
+					distances.add(MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+							(double)(oi.getPoint().getLatitudeE6())/1000000.0, 
+							(double)(oi.getPoint().getLongitudeE6())/1000000.0));
+				}
+			}
+			else {
+				for (int i = 0; i < distances.size(); i++) {
+					double curDist = MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+							(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
+							(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0);
+					if (curDist < threshold && distances.get(i) > threshold) {
+						//alertUser();
+					}
+					distances.set(i, (MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+							(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
+							(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0)));
+				}
+			}
+			
+			try {
+				Thread.sleep(60000); //Wait for a minute before rechecking in order to conserve battery life
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			}
+		}
+		
 	}
 	
 }
