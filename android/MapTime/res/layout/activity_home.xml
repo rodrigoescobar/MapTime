@@ -2,25 +2,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="@drawable/android_background" >
 
     <LinearLayout
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#80222222"
+        android:background="#80000000"
         android:orientation="vertical" >
-    
-    	<TextView
-	        android:id="@+id/textView1"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="center_vertical|center_horizontal"
-	        android:paddingTop="10dp"
-	        android:paddingBottom="10dp"
-	        android:textColor="#ffffff"
-	        android:text="MapTime"
-	        android:textSize="26dp" />
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:src="@drawable/splash_logo" />
     	
     </LinearLayout>
     
@@ -28,7 +24,7 @@
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#80222222"
+        android:background="#80000000"
         android:orientation="vertical"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
@@ -54,7 +50,8 @@
 	        android:layout_height="wrap_content"
 	        android:text="Start Point:"
 	        android:textColor="#ffffff"
-	        android:textSize="14dp" />
+	        android:textSize="14dp"
+	        android:layout_marginTop="5dp" />
 
     	<EditText
     	    android:id="@+id/txtBoxStartPoint"
@@ -69,7 +66,8 @@
 	        android:layout_height="wrap_content"
 	        android:text="End Point:"
 	        android:textColor="#ffffff"
-	        android:textSize="14dp" />
+	        android:textSize="14dp"
+	        android:layout_marginTop="5dp" />
 
     	<EditText
     	    android:id="@+id/txtBoxEndPoint"
@@ -83,27 +81,33 @@
     
     <LinearLayout
         android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#80222222"
         android:orientation="horizontal"
-        android:layout_gravity="center_horizontal"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="10dp"
-		android:paddingBottom="10dp" >
+        android:layout_gravity="center_horizontal">
 
         <Button
             android:id="@+id/buttonPlotRoute"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Plot Route" />
+            android:text="Plot Route"
+            android:drawableLeft="@drawable/plot_icon"
+            android:textColor="#ffffff"
+            android:background="@drawable/style_button_bg"
+            android:layout_marginRight="15dp"
+            android:padding="10dp" />
         
         <Button
             android:id="@+id/buttonGotoMap"
+            android:onClick="gotoMap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Goto Map" />
+            android:text="Goto Map"
+            android:drawableLeft="@drawable/map_icon"
+            android:textColor="#ffffff"
+            android:background="@drawable/style_button_bg"
+            android:layout_marginLeft="15dp"
+            android:padding="10dp" />
     	
 	</LinearLayout>
 

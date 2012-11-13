@@ -6,7 +6,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -30,7 +32,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
 		lMan = locMan;
-		//new Thread(new GeoFenceTask()).start();
+		new Thread(new GeoFenceTask()).start();
 	}
 	
 	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context, LocationManager locMan) {
@@ -168,41 +170,52 @@ public class PointsOverlay extends ItemizedOverlay {
 		ArrayList<Double> distances = new ArrayList<Double>();
 		boolean isInit = false;
 		boolean end = false;
-		Location curLoc = lMan.getLastKnownLocation(lMan.getBestProvider(new Criteria(), true));
+		Location curLoc;
 		double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
 		
 		public void run() {
 			// TODO Auto-generated method stub
+						
 			while (!end) {
-			if (!isInit || distances.size() != mOverlays.size()) {
-				distances.clear();
-				for (OverlayItem oi: mOverlays) {
-					distances.add(MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
-							(double)(oi.getPoint().getLatitudeE6())/1000000.0, 
-							(double)(oi.getPoint().getLongitudeE6())/1000000.0));
+				String lProv = lMan.getBestProvider(new Criteria(), true);
+				curLoc = lMan.getLastKnownLocation(lProv);
+				Log.i("test",lProv);
+				curLoc = lMan.getLastKnownLocation(lProv);
+				if (curLoc != null) {
+				Log.i("Cur Loc", curLoc.toString());
 				}
-			}
-			else {
-				for (int i = 0; i < distances.size(); i++) {
-					double curDist = MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
-							(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
-							(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0);
-					if (curDist < threshold && distances.get(i) > threshold) {
-						//alertUser();
+				if (curLoc != null) {
+					if (!isInit || distances.size() != mOverlays.size()) {
+						distances.clear();
+						for (OverlayItem oi: mOverlays) {
+							distances.add(MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+								(double)(oi.getPoint().getLatitudeE6())/1000000.0, 
+								(double)(oi.getPoint().getLongitudeE6())/1000000.0));
+						}
 					}
-					distances.set(i, (MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
-							(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
-							(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0)));
+					else {
+						for (int i = 0; i < distances.size(); i++) {
+							double curDist = MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
+								(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0);
+							if (curDist < threshold && distances.get(i) > threshold) {
+								//alertUser();
+							}
+							distances.set(i, (MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
+								(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0)));
+						}
+					}
 				}
+				try {
+					Thread.sleep(6000); //Wait for a minute before rechecking in order to conserve battery life
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			}
 			
-			try {
-				Thread.sleep(60000); //Wait for a minute before rechecking in order to conserve battery life
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			}
 		}
 		
 	}
