@@ -22,7 +22,7 @@ public class SplashScreen extends Activity {
                 finish();
                 
                 // start the home screen
-                Intent intent = new Intent(SplashScreen.this, MainActivity.class);
+                Intent intent = new Intent(SplashScreen.this, Home.class);
                 SplashScreen.this.startActivity(intent);
             }
  
