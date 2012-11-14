@@ -16,7 +16,7 @@
 #import "MBProgressHUD.h"
 
 #define degreesToRadians( degrees ) ( ( degrees ) / 180.0 * M_PI )
-
+#define METERS_PER_MILE 1609.344
 
 @implementation MapTimeViewController
 
@@ -416,9 +416,12 @@
 }
 
 -(void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
+
 {
-    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(userLocation.coordinate, 800, 800);
-    [mapView setRegion:[mapView regionThatFits:region] animated:YES];
+      CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
+    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
+    [mapView setRegion:region animated:YES];
+
 }
 
 
