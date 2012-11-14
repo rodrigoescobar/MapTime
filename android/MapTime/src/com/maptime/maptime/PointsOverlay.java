@@ -6,7 +6,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -30,6 +32,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
 		lMan = locMan;
+		new Thread(new GeoFenceTask()).start();
 	}
 	
 	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context, LocationManager locMan) {
@@ -50,15 +53,30 @@ public class PointsOverlay extends ItemizedOverlay {
 		populate();
 	}
 	
+	/**
+	 * Adds an OverlayItem to the Overlay
+	 * @param overlay The OverlayItem to add
+	 */
+	
 	public void addOverlay(OverlayItem overlay) {
 		mOverlays.add(overlay);
 		populate();
 	}
 	
+	/**
+	 * Sets the 
+	 * @param oi
+	 */
+	
 	public void setStartPointOverlay(OverlayItem oi) {
 		mOverlays.set(0, oi);
 		populate();
 	}
+	
+	/**
+	 * 
+	 * @param oi
+	 */
 	
 	public void setEndPointOverlay(OverlayItem oi) {
 		if (mOverlays.size() == 1) {
@@ -70,14 +88,27 @@ public class PointsOverlay extends ItemizedOverlay {
 		populate();
 	}
 	
+	/**
+	 * 
+	 */
+	
 	@Override
 	protected OverlayItem createItem(int i) {
 		return this.mOverlays.get(i);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	
 	public ArrayList<OverlayItem> getMOverLays() {
 		return mOverlays;
 	}
+	
+	/**
+	 * 
+	 */
 	
 	@Override
 	public int size() {
@@ -143,18 +174,37 @@ public class PointsOverlay extends ItemizedOverlay {
 		navMode = b;
 	}
 	
+	/**
+	 * Getter for startPoint
+	 * @return This PointsOverlay's startPoint
+	 */
+	
 	public GeoPoint getStartPoint() {
 		return startPoint;
 	}
+	
+	/**
+	 * Getter for endPoint
+	 * @return This PointsOverlay's endPoint
+	 */
 	
 	public GeoPoint getEndPoint() {
 		return endPoint;
 	}
 	
+	/**
+	 * Clears startPoint and endPoint from this PointsOverlay
+	 */
+	
 	public void clearPoints() {
 		startPoint = null;
 		endPoint = null;
 	}
+	
+	/**
+	 * Clears the OverlayItem list except for the first two in the list, 
+	 * which correspond to the start and end of the route.
+	 */
 	
 	public void clearTimePoints(){
 		for (int i = mOverlays.size()-1; i > 1; i--) {
@@ -162,46 +212,71 @@ public class PointsOverlay extends ItemizedOverlay {
 		}
 	}
 	
+	/**
+	 * Function which is called once the user gets within a certain radius of an OverlayItem
+	 * @param oi The OverlayItem the user is now close to
+	 */
+	
+	private void alertUser(OverlayItem oi) {
+		AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
+		dialog.setTitle(oi.getTitle());
+		dialog.setMessage(oi.getSnippet());
+		dialog.show();
+	}
+	
 	private class GeoFenceTask implements Runnable {
 
 		ArrayList<Double> distances = new ArrayList<Double>();
 		boolean isInit = false;
 		boolean end = false;
-		Location curLoc = lMan.getLastKnownLocation(lMan.getBestProvider(new Criteria(), true));
+		Location curLoc;
 		double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
 		
 		public void run() {
 			// TODO Auto-generated method stub
+						
 			while (!end) {
-			if (!isInit || distances.size() != mOverlays.size()) {
-				distances.clear();
-				for (OverlayItem oi: mOverlays) {
-					distances.add(MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
-							(double)(oi.getPoint().getLatitudeE6())/1000000.0, 
-							(double)(oi.getPoint().getLongitudeE6())/1000000.0));
+				String lProv = lMan.getBestProvider(new Criteria(), true);
+				curLoc = lMan.getLastKnownLocation(lProv);
+				Log.i("test",lProv);
+				curLoc = lMan.getLastKnownLocation(lProv);
+				if (curLoc != null) {
+				Log.i("Cur Loc", curLoc.toString());
 				}
-			}
-			else {
-				for (int i = 0; i < distances.size(); i++) {
-					double curDist = MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
-							(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
-							(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0);
-					if (curDist < threshold && distances.get(i) > threshold) {
-						//alertUser();
+				if (curLoc != null) {
+					if (!isInit || distances.size() != mOverlays.size()) {
+						distances.clear();
+						for (OverlayItem oi: mOverlays) {
+							distances.add(MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+								(double)(oi.getPoint().getLatitudeE6())/1000000.0, 
+								(double)(oi.getPoint().getLongitudeE6())/1000000.0));
+						}
 					}
-					distances.set(i, (MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
-							(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
-							(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0)));
+					else {
+						for (int i = 0; i < distances.size(); i++) {
+							double curDist = MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
+								(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0);
+							if (curDist < threshold && distances.get(i) > threshold) {
+								alertUser(mOverlays.get(i));
+							}
+							distances.set(i, (MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
+								(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0)));
+						}
+					}
 				}
+				try {
+					Log.i("Sleep","yes");
+					Thread.sleep(6000); //Wait for a minute before rechecking in order to conserve battery life
+					Log.i("Sleep","no");
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			}
 			
-			try {
-				Thread.sleep(60000); //Wait for a minute before rechecking in order to conserve battery life
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			}
 		}
 		
 	}
