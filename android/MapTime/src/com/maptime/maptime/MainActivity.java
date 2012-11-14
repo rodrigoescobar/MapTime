@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.android.maps.GeoPoint;
+import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
@@ -28,11 +29,13 @@ public class MainActivity extends MapActivity {
 	
 	private MapController mapController;
 	private PointsOverlay itemizedOverlay;
+	private LocationOverlay locationOverlay;
 	private List<Overlay> mapOverlays;
 	private GeoPoint point, point2;
 	private ArrayList<OverlayItem> timePoints;
 	private Timeline curTimeline; 
 	public MapView mapView;
+	private NavOverlay routeOverlay;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,8 @@ public class MainActivity extends MapActivity {
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(true);
         mapOverlays = mapView.getOverlays();
-		Drawable drawable = this.getResources().getDrawable(R.drawable.map_marker);
+		Drawable pinDrawable = this.getResources().getDrawable(R.drawable.map_marker);
+		Drawable locationIcon = this.getResources().getDrawable(android.R.drawable.ic_menu_compass);
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
 			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
@@ -50,29 +54,32 @@ public class MainActivity extends MapActivity {
 			}
 			itemizedOverlay = new PointsOverlay(listOIs,
 					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayStart")),
-					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), drawable, this, 
+					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), pinDrawable, this, 
 					((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
 		}
 		else {
-			itemizedOverlay = new PointsOverlay(drawable, this, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
+			itemizedOverlay = new PointsOverlay(pinDrawable, this, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
 		}
 		mapOverlays.add(itemizedOverlay);
+		locationOverlay = new LocationOverlay(locationIcon, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
+		mapOverlays.add(locationOverlay);
 		if (savedInstanceState != null && savedInstanceState.containsKey("navOverlayList")) {
 			ArrayList<ParcelableGeoPoint> listGPs = new ArrayList<ParcelableGeoPoint>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("navOverlayList")) {
 				listGPs.add((ParcelableGeoPoint)p);
 			}
-			mapOverlays.add(new NavOverlay(listGPs, 
-					savedInstanceState.getDouble("navOverlayLength")));
+			routeOverlay = new NavOverlay(listGPs, 
+					savedInstanceState.getDouble("navOverlayLength"));
+			mapOverlays.add(routeOverlay);
 		}
     }    
     
 	private void timeToPlace() {
 		itemizedOverlay.clearTimePoints();
-		ArrayList<GeoPoint> gp = ((NavOverlay) mapOverlays.get(1)).getNavGPs();
-		double dist = ((NavOverlay) mapOverlays.get(1)).getLength();
+		ArrayList<GeoPoint> gp = routeOverlay.getNavGPs();
+		double dist = routeOverlay.getLength();
 		int timelineSize = curTimeline.size();
 		double endTimeValue = curTimeline.getPoint(0).getTimeInBC();
 		double timeRange = curTimeline.getPoint(timelineSize-1).getTimeInBC() - endTimeValue;
@@ -126,7 +133,7 @@ public class MainActivity extends MapActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == 0 && resultCode == RESULT_OK) {
 			curTimeline = data.getParcelableExtra("selectedTimeline");
-			if (mapOverlays.size() == 2) {
+			if (mapOverlays.size() == 3) {
 				timeToPlace();
 			}
 		}
@@ -173,14 +180,14 @@ public class MainActivity extends MapActivity {
 		if(itemizedOverlay.getEndPoint() != null) {
 			outState.putParcelable("pointsOverlayEnd",new ParcelableGeoPoint(itemizedOverlay.getEndPoint()));
 		}
-		if (mapOverlays.size() > 1 && ((NavOverlay)mapOverlays.get(1)).isCreated()) { //NOTE! the second check is basically a race condition!)
-			ArrayList<GeoPoint> lgp = ((NavOverlay)mapOverlays.get(1)).getNavGPs();
+		if (mapOverlays.size() > 2 && ((NavOverlay)routeOverlay).isCreated()) { //NOTE! the second check is basically a race condition!)
+			ArrayList<GeoPoint> lgp = ((NavOverlay)routeOverlay).getNavGPs();
 			ArrayList<ParcelableGeoPoint> plgp = new ArrayList<ParcelableGeoPoint>();
 			for (GeoPoint gp: lgp) {
 				plgp.add(new ParcelableGeoPoint(gp));
 			}
 			outState.putParcelableArrayList("navOverlayList", plgp);
-			outState.putDouble("navOverlayLength", ((NavOverlay)mapOverlays.get(1)).getLength());
+			outState.putDouble("navOverlayLength", ((NavOverlay)routeOverlay).getLength());
 		}
 	}
 	
@@ -227,11 +234,13 @@ public class MainActivity extends MapActivity {
 			itemizedOverlay.setStartPointOverlay(new OverlayItem(point, "Start", "Start of TimeLine"));
 			itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
 			//TODO: An asynctask which does the following since we can't network on main thread
-			if (mapOverlays.size() == 1) {
-				mapOverlays.add(new NavOverlay(point, point2));
+			if (mapOverlays.size() == 2) {
+				routeOverlay = new NavOverlay(point, point2);
+				mapOverlays.add(routeOverlay);
 			}
-			else if (mapOverlays.get(1) instanceof NavOverlay) {
-				mapOverlays.set(1, new NavOverlay(point, point2));
+			else if (routeOverlay != null) {
+				routeOverlay = new NavOverlay(point, point2);
+				mapOverlays.set(2, routeOverlay);
 			}
 			if(curTimeline != null) {
 				timeToPlace();

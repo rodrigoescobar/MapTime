@@ -267,7 +267,9 @@ public class PointsOverlay extends ItemizedOverlay {
 					}
 				}
 				try {
-					Thread.sleep(60000); //Wait for a minute before rechecking in order to conserve battery life
+					Log.i("Sleep","yes");
+					Thread.sleep(6000); //Wait for a minute before rechecking in order to conserve battery life
+					Log.i("Sleep","no");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
