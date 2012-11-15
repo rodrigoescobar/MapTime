@@ -62,7 +62,7 @@ public class MainActivity extends MapActivity {
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
 		}
 		mapOverlays.add(itemizedOverlay);
-		locationOverlay = new LocationOverlay(locationIcon, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
+		locationOverlay = new LocationOverlay(locationIcon, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)), this);
 		mapOverlays.add(locationOverlay);
 		if (savedInstanceState != null && savedInstanceState.containsKey("navOverlayList")) {
 			ArrayList<ParcelableGeoPoint> listGPs = new ArrayList<ParcelableGeoPoint>();

@@ -32,6 +32,8 @@ public class PointsOverlay extends ItemizedOverlay {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
 		lMan = locMan;
+		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
+		//lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
 		new Thread(new GeoFenceTask()).start();
 	}
 	
@@ -39,6 +41,8 @@ public class PointsOverlay extends ItemizedOverlay {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
 		lMan = locMan;
+		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
+		//lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
 		ArrayList<OverlayItem> newOIs = new ArrayList<OverlayItem>();
 		for (ParcelableOverlayItem poi:ois) {
 			newOIs.add(new OverlayItem(poi.getPoint(), poi.getTitle(), poi.getSnippet()));
@@ -236,7 +240,8 @@ public class PointsOverlay extends ItemizedOverlay {
 			// TODO Auto-generated method stub
 						
 			while (!end) {
-				String lProv = lMan.getBestProvider(new Criteria(), true);
+				//String lProv = lMan.getBestProvider(new Criteria(), true);
+				String lProv = LocationManager.GPS_PROVIDER;
 				curLoc = lMan.getLastKnownLocation(lProv);
 				Log.i("test",lProv);
 				curLoc = lMan.getLastKnownLocation(lProv);
