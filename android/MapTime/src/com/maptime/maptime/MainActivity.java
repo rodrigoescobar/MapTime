@@ -37,7 +37,6 @@ public class MainActivity extends MapActivity {
 	public MapView mapView;
 	private NavOverlay routeOverlay;
 	
-	@Override
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 		
@@ -46,7 +45,7 @@ public class MainActivity extends MapActivity {
         mapView.setBuiltInZoomControls(true);
         mapOverlays = mapView.getOverlays();
 		Drawable pinDrawable = this.getResources().getDrawable(R.drawable.map_marker);
-		Drawable locationIcon = this.getResources().getDrawable(android.R.drawable.ic_menu_compass);
+		Drawable locationIcon = this.getResources().getDrawable(R.drawable.currentlocation_icon);
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
 			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
@@ -126,8 +125,7 @@ public class MainActivity extends MapActivity {
 
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
 	}
-	
-	@Override
+
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		
 		super.onActivityResult(requestCode, resultCode, data);
@@ -139,13 +137,12 @@ public class MainActivity extends MapActivity {
 		}
 	}
 	
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu){        
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.activity_main, menu);
 	    return true;
 	}
-	@Override
+
 	public boolean onOptionsItemSelected(MenuItem item){
 	    switch(item.getItemId()){
 	    case R.id.menu_timelines:
@@ -164,7 +161,6 @@ public class MainActivity extends MapActivity {
 	    return false;
 	}
 
-	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
@@ -191,7 +187,6 @@ public class MainActivity extends MapActivity {
 		}
 	}
 	
-	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
 	}

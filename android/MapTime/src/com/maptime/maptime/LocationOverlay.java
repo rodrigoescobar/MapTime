@@ -26,7 +26,6 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		new Thread(new LocationGetter()).start();
 	}
 
-	@Override
 	protected OverlayItem createItem(int arg0) {
 		// TODO Auto-generated method stub
 		return mOverlays.get(arg0);
@@ -36,8 +35,7 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		mOverlays.set(0,new OverlayItem(gp,"",""));
 		populate();
 	}
-	
-	@Override
+
 	public int size() {
 		// TODO Auto-generated method stub
 		return mOverlays.size();
