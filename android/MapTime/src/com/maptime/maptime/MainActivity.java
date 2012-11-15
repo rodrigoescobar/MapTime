@@ -125,6 +125,16 @@ public class MainActivity extends MapActivity {
 
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
 	}
+	
+	/*
+	 * Called to plot the timeline on the route from the Home Screen
+	 */
+	public void plotTimeline(Timeline timeline) {
+		curTimeline = timeline;
+		if (mapOverlays.size() == 3) {
+			timeToPlace();
+		}
+	}
 
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		
