@@ -14,9 +14,11 @@
 #import "TimeLineDownloaderDelegate.h"
 #import "MapPoint.h"
 #import "MBProgressHUD.h"
+#import "MainViewController.h"
 
 #define degreesToRadians( degrees ) ( ( degrees ) / 180.0 * M_PI )
 #define METERS_PER_MILE 1609.344
+#define RADIUS_OF_EARTH 6371
 
 @implementation MapTimeViewController
 
@@ -106,7 +108,7 @@
     NSString *urlString = [[NSString alloc] initWithFormat:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=%@&flon=%@&tlat=%@&tlon=%@&v=motorcar&fast=1&layer=mapnik" , point1, point2, point3, point4];
     NSURL *url = [NSURL URLWithString:urlString];
     
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:nil timeoutInterval:10];
     
     (void) [[NSURLConnection alloc] initWithRequest:request delegate:self];
     
@@ -358,7 +360,6 @@
 -(float)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2
 {
     // Implementation of the haversine formula for working out distance between long and lat points, taking into account the spherical nature of the earth.
-    int radius = 6371; // radius of earth in KM
     float dLat = degreesToRadians([[pair2 getLatitude] floatValue] - [[pair1 getLatitude] floatValue]);
     float dLon = degreesToRadians([[pair2 getLongitude] floatValue] - [[pair1 getLongitude] floatValue]);
     float lat1 = degreesToRadians([[pair1 getLatitude] floatValue]);
@@ -367,7 +368,7 @@
     float a = sinf(dLat/2) * sinf(dLat/2) + sinf(dLon/2) * sinf(dLon/2) * cosf(lat1) * cosf(lat2);
     float c = 2 * atan2f(sqrtf(a), sqrtf(1-a));
     
-    return radius * c;
+    return RADIUS_OF_EARTH * c;
 }
 
 - (void)didReceiveMemoryWarning
@@ -404,6 +405,17 @@
 -(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
     NSLog(@"FAILED %@", [error localizedDescription]);
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:mapView];
+    hud.mode = MBProgressHUDModeText;
+    hud.labelText = @"An unknown error occured.";
+    [mapView addSubview:hud];
+    [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
+}
+
+-(void)waitForFourSeconds
+{
+    sleep(4);
+    [self performSegueWithIdentifier:@"BackHome" sender:self];
 }
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection
@@ -415,12 +427,12 @@
     [self plotRoute:pairs];
 }
 
--(void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation
+-(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 
 {
       CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
-    [mapView setRegion:region animated:YES];
+    [aMapView setRegion:region animated:YES];
 
 }
 

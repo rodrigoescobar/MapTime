@@ -25,9 +25,10 @@
     picker = (UIPickerView *) [self.view viewWithTag:2000];
     timeLineData = [[NSMutableData alloc] init];
     timeLines = [[NSMutableArray alloc] initWithCapacity:30];
-    
+        
     NSData *data = [self downloadTimelines];
-    [self parseXML:data];        
+    [self parseXML:data];
+    self.navigationItem.hidesBackButton = YES;
 }
 
 -(NSData *)downloadTimelines
