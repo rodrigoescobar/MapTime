@@ -20,7 +20,6 @@
     int numberOfPoints;
     NSMutableData *xmlData;
     UIActivityIndicatorView *spinner;
-    TimeLineDownloaderDelegate *delegate;
     NSString *distanceBetweenPoints; // KM distance between the plotted points
     NSMutableArray *distanceBetweenLongLatPairs;
     NSMutableArray *cumulativeDistanceBetweenPairs;

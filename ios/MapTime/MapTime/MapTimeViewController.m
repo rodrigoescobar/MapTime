@@ -34,11 +34,7 @@
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
     mapView.showsUserLocation = YES;
-
-    // as soon as the view has loaded, we should download the timeline/timepoint data from the server
-    [self downloadTimeLineData];
     
-
     distanceBetweenLongLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     cumulativeDistanceBetweenPairs = [[NSMutableArray alloc] initWithCapacity:30]; // holds the cumulative distance between long lat pairs
     
@@ -114,14 +110,6 @@
     
 }
 
--(void)downloadTimeLineData
-{
-    delegate = [[TimeLineDownloaderDelegate alloc] init];
-    NSURL *url = [NSURL URLWithString:@"http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php"];
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
-    (void) [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
-}
-
 - (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer
 {
     
@@ -163,6 +151,7 @@
 		
 -(NSString *)parseXML:(NSData *)xml
 {
+    // method that parses the XML nabigation data
     NSError *error;
     TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:&error];
     if(error) {
@@ -262,9 +251,6 @@
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Do something...
         
-       // NSLog(@"Dropping time points");
-        NSMutableArray *timeLines = [delegate getTimeLines];
-        TimeLine *timeLine = [timeLines objectAtIndex:0];
         NSMutableArray *timePoints = [timeLine getTimePoints];
         
         NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
@@ -284,10 +270,7 @@
             float percentage = ([bcYear floatValue] - [firstYear floatValue]) / diff;
             float distance = [[f numberFromString:distanceBetweenPoints] floatValue];
             float distanceToDrawPoint = distance * percentage;
-           //NSLog(@"%@ should be drawn %f%% from the start, which is: %f km", name, percentage, distanceToDrawPoint);
-            // [self betweenWhichPointsIs:distanceToDrawPoint withPercentage:percentage];
-            
-            // [self plotPoint:percentage withDistanceToDraw:distanceToDrawPoint];
+
             [self plot:percentage distance:distanceToDrawPoint timepoint:tp];
             count++;
         }
@@ -428,9 +411,8 @@
 }
 
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
-
 {
-      CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
+    CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
     [aMapView setRegion:region animated:YES];
 
