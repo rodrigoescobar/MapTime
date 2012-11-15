@@ -38,12 +38,29 @@
 	        android:text="Timeline:"
 	        android:textColor="#ffffff"
 	        android:textSize="14dp" />
+        
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
     	
-    	<Spinner
-		    android:id="@+id/timelines_dropdown"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content" />
+	    	<Spinner
+	    	    android:id="@+id/timelines_dropdown"
+	    	    style="@style/AppTheme"
+	    	    android:layout_weight="1"
+        		android:layout_width="0dp"
+	    	    android:layout_height="30dp" />
+	    	
+	    	<ImageButton
+	    	    android:id="@+id/buttonRefresh"
+	    	    android:onClick="refreshTimelines"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:src="@drawable/refresh_icon"
+			    android:background="@drawable/style_button_bg" />
     	
+    	</LinearLayout>	
+
     	<TextView
 	        android:id="@+id/textStartPoint"
 	        android:layout_width="wrap_content"
@@ -53,12 +70,28 @@
 	        android:textSize="14dp"
 	        android:layout_marginTop="5dp" />
 
-    	<EditText
-    	    android:id="@+id/txtBoxStartPoint"
-    	    android:layout_width="match_parent"
-    	    android:layout_height="wrap_content"
-    	    android:ems="10" >
-    	</EditText>
+    	<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+	    	
+	    	<EditText
+	    	    android:id="@+id/txtBoxStartPoint"
+	    	    android:layout_weight="1"
+        		android:layout_width="0dp"
+	    	    android:layout_height="wrap_content"
+	    	    android:textColor="#ffffff"
+	    	    android:ems="10" >
+	    	</EditText>
+	    	
+	    	<ImageButton
+		    	    android:id="@+id/buttonLocateStart"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:src="@drawable/locate_icon"
+				    android:background="@drawable/style_button_bg" />
+    
+    	</LinearLayout>
     	
     	<TextView
 	        android:id="@+id/textEndPoint"
@@ -68,14 +101,29 @@
 	        android:textColor="#ffffff"
 	        android:textSize="14dp"
 	        android:layout_marginTop="5dp" />
+    	
+    	<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    	<EditText
-    	    android:id="@+id/txtBoxEndPoint"
-    	    android:layout_width="match_parent"
-    	    android:layout_height="wrap_content"
-    	    android:ems="10" >
-
-    	</EditText>
+	    	<EditText
+	    	    android:id="@+id/txtBoxEndPoint"
+	    	    android:layout_weight="1"
+        		android:layout_width="0dp"
+	    	    android:layout_height="wrap_content"
+	    	    android:textColor="#ffffff"
+	    	    android:ems="10" >
+	    	</EditText>
+		    	
+	    	<ImageButton
+		    	    android:id="@+id/buttonLocateStart"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:src="@drawable/locate_icon"
+				    android:background="@drawable/style_button_bg" />
+    	
+    	</LinearLayout>
     	
     </LinearLayout>
     

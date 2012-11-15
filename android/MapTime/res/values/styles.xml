@@ -4,6 +4,6 @@
     
     <style name="mapview">
     	<item name="android:gravity">center</item>
-	</style>
+	</style>   
 
 </resources>

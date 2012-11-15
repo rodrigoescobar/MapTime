@@ -21,21 +21,29 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class Home extends Activity {
 	
-	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/example3.xml";
+	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         
-        new TimelineRetrieverTask(this).execute();
+        refreshTimelines(null);
+    }
+    
+    public void refreshTimelines(View view) {
+    	new TimelineRetrieverTask(this).execute();
     }
     
     public void gotoMap(View view) {
@@ -163,7 +171,7 @@ public class Home extends Activity {
 		}
 		
 		protected void onPostExecute(Void result) {
-			String [] timelineArray = new String[1000];
+			String [] timelineArray = new String[timelines.size()];
 			int i = 0;
 			Iterator<Timeline> itrTimeline = timelines.iterator();
 			while(itrTimeline.hasNext()) {
@@ -171,9 +179,10 @@ public class Home extends Activity {
 				timelineArray[i] = currentTimeline.getLineName();
 				i++;
 			}
+
 			
 			Spinner spinner = (Spinner)findViewById(R.id.timelines_dropdown);
-	        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(Home.this, android.R.layout.simple_spinner_dropdown_item, timelineArray);
+	        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, timelineArray);
 		    spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		    spinner.setAdapter(spinnerAdapter);
 		    
