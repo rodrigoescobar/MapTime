@@ -24,7 +24,7 @@
 
 @synthesize fromLocation;
 @synthesize toLocation;
-
+@synthesize timeLine;
 
 - (void)viewDidLoad
 {

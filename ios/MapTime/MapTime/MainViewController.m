@@ -28,7 +28,7 @@
         
     NSData *data = [self downloadTimelines];
     [self parseXML:data];
-    self.navigationItem.hidesBackButton = YES;
+    //self.navigationItem.hidesBackButton = YES;
 }
 
 -(NSData *)downloadTimelines
@@ -148,6 +148,13 @@
         MapTimeViewController *destinationViewController = segue.destinationViewController;
         destinationViewController.fromLocation = fromField.text;
         destinationViewController.toLocation = toField.text;
+        
+        // get the timeline that's been picked here from the UIPickerView *picker
+
+        NSInteger row;
+        row = [picker selectedRowInComponent:0];
+        TimeLine *timeLine = [timeLines objectAtIndex:row];
+        destinationViewController.timeLine = timeLine;
         
     }
 }

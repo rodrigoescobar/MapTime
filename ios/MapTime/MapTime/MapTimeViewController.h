@@ -28,6 +28,7 @@
 
 @property (nonatomic, strong) NSString *fromLocation;
 @property (nonatomic, strong) NSString *toLocation;
+@property (nonatomic, strong) TimeLine *timeLine;
 
 - (void)viewDidLoad;
 
