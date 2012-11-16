@@ -9,6 +9,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -27,6 +29,13 @@ public class PointsOverlay extends ItemizedOverlay {
 	private String TAG = "TapHandler";
 	private boolean navMode = false;
 	private GeoPoint startPoint, endPoint;
+	Thread geoFence;
+	Handler alertHandler = new Handler() {
+        @Override
+        public void handleMessage(final Message msgs) {
+        	alertUser(mOverlays.get(msgs.arg1));
+        }
+        };
 	
 	public PointsOverlay(Drawable defaultMarker, Context context, LocationManager locMan) {
 		super(boundCenterBottom(defaultMarker));
@@ -34,7 +43,8 @@ public class PointsOverlay extends ItemizedOverlay {
 		lMan = locMan;
 		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
 		//lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
-		new Thread(new GeoFenceTask()).start();
+		geoFence = new Thread(new GeoFenceTask());
+		geoFence.start();
 	}
 	
 	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context, LocationManager locMan) {
@@ -234,7 +244,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		boolean isInit = false;
 		boolean end = false;
 		Location curLoc;
-		double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
+		final static double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
 		
 		public void run() {
 			// TODO Auto-generated method stub
@@ -256,6 +266,7 @@ public class PointsOverlay extends ItemizedOverlay {
 								(double)(oi.getPoint().getLatitudeE6())/1000000.0, 
 								(double)(oi.getPoint().getLongitudeE6())/1000000.0));
 						}
+						isInit = true;
 					}
 					else {
 						for (int i = 0; i < distances.size(); i++) {
@@ -263,7 +274,9 @@ public class PointsOverlay extends ItemizedOverlay {
 								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
 								(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0);
 							if (curDist < threshold && distances.get(i) > threshold) {
-								alertUser(mOverlays.get(i));
+								Message closePoint = new Message();
+								closePoint.arg1 = i;
+								alertHandler.sendMessage(closePoint);
 							}
 							distances.set(i, (MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
 								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
