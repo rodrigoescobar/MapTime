@@ -38,6 +38,9 @@
 
 -(void)viewDidLoad;
 
--(void)useNotification;
+-(void)registerForNotifications;
+
+-(void)useFinishedNotification;
+
 
 @end

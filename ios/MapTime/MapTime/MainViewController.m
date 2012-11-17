@@ -21,11 +21,16 @@
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    NSString *notificationName = @"TimeLinesDownloaded";
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(useNotification) name:notificationName object:nil];
-    
+    [self registerForNotifications];
     [self downloadTimelines];
+    
+}
+
+-(void)registerForNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(useFinishedNotification) name:@"TimeLinesDownloaded" object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(useErrorNotification) name:@"ErrorNotification" object:nil];
     
 }
 
@@ -80,14 +85,33 @@
     }
 }
 
-
--(void)useNotification
+-(void)waitForFourSeconds
 {
-    NSLog(@"I have recieved a notifications");
+    sleep(4);
+}
+
+/*
+ Notification Methods
+ */
+
+
+-(void)useFinishedNotification
+{
+    NSLog(@"I have recieved a Finished notifications");
     picker = (UIPickerView *) [self.view viewWithTag:2000];
     [picker reloadAllComponents];
     
     self.navigationItem.hidesBackButton = YES;
+}
+
+-(void)useErrorNotification
+{
+    NSLog(@"I have recieved a Error Notification");
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
+    hud.mode = MBProgressHUDModeText;
+    hud.detailsLabelText = @"Error occured connecting to TimeLines\n Please try again later.";
+    [self.view addSubview:hud];
+    [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
 }
 
 @end
