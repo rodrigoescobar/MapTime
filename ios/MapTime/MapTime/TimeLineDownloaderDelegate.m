@@ -48,7 +48,7 @@
 
     [self parseXML:timeLineData];
     
-    [self postNotificationWithString:@"TEst"];
+    [self postNotification];
 }
 
 -(NSMutableArray *)getTimeLines
@@ -130,7 +130,7 @@
     } while((element = element->nextSibling));
 }
 
--(void)postNotificationWithString:(NSString *)string
+-(void)postNotification
 {
     NSLog(@"I am sending a notification");
     NSString *notificationName = @"TimeLinesDownloaded";

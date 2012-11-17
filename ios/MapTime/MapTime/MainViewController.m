@@ -23,7 +23,7 @@
     [super viewDidLoad];
     
     NSString *notificationName = @"TimeLinesDownloaded";
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(useNotificationWithString:) name:notificationName object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(useNotification) name:notificationName object:nil];
     
     [self downloadTimelines];
     
@@ -81,7 +81,7 @@
 }
 
 
--(void)useNotificationWithString:(NSNotification *)string
+-(void)useNotification
 {
     NSLog(@"I have recieved a notifications");
     picker = (UIPickerView *) [self.view viewWithTag:2000];

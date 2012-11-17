@@ -31,6 +31,6 @@
 
 -(void)traverseTimeLineElement:(TBXMLElement *)element withTimeLineObject:(TimeLine *)timeLine;
 
--(void)postNotificationWithString:(NSString *)string;
+-(void)postNotification;
 
 @end

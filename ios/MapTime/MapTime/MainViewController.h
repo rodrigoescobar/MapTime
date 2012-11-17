@@ -38,6 +38,6 @@
 
 -(void)viewDidLoad;
 
--(void)useNotificationWithString:(NSNotification *)string;
+-(void)useNotification;
 
 @end
