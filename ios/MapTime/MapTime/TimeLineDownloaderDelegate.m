@@ -16,7 +16,10 @@
 {
     self = [super init];
     if(self != nil) {
+        NSLog(@"I AM INITIALIZED");
         timeLineData = [[NSMutableData alloc] init];
+        timeLines = [[NSMutableArray alloc] init];
+        NSLog(@"I have finished init");
     }
     return self;
 }
@@ -44,6 +47,8 @@
     NSLog(@"Finished Downloading");
 
     [self parseXML:timeLineData];
+    
+    [self postNotificationWithString:@"TEst"];
 }
 
 -(NSMutableArray *)getTimeLines
@@ -55,7 +60,6 @@
 {
     TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:nil];
     TBXMLElement * rootXMlElement = tbxml.rootXMLElement;
-    timeLines = [[NSMutableArray alloc] init];
        
     if(rootXMlElement) {
         [self traverseElement:rootXMlElement->firstChild];
@@ -75,6 +79,7 @@
             //NSLog(@"Timeline found with name: %@", [tl getName]);
             [self traverseTimeLineElement:element->firstChild withTimeLineObject:tl];
             [timeLines addObject:tl];
+            NSLog(@"I am adding an object");
             
         }
         
@@ -123,6 +128,14 @@
         }
         
     } while((element = element->nextSibling));
+}
+
+-(void)postNotificationWithString:(NSString *)string
+{
+    NSLog(@"I am sending a notification");
+    NSString *notificationName = @"TimeLinesDownloaded";
+    [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:nil];
+    
 }
 
 
