@@ -18,6 +18,7 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 	LocationManager lMan;
 	private Context mContext;
+	Thread locationThread;
 	
 	public LocationOverlay(Drawable arg0, LocationManager locMan, Context con) {
 		super(boundCenter(arg0));
@@ -28,7 +29,8 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		mContext = con;
 		mOverlays.add(new OverlayItem(new GeoPoint(0,0),"",""));
 		populate();
-		new Thread(new LocationGetter()).start();
+		locationThread = new Thread(new LocationGetter());
+		locationThread.start();
 	}
 
 	protected OverlayItem createItem(int arg0) {
