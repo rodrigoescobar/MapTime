@@ -167,6 +167,10 @@ public class MainActivity extends MapActivity {
 	    	Thread nst = new Thread(new NavStartThread(this));
 			nst.start();
 	    	return true;
+	    case R.id.menu_home:
+	    	Intent intentHome = new Intent(this, Home.class);
+	    	startActivity(intentHome);
+	    	return true;
 	    }
 	    return false;
 	}
@@ -199,10 +203,6 @@ public class MainActivity extends MapActivity {
 	
 	protected boolean isRouteDisplayed() {
 		return false;
-	}
-
-	public void test() {
-		
 	}
 	
 	private class NavStartThread implements Runnable {
