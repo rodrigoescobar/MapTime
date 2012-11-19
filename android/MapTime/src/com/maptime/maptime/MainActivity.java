@@ -1,7 +1,9 @@
 package com.maptime.maptime;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -23,6 +25,8 @@ import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.LocationManager;
 
 public class MainActivity extends MapActivity {
@@ -35,7 +39,7 @@ public class MainActivity extends MapActivity {
 	private ArrayList<OverlayItem> timePoints;
 	private Timeline curTimeline; 
 	public MapView mapView;
-	private NavOverlay routeOverlay;
+	private NavOverlay routeOverlay; 
 	
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -73,6 +77,8 @@ public class MainActivity extends MapActivity {
 					savedInstanceState.getDouble("navOverlayLength"));
 			mapOverlays.add(routeOverlay);
 		}
+		
+		//reverseGeocoding("1 Rudgwick Close, Fareham, Hampshire, UK");
     }    
     
 	private void timeToPlace() {
@@ -115,6 +121,28 @@ public class MainActivity extends MapActivity {
 		 *between the two geopoints, and if so, for each timepoint that should go, work out how far between, and...
 		 *Need to confirm that YOURS does in fact use KM for length() though
 		*/
+	}
+	
+	/*
+	 * Get the long and lat points of an address
+	 */
+	public Double[] reverseGeocoding(String address) {
+		Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
+		try {
+			List<Address> addresses = geoCoder.getFromLocationName(address, 15);
+			Address location = addresses.get(0);
+			Double[] longLat = new Double[2];
+		    longLat[0] = location.getLongitude();
+		    longLat[1] = location.getLatitude();
+		    return (longLat);
+		} catch (IOException e) {
+			e.getStackTrace();
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setTitle("Error");
+			dialog.setMessage("Cannot get location points of address");
+			dialog.show();
+			return null;
+		}
 	}
 	
 	public static double distanceKm(double lat1, double lon1, double lat2, double lon2) {
