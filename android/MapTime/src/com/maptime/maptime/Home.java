@@ -52,6 +52,8 @@ public class Home extends Activity {
     	String sStartPoint = eStartPoint.getText().toString();
     	EditText eEndPoint = (EditText)findViewById(R.id.txtBoxEndPoint);
     	String sEndPoint = eEndPoint.getText().toString();
+    	Spinner spinnerTimeline = (Spinner)findViewById(R.id.timelines_dropdown);
+    	Timeline selectedTimeline = timelines.get(spinnerTimeline.getSelectedItemPosition());
     	
     	if(!sStartPoint.equals("") && !sEndPoint.equals("")) {
     		String[] addresses = new String[2];
@@ -59,6 +61,7 @@ public class Home extends Activity {
     		addresses[1] = sEndPoint;
     		Intent intent = new Intent(Home.this, MainActivity.class);
     		intent.putExtra("EXTRA_ADDRESSES", addresses);
+    		intent.putExtra("EXTRA_TIMELINE", selectedTimeline);
             Home.this.startActivity(intent);
     	} else {
     		String errorTitle = getResources().getString(R.string.error_title);

@@ -82,6 +82,7 @@ public class MainActivity extends MapActivity {
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			String[] addresses = extras.getStringArray("EXTRA_ADDRESSES");
+			curTimeline = (Timeline)extras.get("EXTRA_TIMELINE");
 			String startAddress = addresses[0];
 			String endAddress = addresses[1];
 			point = reverseGeocoding(startAddress);
@@ -166,19 +167,8 @@ public class MainActivity extends MapActivity {
 
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
 	}
-	
-	/*
-	 * Called to plot the timeline on the route from the Home Screen
-	 */
-	public void plotTimeline(Timeline timeline) {
-		curTimeline = timeline;
-		if (mapOverlays.size() == 3) {
-			timeToPlace();
-		}
-	}
 
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
-		
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == 0 && resultCode == RESULT_OK) {
 			curTimeline = data.getParcelableExtra("selectedTimeline");
