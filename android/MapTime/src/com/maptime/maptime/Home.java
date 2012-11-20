@@ -48,12 +48,12 @@ public class Home extends Activity {
     }
     
     public void plotRoute(View view) {
-    	EditText eStartPoint = (EditText) findViewById(R.id.textStartPoint);
-    	EditText eEndPoint = (EditText) findViewById(R.id.textEndPoint);
+    	EditText eStartPoint = (EditText)findViewById(R.id.txtBoxStartPoint);
     	String sStartPoint = eStartPoint.getText().toString();
+    	EditText eEndPoint = (EditText)findViewById(R.id.txtBoxEndPoint);
     	String sEndPoint = eEndPoint.getText().toString();
     	
-    	if(sStartPoint != "" && sEndPoint != "") {
+    	if(!sStartPoint.equals("") && !sEndPoint.equals("")) {
     		String[] addresses = new String[2];
     		addresses[0] = sStartPoint;
     		addresses[1] = sEndPoint;

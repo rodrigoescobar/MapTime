@@ -81,12 +81,12 @@ public class MainActivity extends MapActivity {
 		//If Plot Route was pressed get the GeopPoints of the given addresses and plot route
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			String[] addresses = extras.getStringArray("addresses");
+			String[] addresses = extras.getStringArray("EXTRA_ADDRESSES");
 			String startAddress = addresses[0];
 			String endAddress = addresses[1];
-			
 			point = reverseGeocoding(startAddress);
 			point2 = reverseGeocoding(endAddress);
+			
 			if(point != null && point2 != null) {
 				Thread nst = new Thread(new NavStartThread(this));
 				nst.start();
@@ -266,6 +266,9 @@ public class MainActivity extends MapActivity {
 			//then add the two points to the navOverlay and display the route.
 			
 			//TODO: Again, really needs to be some sort  of wait here, with the following code run only after we have our two points
+				if(point != null && point2 != null) {
+					break;
+				}
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
