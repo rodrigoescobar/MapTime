@@ -31,7 +31,6 @@ public class PointsOverlay extends ItemizedOverlay {
 	private GeoPoint startPoint, endPoint;
 	Thread geoFence;
 	Handler alertHandler = new Handler() {
-        @Override
         public void handleMessage(final Message msgs) {
         	alertUser(mOverlays.get(msgs.arg1));
         }

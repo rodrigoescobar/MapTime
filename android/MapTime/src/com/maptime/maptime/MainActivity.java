@@ -78,7 +78,20 @@ public class MainActivity extends MapActivity {
 			mapOverlays.add(routeOverlay);
 		}
 		
-		//reverseGeocoding("1 Rudgwick Close, Fareham, Hampshire, UK");
+		//If Plot Route was pressed get the GeopPoints of the given addresses and plot route
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			String[] addresses = extras.getStringArray("addresses");
+			String startAddress = addresses[0];
+			String endAddress = addresses[1];
+			
+			point = reverseGeocoding(startAddress);
+			point2 = reverseGeocoding(endAddress);
+			if(point != null && point2 != null) {
+				Thread nst = new Thread(new NavStartThread(this));
+				nst.start();
+			}
+		}		
     }    
     
 	private void timeToPlace() {
@@ -126,15 +139,15 @@ public class MainActivity extends MapActivity {
 	/*
 	 * Get the long and lat points of an address
 	 */
-	public Double[] reverseGeocoding(String address) {
+	public GeoPoint reverseGeocoding(String addressString) {
 		Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
+		GeoPoint gp = null;
 		try {
-			List<Address> addresses = geoCoder.getFromLocationName(address, 15);
-			Address location = addresses.get(0);
-			Double[] longLat = new Double[2];
-		    longLat[0] = location.getLongitude();
-		    longLat[1] = location.getLatitude();
-		    return (longLat);
+			List<Address> addresses = geoCoder.getFromLocationName(addressString, 1);
+			for(Address address : addresses){
+	            gp = new GeoPoint((int)(address.getLatitude() * 1E6), (int)(address.getLongitude() * 1E6));
+	        }
+		    return (gp);
 		} catch (IOException e) {
 			e.getStackTrace();
 			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -192,6 +205,8 @@ public class MainActivity extends MapActivity {
 			dialog.setTitle("Navigation Mode");
 			dialog.setMessage("Tap where you want to start your timeline");
 			dialog.show();
+			point = null;
+			point2 = null;
 	    	Thread nst = new Thread(new NavStartThread(this));
 			nst.start();
 	    	return true;
@@ -262,8 +277,10 @@ public class MainActivity extends MapActivity {
 			
 			waitHandler.sendEmptyMessage(0); //Start the pop-up progress bar
 			
-			point = itemizedOverlay.getStartPoint();
-			point2 = itemizedOverlay.getEndPoint();			
+			if(point == null || point2 == null) {
+				point = itemizedOverlay.getStartPoint();
+				point2 = itemizedOverlay.getEndPoint();
+			}
 			itemizedOverlay.setStartPointOverlay(new OverlayItem(point, "Start", "Start of TimeLine"));
 			itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
 			//TODO: An asynctask which does the following since we can't network on main thread
