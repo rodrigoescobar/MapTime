@@ -1,7 +1,9 @@
 package com.maptime.maptime;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -23,6 +25,8 @@ import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.LocationManager;
 
 public class MainActivity extends MapActivity {
@@ -38,6 +42,7 @@ public class MainActivity extends MapActivity {
 	private NavOverlay routeOverlay;
 	public LocationManager lMan;
 	public LocationUpdater locUp;
+
 	
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -51,9 +56,12 @@ public class MainActivity extends MapActivity {
 		lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 		locUp = new LocationUpdater();
 		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+		
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
+			
 			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
+				
 				listOIs.add((ParcelableOverlayItem)p);
 			}
 			itemizedOverlay = new PointsOverlay(listOIs,
@@ -62,6 +70,7 @@ public class MainActivity extends MapActivity {
 					lMan);
 		}
 		else {
+			
 			itemizedOverlay = new PointsOverlay(pinDrawable, this);
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
@@ -70,30 +79,53 @@ public class MainActivity extends MapActivity {
 		locationOverlay = new LocationOverlay(locationIcon, this);
 		mapOverlays.add(locationOverlay);
 		if (savedInstanceState != null && savedInstanceState.containsKey("navOverlayList")) {
+			
 			ArrayList<ParcelableGeoPoint> listGPs = new ArrayList<ParcelableGeoPoint>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("navOverlayList")) {
+				
 				listGPs.add((ParcelableGeoPoint)p);
 			}
 			routeOverlay = new NavOverlay(listGPs, 
 					savedInstanceState.getDouble("navOverlayLength"));
 			mapOverlays.add(routeOverlay);
 		}
+		
+		//If Plot Route was pressed get the GeopPoints of the given addresses and plot route
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			
+			String[] addresses = extras.getStringArray("EXTRA_ADDRESSES");
+			curTimeline = (Timeline)extras.get("EXTRA_TIMELINE");
+			String startAddress = addresses[0];
+			String endAddress = addresses[1];
+			point = reverseGeocoding(startAddress);
+			point2 = reverseGeocoding(endAddress);
+			
+			if(point != null && point2 != null) {
+				
+				Thread nst = new Thread(new NavStartThread(this));
+				nst.start();
+			}
+		}		
     }    
     
 	public void stopLocation() {
 		if (lMan != null && itemizedOverlay.geoFence != null) {
+			
 			itemizedOverlay.stopGPS();
 		}
 		if (lMan != null && locationOverlay.locationThread != null) {
+			
 			locationOverlay.stopGPS();
 		}
 		if (lMan != null) {
+			
 			lMan.removeUpdates(locUp);
 			locUp = null;
 			lMan = null;
-			itemizedOverlay = null;
+			/*itemizedOverlay = null;
 			locationOverlay = null;
-			mapOverlays = null;
+			mapOverlays = null;*/
 		}
 	}
 	
@@ -106,16 +138,19 @@ public class MainActivity extends MapActivity {
 		double timeRange = curTimeline.getPoint(timelineSize-1).getTimeInBC() - endTimeValue;
 		double[] relativePos = new double[timelineSize];
 		for (int i = 0; i < timelineSize; i++) {
+			
 			relativePos[i] = dist * ((timeRange - (curTimeline.getPoint((timelineSize-1)-i).getTimeInBC() - endTimeValue)) / timeRange);
 		}
 		int curCheck = 0;
 		double lengthSoFar = 0.0;
 		for(int i = 0; i < gp.size()-1; i++){
+			
 			double length = distanceKm((double)(gp.get(i).getLatitudeE6())/(double)1000000.0,
 					(double)(gp.get(i).getLongitudeE6())/(double)1000000.0,
 					(double)(gp.get(i+1).getLatitudeE6())/(double)1000000.0,
 					(double)(gp.get(i+1).getLongitudeE6())/(double)1000000.0);
 			while(curCheck < relativePos.length && relativePos[curCheck] < length + lengthSoFar) {
+				
 				double fraction = (relativePos[curCheck]-lengthSoFar) / length;
 				int lat1 = gp.get(i).getLatitudeE6();
 				int lon1 = gp.get(i).getLongitudeE6();
@@ -139,6 +174,29 @@ public class MainActivity extends MapActivity {
 		*/
 	}
 	
+	/*
+	 * Get the long and lat points of an address
+	 */
+	public GeoPoint reverseGeocoding(String addressString) {
+		Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
+		GeoPoint gp = null;
+		try {
+			List<Address> addresses = geoCoder.getFromLocationName(addressString, 1);
+			for(Address address : addresses){
+	            gp = new GeoPoint((int)(address.getLatitude() * 1E6), (int)(address.getLongitude() * 1E6));
+	        }
+		    return (gp);
+		} catch (IOException e) {
+			
+			e.getStackTrace();
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setTitle("Error");
+			dialog.setMessage("Cannot get location points of address");
+			dialog.show();
+			return null;
+		}
+	}
+	
 	public static double distanceKm(double lat1, double lon1, double lat2, double lon2) {
 	    int EARTH_RADIUS_KM = 6371;
 	    double lat1Rad = Math.toRadians(lat1);
@@ -147,19 +205,8 @@ public class MainActivity extends MapActivity {
 
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
 	}
-	
-	/*
-	 * Called to plot the timeline on the route from the Home Screen
-	 */
-	public void plotTimeline(Timeline timeline) {
-		curTimeline = timeline;
-		if (mapOverlays.size() == 3) {
-			timeToPlace();
-		}
-	}
 
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
-		
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == 0 && resultCode == RESULT_OK) {
 			curTimeline = data.getParcelableExtra("selectedTimeline");
@@ -186,8 +233,14 @@ public class MainActivity extends MapActivity {
 			dialog.setTitle("Navigation Mode");
 			dialog.setMessage("Tap where you want to start your timeline");
 			dialog.show();
+			point = null;
+			point2 = null;
 	    	Thread nst = new Thread(new NavStartThread(this));
 			nst.start();
+	    	return true;
+	    case R.id.menu_home:
+	    	Intent intentHome = new Intent(this, Home.class);
+	    	startActivity(intentHome);
 	    	return true;
 	    }
 	    return false;
@@ -223,10 +276,6 @@ public class MainActivity extends MapActivity {
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
-
-	public void test() {
-		
-	}
 	
 	/*@Override
 	protected void onPause() {
@@ -234,6 +283,17 @@ public class MainActivity extends MapActivity {
 		super.onPause();
 		stopLocation();
 	}*/
+	
+	@Override
+	protected void onRestart() {
+		// TODO Auto-generated method stub
+		super.onRestart();
+		if (lMan == null) {
+			lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			locUp = new LocationUpdater();
+			lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+		}
+	}
 	
 	@Override
 	protected void onStop() {
@@ -261,6 +321,9 @@ public class MainActivity extends MapActivity {
 			//then add the two points to the navOverlay and display the route.
 			
 			//TODO: Again, really needs to be some sort  of wait here, with the following code run only after we have our two points
+				if(point != null && point2 != null) {
+					break;
+				}
 				try {
 					Thread.sleep(2000);
 					System.out.println("Bananas!");
@@ -275,9 +338,10 @@ public class MainActivity extends MapActivity {
 			itemizedOverlay.setNavMode(false);
 			if(!broken){	
 				waitHandler.sendEmptyMessage(0); //Start the pop-up progress bar
-				
-				point = itemizedOverlay.getStartPoint();
-				point2 = itemizedOverlay.getEndPoint();			
+				if(point == null || point2 == null) {
+					point = itemizedOverlay.getStartPoint();
+					point2 = itemizedOverlay.getEndPoint();	
+				}
 				itemizedOverlay.setStartPointOverlay(new OverlayItem(point, "Start", "Start of TimeLine"));
 				itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
 				//TODO: An asynctask which does the following since we can't network on main thread
@@ -297,6 +361,7 @@ public class MainActivity extends MapActivity {
 				}
 			
 				waitHandler.sendEmptyMessage(1); //Dismiss the pop-up progress bar
+
 			
 			//Log.i("MAP_OVERLAYS", Integer.toString(mapOverlays.size()));
 			}

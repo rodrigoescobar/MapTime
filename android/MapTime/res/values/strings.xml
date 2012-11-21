@@ -2,19 +2,27 @@
 
     <string name="app_name">MapTime</string>
     <string name="menu_timelines">Timelines</string>
+    <string name="title_timelines">Available Timelines</string>
     <string name="menu_refresh">Refresh</string>
     <string name="title_activity_main">MapTime</string>
     <string name="title_activity_timelinechoice">Timeline Selection</string>
-    <string name="menu_startnav">Start Navigation</string>
+    <string name="menu_startnav">Nav</string>
     <string name="progress_loading">Loading</string>
     <string name="progress_fetchingTimlines">Fetching Timelines...</string>
     <string name="error_title">Error</string>
     <string name="error_readXML">Could not contact the MapTime API server!</string>
+    <string name="error_points">Please enter a Start and End address for your route!</string>
     <string name="progress_calculating">Calculating</string>
     <string name="progress_calculatingRoute">Calculating Route...</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_splash_screen">MapTime</string>
     <string name="title_activity_home">MapTime</string>
-
+    <string name="subtitle_timeline">Timeline:</string>
+    <string name="subtitle_startPoint">Start Point:</string>
+    <string name="subtitle_endPoint">End Point:</string>
+    <string name="button_plotRoute">Plot Route</string>
+    <string name="button_gotoMap">Goto Map</string>
+    <string name="menu_home">Home</string>
+    
 </resources>

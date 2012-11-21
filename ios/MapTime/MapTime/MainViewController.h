@@ -13,8 +13,6 @@
 {
     UIPickerView *picker;
     NSMutableArray *contents;
-    NSMutableData *timeLineData;
-    NSMutableArray *timeLines;
     TimeLineDownloaderDelegate *delegate;
 }
 @property (strong, nonatomic) IBOutlet UITextField *fromField;
@@ -36,8 +34,13 @@
 
 -(NSInteger)numberOfComponentsInPickerView:(UIPickerView *)thePickerView;
 
--(NSData *)downloadTimelines;
+-(void)downloadTimelines;
 
 -(void)viewDidLoad;
+
+-(void)registerForNotifications;
+
+-(void)useFinishedNotification;
+
 
 @end

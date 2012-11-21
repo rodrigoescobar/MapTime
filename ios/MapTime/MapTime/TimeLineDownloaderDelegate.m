@@ -8,6 +8,7 @@
 
 #import "TimeLineDownloaderDelegate.h"
 #import "TBXML.h"
+#import "MBProgressHUD.h"
 
 
 @implementation TimeLineDownloaderDelegate
@@ -17,6 +18,7 @@
     self = [super init];
     if(self != nil) {
         timeLineData = [[NSMutableData alloc] init];
+        timeLines = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -36,6 +38,7 @@
 -(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
     NSLog(@"TIMELINE ERROR");
+    [self postErrorNotification];
 
 }
 
@@ -44,6 +47,8 @@
     NSLog(@"Finished Downloading");
 
     [self parseXML:timeLineData];
+    
+    [self postFinishedNotification];
 }
 
 -(NSMutableArray *)getTimeLines
@@ -55,7 +60,6 @@
 {
     TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:nil];
     TBXMLElement * rootXMlElement = tbxml.rootXMLElement;
-    timeLines = [[NSMutableArray alloc] init];
        
     if(rootXMlElement) {
         [self traverseElement:rootXMlElement->firstChild];
@@ -75,6 +79,7 @@
             //NSLog(@"Timeline found with name: %@", [tl getName]);
             [self traverseTimeLineElement:element->firstChild withTimeLineObject:tl];
             [timeLines addObject:tl];
+            NSLog(@"I am adding an object");
             
         }
         
@@ -123,6 +128,25 @@
         }
         
     } while((element = element->nextSibling));
+}
+
+/*
+ Notification Methods
+ */
+
+-(void)postFinishedNotification
+{
+    NSLog(@"I am sending a finished notification");
+    NSString *notificationName = @"TimeLinesDownloaded";
+    [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:nil];
+    
+}
+
+-(void)postErrorNotification
+{
+    NSLog(@"I am sending a error notification");
+    NSString *notificationName = @"ErrorNotification";
+    [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:nil];
 }
 
 

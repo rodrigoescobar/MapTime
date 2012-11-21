@@ -29,7 +29,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+	// Do any additional setup after loading the view, typically from a nib.    
 
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
@@ -417,6 +417,5 @@
     [aMapView setRegion:region animated:YES];
 
 }
-
 
 @end
