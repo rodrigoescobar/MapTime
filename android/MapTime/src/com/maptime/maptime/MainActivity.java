@@ -28,14 +28,16 @@ import android.location.LocationManager;
 public class MainActivity extends MapActivity {
 	
 	private MapController mapController;
-	private PointsOverlay itemizedOverlay;
+	private volatile PointsOverlay itemizedOverlay;
 	private LocationOverlay locationOverlay;
 	private List<Overlay> mapOverlays;
 	private GeoPoint point, point2;
 	private ArrayList<OverlayItem> timePoints;
 	private Timeline curTimeline; 
-	public MapView mapView;
+	public volatile MapView mapView;
 	private NavOverlay routeOverlay;
+	public LocationManager lMan;
+	public LocationUpdater locUp;
 	
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -46,6 +48,9 @@ public class MainActivity extends MapActivity {
         mapOverlays = mapView.getOverlays();
 		Drawable pinDrawable = this.getResources().getDrawable(R.drawable.map_marker);
 		Drawable locationIcon = this.getResources().getDrawable(R.drawable.currentlocation_icon);
+		lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		locUp = new LocationUpdater();
+		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
 			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
@@ -54,15 +59,15 @@ public class MainActivity extends MapActivity {
 			itemizedOverlay = new PointsOverlay(listOIs,
 					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayStart")),
 					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), pinDrawable, this, 
-					((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
+					lMan);
 		}
 		else {
-			itemizedOverlay = new PointsOverlay(pinDrawable, this, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
+			itemizedOverlay = new PointsOverlay(pinDrawable, this);
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
 			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
 		}
 		mapOverlays.add(itemizedOverlay);
-		locationOverlay = new LocationOverlay(locationIcon, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)), this);
+		locationOverlay = new LocationOverlay(locationIcon, this);
 		mapOverlays.add(locationOverlay);
 		if (savedInstanceState != null && savedInstanceState.containsKey("navOverlayList")) {
 			ArrayList<ParcelableGeoPoint> listGPs = new ArrayList<ParcelableGeoPoint>();
@@ -75,6 +80,23 @@ public class MainActivity extends MapActivity {
 		}
     }    
     
+	public void stopLocation() {
+		if (lMan != null && itemizedOverlay.geoFence != null) {
+			itemizedOverlay.stopGPS();
+		}
+		if (lMan != null && locationOverlay.locationThread != null) {
+			locationOverlay.stopGPS();
+		}
+		if (lMan != null) {
+			lMan.removeUpdates(locUp);
+			locUp = null;
+			lMan = null;
+			itemizedOverlay = null;
+			locationOverlay = null;
+			mapOverlays = null;
+		}
+	}
+	
 	private void timeToPlace() {
 		itemizedOverlay.clearTimePoints();
 		ArrayList<GeoPoint> gp = routeOverlay.getNavGPs();
@@ -195,6 +217,7 @@ public class MainActivity extends MapActivity {
 			outState.putParcelableArrayList("navOverlayList", plgp);
 			outState.putDouble("navOverlayLength", ((NavOverlay)routeOverlay).getLength());
 		}
+		stopLocation();
 	}
 	
 	protected boolean isRouteDisplayed() {
@@ -205,9 +228,24 @@ public class MainActivity extends MapActivity {
 		
 	}
 	
+	/*@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		stopLocation();
+	}*/
+	
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
+		stopLocation();
+	}
+	
 	private class NavStartThread implements Runnable {
 		public MainActivity ma;
 		public ProgressDialog progressDialog;
+		boolean broken = false;
 		
 		public NavStartThread(MainActivity m) {
 			ma = m;
@@ -225,44 +263,49 @@ public class MainActivity extends MapActivity {
 			//TODO: Again, really needs to be some sort  of wait here, with the following code run only after we have our two points
 				try {
 					Thread.sleep(2000);
+					System.out.println("Bananas!");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					broken = true;
+					break;
 				}
 			}
+			
 			itemizedOverlay.setNavMode(false);
+			if(!broken){	
+				waitHandler.sendEmptyMessage(0); //Start the pop-up progress bar
+				
+				point = itemizedOverlay.getStartPoint();
+				point2 = itemizedOverlay.getEndPoint();			
+				itemizedOverlay.setStartPointOverlay(new OverlayItem(point, "Start", "Start of TimeLine"));
+				itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
+				//TODO: An asynctask which does the following since we can't network on main thread
+				if (mapOverlays.size() == 2) {
+					routeOverlay = new NavOverlay(point, point2);
+					mapOverlays.add(routeOverlay);
+				}
+				else if (routeOverlay != null) {
+					routeOverlay = new NavOverlay(point, point2);
+					mapOverlays.set(2, routeOverlay);
+				}
+				if(curTimeline != null) {
+					timeToPlace();
+				}
+				else {
+					mapView.postInvalidate();
+				}
 			
-			waitHandler.sendEmptyMessage(0); //Start the pop-up progress bar
-			
-			point = itemizedOverlay.getStartPoint();
-			point2 = itemizedOverlay.getEndPoint();			
-			itemizedOverlay.setStartPointOverlay(new OverlayItem(point, "Start", "Start of TimeLine"));
-			itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
-			//TODO: An asynctask which does the following since we can't network on main thread
-			if (mapOverlays.size() == 2) {
-				routeOverlay = new NavOverlay(point, point2);
-				mapOverlays.add(routeOverlay);
-			}
-			else if (routeOverlay != null) {
-				routeOverlay = new NavOverlay(point, point2);
-				mapOverlays.set(2, routeOverlay);
-			}
-			if(curTimeline != null) {
-				timeToPlace();
-			}
-			else {
-				mapView.postInvalidate();
-			}
-			
-			waitHandler.sendEmptyMessage(1); //Dismiss the pop-up progress bar
+				waitHandler.sendEmptyMessage(1); //Dismiss the pop-up progress bar
 			
 			//Log.i("MAP_OVERLAYS", Integer.toString(mapOverlays.size()));
+			}
 		}
 		
 		/*
 		 * Handler to display a progress pop-up while the route is being calculated
 		 */
-		private Handler waitHandler = new Handler() {
+		private volatile Handler waitHandler = new Handler() {
             public void handleMessage(Message msg) {
             	if(msg.what == 0) {
             		String progressTitle = getString(R.string.progress_calculating);

@@ -22,14 +22,16 @@ import com.google.android.maps.OverlayItem;
 
 public class PointsOverlay extends ItemizedOverlay {
 	
-	LocationManager lMan;
+	//LocationManager lMan;
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
-	private Context mContext;
+	private volatile Context mContext;
 	private boolean isPinch  =  false;
 	private String TAG = "TapHandler";
 	private boolean navMode = false;
+	private volatile boolean end = false;
 	private GeoPoint startPoint, endPoint;
 	Thread geoFence;
+	//LocationUpdater locUp;
 	Handler alertHandler = new Handler() {
         @Override
         public void handleMessage(final Message msgs) {
@@ -37,12 +39,13 @@ public class PointsOverlay extends ItemizedOverlay {
         }
         };
 	
-	public PointsOverlay(Drawable defaultMarker, Context context, LocationManager locMan) {
+	public PointsOverlay(Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
-		lMan = locMan;
-		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
-		//lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
+		//((MainActivity) mContext).lMan = locMan;
+		//locUp = new LocationUpdater();
+		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, ((MainActivity)mContext).locUp);
+		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
 		geoFence = new Thread(new GeoFenceTask());
 		geoFence.start();
 	}
@@ -50,9 +53,9 @@ public class PointsOverlay extends ItemizedOverlay {
 	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context, LocationManager locMan) {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
-		lMan = locMan;
-		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
-		//lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
+		((MainActivity) mContext).lMan = locMan;
+		((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
+		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
 		ArrayList<OverlayItem> newOIs = new ArrayList<OverlayItem>();
 		for (ParcelableOverlayItem poi:ois) {
 			newOIs.add(new OverlayItem(poi.getPoint(), poi.getTitle(), poi.getSnippet()));
@@ -63,6 +66,9 @@ public class PointsOverlay extends ItemizedOverlay {
 		}
 		if (end != null) {
 			endPoint = new GeoPoint(end.getLatitudeE6(), end.getLongitudeE6());
+		}
+		if (start != null && end == null) {
+			navMode = true;
 		}
 		populate();
 	}
@@ -153,6 +159,7 @@ public class PointsOverlay extends ItemizedOverlay {
 					AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
 					dialog.setTitle("Navigation Mode");
 					dialog.setMessage("Now tap the endPoint of your route");
+					//dialog.setNeutralButton("OK", null);
 					dialog.show();
 				} else if (navMode && endPoint == null) {
 					endPoint = p;
@@ -238,11 +245,20 @@ public class PointsOverlay extends ItemizedOverlay {
 		dialog.show();
 	}
 	
+	public void stopGPS() {
+		//((MainActivity) mContext).lMan.removeUpdates(locUp);
+		end = true;
+		do {
+			geoFence.interrupt();
+		} while (geoFence.isAlive());
+		//locUp = null;
+		//((MainActivity) mContext).lMan = null;
+	}
+	
 	private class GeoFenceTask implements Runnable {
 
 		ArrayList<Double> distances = new ArrayList<Double>();
 		boolean isInit = false;
-		boolean end = false;
 		Location curLoc;
 		final static double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
 		
@@ -250,11 +266,11 @@ public class PointsOverlay extends ItemizedOverlay {
 			// TODO Auto-generated method stub
 						
 			while (!end) {
-				//String lProv = lMan.getBestProvider(new Criteria(), true);
+				//String lProv = ((MainActivity) mContext).lMan.getBestProvider(new Criteria(), true);
 				String lProv = LocationManager.GPS_PROVIDER;
-				curLoc = lMan.getLastKnownLocation(lProv);
+				curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
 				Log.i("test",lProv);
-				curLoc = lMan.getLastKnownLocation(lProv);
+				curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
 				if (curLoc != null) {
 				Log.i("Cur Loc", curLoc.toString());
 				}
@@ -286,11 +302,12 @@ public class PointsOverlay extends ItemizedOverlay {
 				}
 				try {
 					Log.i("Sleep","yes");
-					Thread.sleep(6000); //Wait for a minute before rechecking in order to conserve battery life
+					Thread.sleep(5000); //Wait for a few seconds, GPS doesn't update that often.
 					Log.i("Sleep","no");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					break;
 				}
 				
 			}

@@ -16,17 +16,20 @@ import com.google.android.maps.OverlayItem;
 public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
-	LocationManager lMan;
+	//LocationManager lMan;
 	private Context mContext;
 	Thread locationThread;
+	//LocationUpdater locUp;
+	private volatile boolean stop = false;
 	
-	public LocationOverlay(Drawable arg0, LocationManager locMan, Context con) {
+	public LocationOverlay(Drawable arg0, Context con) {
 		super(boundCenter(arg0));
 		// TODO Auto-generated constructor stub
-		lMan = locMan;
-		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, new LocationUpdater());
-		//lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, (float) 500.0, new LocationUpdater());
 		mContext = con;
+		//lMan = locMan;
+		//locUp = new LocationUpdater();
+		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, ((MainActivity) mContext).locUp);
+		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, (float) 500.0, new LocationUpdater());
 		mOverlays.add(new OverlayItem(new GeoPoint(0,0),"",""));
 		populate();
 		locationThread = new Thread(new LocationGetter());
@@ -50,17 +53,27 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		return mOverlays.size();
 	}
 
+	public void stopGPS() {
+		//((MainActivity) mContext).lMan.removeUpdates(locUp);
+		stop = true;
+		do {
+			locationThread.interrupt();
+		} while (locationThread.isAlive());
+		//locUp = null;
+		//((MainActivity) mContext).lMan = null;
+	}
+	
 	private class LocationGetter implements Runnable {
 
 		Location curLoc;
 		
 		public void run() {
 			// TODO Auto-generated method stub
-			while(true) {
-				//String lProv = lMan.getBestProvider(new Criteria(), true);
+			while(!stop) {
+				//String lProv = ((MainActivity) mContext).lMan.getBestProvider(new Criteria(), true);
 				String lProv = LocationManager.GPS_PROVIDER;
 				if (lProv != null) {
-					curLoc = lMan.getLastKnownLocation(lProv);
+					curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
 				}
 				Log.i("test",lProv);
 				if (curLoc != null) {
@@ -71,6 +84,7 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					break;
 				}
 
 			}
