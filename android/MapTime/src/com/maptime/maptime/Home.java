@@ -12,6 +12,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,12 +38,63 @@ public class Home extends Activity {
 	
 	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
+	public LocationManager lMan;
+	public LocationUpdater locUp;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         
+       
+		
         refreshTimelines(null);
+    }
+    
+    public void getLocationStart(View view) {
+    	Location loc = getCurrentLocation();
+    	if(loc != null) {
+    		EditText eStartPoint = (EditText)findViewById(R.id.txtBoxStartPoint);
+    		String sLoc = loc.getLatitude() + ", " + loc.getLongitude();
+    		eStartPoint.setText(sLoc);
+    	} else {
+    		String errorTitle = getResources().getString(R.string.error_title);
+			String errorMessage = getResources().getString(R.string.error_currentGPS);
+			
+    		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
+			errDialog.setTitle(errorTitle);
+			errDialog.setMessage(errorMessage);
+			errDialog.show();
+    	}
+    }
+    
+    public void getLocationEnd(View view) {
+    	Location loc = getCurrentLocation();
+    	if(loc != null) {
+    		EditText eStartPoint = (EditText)findViewById(R.id.txtBoxEndPoint);
+    		String sLoc = loc.getLatitude() + ", " + loc.getLongitude();
+    		eStartPoint.setText(sLoc);
+    	} else {
+    		String errorTitle = getResources().getString(R.string.error_title);
+			String errorMessage = getResources().getString(R.string.error_currentGPS);
+			
+    		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
+			errDialog.setTitle(errorTitle);
+			errDialog.setMessage(errorMessage);
+			errDialog.show();
+    	}
+    }
+    
+    private Location getCurrentLocation() {
+    	lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+ 		locUp = new LocationUpdater();
+ 		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+ 		
+ 		Location lastLoc = lMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+ 		if(lastLoc != null) {
+ 			return lastLoc;
+ 		} else {                
+ 			return null;
+ 		}
     }
     
     public void refreshTimelines(View view) {
