@@ -19,16 +19,25 @@ public class SplashScreen extends Activity {
  
             public void run() { 
                 // make sure we close the splash screen so the user won't come back when it presses back key
-                finish();
+                //finish();
                 
                 // start the home screen
                 Intent intent = new Intent(SplashScreen.this, Home.class);
-                SplashScreen.this.startActivity(intent);
+                SplashScreen.this.startActivityForResult(intent, 0);
             }
  
         }, 1250);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	// TODO Auto-generated method stub
+    	super.onActivityResult(requestCode, resultCode, data);
+    	if  (requestCode == 0) {
+    		finish();
+    	}
+    }
+    
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.splash_screen, menu);
         return true;

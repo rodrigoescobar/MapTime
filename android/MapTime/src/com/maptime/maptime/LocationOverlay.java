@@ -51,11 +51,6 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		}
 		populate();
 		((MainActivity)mContext).mapView.postInvalidate();
-		((MainActivity)mContext).runOnUiThread(new Runnable() {
-			public void run() {
-				((MainActivity)mContext).mapView.getController().animateTo(gp);
-			}
-		});
 	}
 
 	public int size() {
@@ -79,6 +74,22 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		
 		public void run() {
 			// TODO Auto-generated method stub
+
+			((MainActivity)mContext).runOnUiThread(new Runnable() {
+				public void run() {
+					String lProv = LocationManager.GPS_PROVIDER;
+					if (lProv != null) {
+						curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
+					}
+					Log.i("test",lProv);
+					if (curLoc != null) {
+						((MainActivity)mContext).mapView.getController().animateTo(
+								new GeoPoint((int)(curLoc.getLatitude()*1000000.0),
+										(int)(curLoc.getLongitude()*1000000.0)));
+					}
+				}
+			});
+			
 			while(!stop) {
 				//String lProv = ((MainActivity) mContext).lMan.getBestProvider(new Criteria(), true);
 				String lProv = LocationManager.GPS_PROVIDER;
