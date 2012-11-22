@@ -72,8 +72,8 @@ public class MainActivity extends MapActivity {
 		else {
 			
 			itemizedOverlay = new PointsOverlay(pinDrawable, this);
-			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
-			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
+			//itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
+			//itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
 		}
 		mapOverlays.add(itemizedOverlay);
 		locationOverlay = new LocationOverlay(locationIcon, this);

@@ -97,6 +97,17 @@ public class Home extends Activity {
  		}
     }
     
+    @Override
+    protected void onStop() {
+    	// TODO Auto-generated method stub
+    	super.onStop();
+    	if (lMan != null) {
+    		lMan.removeUpdates(locUp);
+    		locUp = null;
+    		lMan = null;
+    	}
+    }
+    
     public void refreshTimelines(View view) {
     	new TimelineRetrieverTask(this).execute();
     }
@@ -107,9 +118,10 @@ public class Home extends Activity {
     	EditText eEndPoint = (EditText)findViewById(R.id.txtBoxEndPoint);
     	String sEndPoint = eEndPoint.getText().toString();
     	Spinner spinnerTimeline = (Spinner)findViewById(R.id.timelines_dropdown);
-    	Timeline selectedTimeline = timelines.get(spinnerTimeline.getSelectedItemPosition());
+    	Timeline selectedTimeline = null; 
     	
     	if(!sStartPoint.equals("") && !sEndPoint.equals("")) {
+    		selectedTimeline = timelines.get(spinnerTimeline.getSelectedItemPosition());
     		String[] addresses = new String[2];
     		addresses[0] = sStartPoint;
     		addresses[1] = sEndPoint;
@@ -117,6 +129,15 @@ public class Home extends Activity {
     		intent.putExtra("EXTRA_ADDRESSES", addresses);
     		intent.putExtra("EXTRA_TIMELINE", selectedTimeline);
             Home.this.startActivity(intent);
+    	} 
+    	else if (spinnerTimeline.getAdapter().getCount() == 0) {
+    		String errorTitle = getResources().getString(R.string.error_timelines);
+			String errorMessage = getResources().getString(R.string.error_refresh);
+			
+    		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
+			errDialog.setTitle(errorTitle);
+			errDialog.setMessage(errorMessage);
+			errDialog.show();
     	} else {
     		String errorTitle = getResources().getString(R.string.error_title);
 			String errorMessage = getResources().getString(R.string.error_points);

@@ -30,7 +30,7 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		//locUp = new LocationUpdater();
 		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, ((MainActivity) mContext).locUp);
 		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, (float) 500.0, new LocationUpdater());
-		mOverlays.add(new OverlayItem(new GeoPoint(0,0),"",""));
+		//mOverlays.add(new OverlayItem(new GeoPoint(0,0),"",""));
 		populate();
 		locationThread = new Thread(new LocationGetter());
 		locationThread.start();
@@ -41,11 +41,21 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		return mOverlays.get(arg0);
 	}
 
-	private void setLocation(GeoPoint gp) {
+	private void setLocation(final GeoPoint gp) {
 		System.out.println(gp);
-		mOverlays.set(0,new OverlayItem(gp,"",""));
+		if (mOverlays.size() == 1) {
+			mOverlays.set(0,new OverlayItem(gp,"You are here",""));
+		}
+		else {
+			mOverlays.add(new OverlayItem(gp,"You are here",""));
+		}
 		populate();
 		((MainActivity)mContext).mapView.postInvalidate();
+		((MainActivity)mContext).runOnUiThread(new Runnable() {
+			public void run() {
+				((MainActivity)mContext).mapView.getController().animateTo(gp);
+			}
+		});
 	}
 
 	public int size() {

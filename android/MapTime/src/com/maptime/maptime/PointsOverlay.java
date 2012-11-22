@@ -47,6 +47,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
 		geoFence = new Thread(new GeoFenceTask());
 		geoFence.start();
+		populate();
 	}
 	
 	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context, LocationManager locMan) {
