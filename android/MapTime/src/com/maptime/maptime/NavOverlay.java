@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -34,7 +35,9 @@ public class NavOverlay extends Overlay {
         navGPs.add(gp1);
         try {
         	URL url = makeURL(gp1,gp2);
-        	BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+        	URLConnection urlC = url.openConnection();
+        	urlC.addRequestProperty("X-Yours-client", "MapTime");
+        	BufferedReader in = new BufferedReader(new InputStreamReader(urlC.getInputStream()));
 			String str;
 			String[] gpCouple;
 			while ((str = in.readLine()) != null) {

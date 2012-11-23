@@ -89,7 +89,12 @@ public class PointsOverlay extends ItemizedOverlay {
 	 */
 	
 	public void setStartPointOverlay(OverlayItem oi) {
-		mOverlays.set(0, oi);
+		if (mOverlays.size() == 0) {
+			mOverlays.add(oi);
+		}
+		else {
+			mOverlays.set(0, oi);
+		}
 		populate();
 	}
 	
