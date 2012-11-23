@@ -38,6 +38,13 @@ public class SplashScreen extends Activity {
     	}
     }
     
+    @Override
+    protected void onDestroy() {
+    	// TODO Auto-generated method stub
+    	super.onDestroy();
+    	android.os.Process.killProcess(android.os.Process.myPid());
+    }
+    
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.splash_screen, menu);
         return true;
