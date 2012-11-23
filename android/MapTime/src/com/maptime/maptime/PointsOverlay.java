@@ -142,7 +142,21 @@ public class PointsOverlay extends ItemizedOverlay {
 	
 	@Override
 	protected boolean onTap(int index) {
-		OverlayItem item = mOverlays.get(index);
+		OverlayItem item;
+		if (mOverlays.size() == 2) {
+			item = mOverlays.get(index);
+		}
+		else {
+			if (index == 0) {
+				item = mOverlays.get(2);
+			}
+			else if (index == 1) {
+				item = mOverlays.get(mOverlays.size()-1);
+			}
+			else {
+				item = mOverlays.get(index);
+			}
+		}
 		AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
 		dialog.setTitle(item.getTitle());
 		dialog.setMessage(item.getSnippet());

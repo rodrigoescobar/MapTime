@@ -30,7 +30,7 @@ public class NavOverlay extends Overlay {
      * @param gp2 End of Route
      */
     
-    public NavOverlay(GeoPoint gp1, GeoPoint gp2) {
+    public NavOverlay(GeoPoint gp1, GeoPoint gp2) throws NoRouteException{
         navGPs = new ArrayList<GeoPoint>();
         navGPs.add(gp1);
         try {
@@ -42,12 +42,15 @@ public class NavOverlay extends Overlay {
 			String[] gpCouple;
 			while ((str = in.readLine()) != null) {
 				// str is one line of text; readLine() strips the newline character(s)
-				/*if (str.trim().startsWith("<dista")) {
+				if (str.trim().startsWith("<dista")) {
 					str = str.trim().substring(10);
 					String[] strTemp = str.split("<");
 					length = Double.parseDouble(strTemp[0]);
+					if (length == 0.0) {
+						throw new NoRouteException();
+					}
 				}
-				else*/ if (str.trim().startsWith("<coordi")) { //marks start of navigation coordinates
+				else if (str.trim().startsWith("<coordi")) { //marks start of navigation coordinates
 					gpCouple = str.trim().substring(14).split(","); //trims the <coordinate> tag, splits on the , between lat and long
 					navGPs.add(new GeoPoint((int)(Double.valueOf(gpCouple[1])*(double)1000000.0), //list is in long,lat and degrees
 							(int)(Double.valueOf(gpCouple[0])*(double)1000000.0)));				  //GeoPoint wants lat,long and microdegrees

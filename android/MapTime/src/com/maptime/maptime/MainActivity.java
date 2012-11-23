@@ -166,6 +166,7 @@ public class MainActivity extends MapActivity {
 			}
 			lengthSoFar += length;
 		}
+		itemizedOverlay.addOverlay(new OverlayItem(gp.get(0), curTimeline.getPoint(0).getName(), curTimeline.getPoint(0).getDescription()));
 		mapView.postInvalidate();
 		/*work out how far down route each TimePoint should be, normalised to dist, then
 		 *work out how far each geopoint is using distanceKm(), and if TimePoints should go 
@@ -346,14 +347,44 @@ public class MainActivity extends MapActivity {
 				itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
 				//TODO: An asynctask which does the following since we can't network on main thread
 				if (mapOverlays.size() == 2) {
-					routeOverlay = new NavOverlay(point, point2);
-					mapOverlays.add(routeOverlay);
+					try {
+						routeOverlay = new NavOverlay(point, point2);
+						mapOverlays.add(routeOverlay);
+					} catch (NoRouteException e) {
+						ma.runOnUiThread(new Runnable() {
+							public void run() {
+								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
+								dialog.setTitle("Could not find route!");
+								dialog.setMessage("Try giving more information, or make sure there is a road connection.");
+								dialog.show();
+							}
+						});
+						/*routeOverlay = null;
+						if (mapOverlays.size() == 3) {
+							mapOverlays.remove(2);
+						}*/
+					}
 				}
 				else if (routeOverlay != null) {
-					routeOverlay = new NavOverlay(point, point2);
-					mapOverlays.set(2, routeOverlay);
+					try {
+						routeOverlay = new NavOverlay(point, point2);
+						mapOverlays.set(2, routeOverlay);
+					} catch (NoRouteException e) {
+						ma.runOnUiThread(new Runnable() {
+							public void run() {
+								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
+								dialog.setTitle("Could not find route!");
+								dialog.setMessage("Try giving more information, or make sure there is a road connection.");
+								dialog.show();
+							}
+						});
+						/*routeOverlay = null;
+						if (mapOverlays.size() == 3) {
+							mapOverlays.remove(2);
+						}*/
+					}
 				}
-				if(curTimeline != null) {
+				if(curTimeline != null && routeOverlay != null) {
 					timeToPlace();
 				}
 				else {
