@@ -99,7 +99,7 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	/**
-	 * 
+	 * Setter for 
 	 * @param oi
 	 */
 	
@@ -112,10 +112,6 @@ public class PointsOverlay extends ItemizedOverlay {
 		}
 		populate();
 	}
-	
-	/**
-	 * 
-	 */
 	
 	@Override
 	protected OverlayItem createItem(int i) {
@@ -140,6 +136,10 @@ public class PointsOverlay extends ItemizedOverlay {
 		return mOverlays.size();
 	}
 	
+	/**
+	 * 
+	 */
+	
 	@Override
 	protected boolean onTap(int index) {
 		OverlayItem item;
@@ -163,7 +163,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		dialog.show();
 		return true;
 	}
-
+	
 	@Override
 	public boolean onTap(GeoPoint p, MapView map){
 		if (isPinch) {
@@ -192,7 +192,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		}
 		
 	}
-
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent e, MapView mapView) {
 		
@@ -209,6 +209,11 @@ public class PointsOverlay extends ItemizedOverlay {
 		
     return super.onTouchEvent(e,mapView);
 	}
+	
+	/**
+	 * 
+	 * @param b
+	 */
 	
 	public void setNavMode(boolean b) {
 		navMode = b;
@@ -264,6 +269,10 @@ public class PointsOverlay extends ItemizedOverlay {
 		dialog.show();
 	}
 	
+	/**
+	 * Ends the thread that checks for location data
+	 */
+	
 	public void stopGPS() {
 		//((MainActivity) mContext).lMan.removeUpdates(locUp);
 		end = true;
@@ -273,6 +282,11 @@ public class PointsOverlay extends ItemizedOverlay {
 		//locUp = null;
 		//((MainActivity) mContext).lMan = null;
 	}
+	
+	/**
+	 * 
+	 *
+	 */
 	
 	private class GeoFenceTask implements Runnable {
 

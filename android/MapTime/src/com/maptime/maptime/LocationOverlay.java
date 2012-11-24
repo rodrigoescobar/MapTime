@@ -13,6 +13,11 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
+/**
+ * 
+ *
+ */
+
 public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
@@ -21,6 +26,12 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 	Thread locationThread;
 	//LocationUpdater locUp;
 	private volatile boolean stop = false;
+	
+	/**
+	 * 
+	 * @param arg0
+	 * @param con
+	 */
 	
 	public LocationOverlay(Drawable arg0, Context con) {
 		super(boundCenter(arg0));
@@ -36,11 +47,20 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		locationThread.start();
 	}
 
+	/**
+	 * 
+	 */
+	
 	protected OverlayItem createItem(int arg0) {
 		// TODO Auto-generated method stub
 		return mOverlays.get(arg0);
 	}
 
+	/**
+	 * 
+	 * @param gp
+	 */
+	
 	private void setLocation(final GeoPoint gp) {
 		System.out.println(gp);
 		if (mOverlays.size() == 1) {
@@ -53,11 +73,19 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		((MainActivity)mContext).mapView.postInvalidate();
 	}
 
+	/**
+	 * 
+	 */
+	
 	public int size() {
 		// TODO Auto-generated method stub
 		return mOverlays.size();
 	}
 
+	/**
+	 * 
+	 */
+	
 	public void stopGPS() {
 		//((MainActivity) mContext).lMan.removeUpdates(locUp);
 		stop = true;
@@ -67,6 +95,12 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		//locUp = null;
 		//((MainActivity) mContext).lMan = null;
 	}
+	
+	/**
+	 * 
+	 * @author Nathan
+	 *
+	 */
 	
 	private class LocationGetter implements Runnable {
 

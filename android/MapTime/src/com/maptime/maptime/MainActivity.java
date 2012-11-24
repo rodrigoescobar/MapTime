@@ -29,6 +29,11 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
 
+/**
+ * The MainActivity provides the map view and activity, and as such, the base for 
+ * location services and retrieving navigation data
+ */
+
 public class MainActivity extends MapActivity {
 	
 	private MapController mapController;
@@ -43,7 +48,11 @@ public class MainActivity extends MapActivity {
 	public LocationManager lMan;
 	public LocationUpdater locUp;
 
+	/**
+	 * 
+	 */
 	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 		
@@ -109,6 +118,11 @@ public class MainActivity extends MapActivity {
 		}		
     }    
     
+	/**
+	 * Stops the GPS service.
+	 * Called whenever the activity is stopped.	 
+	 */
+	
 	public void stopLocation() {
 		if (lMan != null && itemizedOverlay.geoFence != null) {
 			
@@ -128,6 +142,11 @@ public class MainActivity extends MapActivity {
 			mapOverlays = null;*/
 		}
 	}
+	
+	/**
+	 * When the activity has both a navigation route and a timeline, 
+	 * 
+	 */
 	
 	private void timeToPlace() {
 		itemizedOverlay.clearTimePoints();
@@ -175,7 +194,7 @@ public class MainActivity extends MapActivity {
 		*/
 	}
 	
-	/*
+	/**
 	 * Get the long and lat points of an address
 	 */
 	public GeoPoint reverseGeocoding(String addressString) {
@@ -198,6 +217,15 @@ public class MainActivity extends MapActivity {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param lat1
+	 * @param lon1
+	 * @param lat2
+	 * @param lon2
+	 * @return
+	 */
+	
 	public static double distanceKm(double lat1, double lon1, double lat2, double lon2) {
 	    int EARTH_RADIUS_KM = 6371;
 	    double lat1Rad = Math.toRadians(lat1);
@@ -207,6 +235,10 @@ public class MainActivity extends MapActivity {
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
 	}
 
+	/**
+	 * Stores the timeline object 
+	 */
+	
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == 0 && resultCode == RESULT_OK) {
@@ -222,7 +254,7 @@ public class MainActivity extends MapActivity {
 	    inflater.inflate(R.menu.activity_main, menu);
 	    return true;
 	}
-
+	
 	public boolean onOptionsItemSelected(MenuItem item){
 	    switch(item.getItemId()){
 	    case R.id.menu_timelines:
@@ -246,7 +278,7 @@ public class MainActivity extends MapActivity {
 	    }
 	    return false;
 	}
-
+	
 	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
@@ -278,12 +310,6 @@ public class MainActivity extends MapActivity {
 		return false;
 	}
 	
-	/*@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-		stopLocation();
-	}*/
 	
 	@Override
 	protected void onRestart() {
@@ -303,14 +329,26 @@ public class MainActivity extends MapActivity {
 		stopLocation();
 	}
 	
+	/**
+	 * Runnable that retrieves navigation data from YOURS, based on user input, 
+	 * and creates an overlay showing that route, along with the Timeline if the
+	 * Timeline has already been selected.
+	 */
+	
 	private class NavStartThread implements Runnable {
 		public MainActivity ma;
 		public ProgressDialog progressDialog;
 		boolean broken = false;
 		
+		/**
+		 * General constructor
+		 * @param m The MainActivity that this thread was spawned from
+		 */
+		
 		public NavStartThread(MainActivity m) {
 			ma = m;
 		}
+		
 		
 		public void run() {
 			itemizedOverlay.clearPoints();
@@ -398,9 +436,10 @@ public class MainActivity extends MapActivity {
 			}
 		}
 		
-		/*
+		/**
 		 * Handler to display a progress pop-up while the route is being calculated
 		 */
+		
 		private volatile Handler waitHandler = new Handler() {
             public void handleMessage(Message msg) {
             	if(msg.what == 0) {

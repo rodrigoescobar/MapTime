@@ -5,28 +5,44 @@ import android.os.Parcelable;
 
 import com.google.android.maps.GeoPoint;
 
+/**
+ * A Parcelable implementation of Android's GeoPoint class.
+ *
+ */
+
 public class ParcelableGeoPoint extends GeoPoint implements Parcelable{
 
+	/**
+	 * Standard constructor, identical to GeoPoint's
+	 * @param lat Latitude in microdegrees
+	 * @param lon Longitude in microdegrees
+	 */
+	
 	public ParcelableGeoPoint(int lat, int lon) {
 		super(lat, lon);
-		// TODO Auto-generated constructor stub
+		
 	}
 
+	/**
+	 * A constructor creating a ParcelableGeoPoint equivalent of a GeoPoint more directly.
+	 * @param gp GeoPoint to create an equivalent of
+	 */
+	
 	public ParcelableGeoPoint(GeoPoint gp) {
 		super(gp.getLatitudeE6(), gp.getLongitudeE6());
 	}
 	
 	public int describeContents() {
-		// TODO Auto-generated method stub
+		
 		return 0;
 	}
-
+	
 	public void writeToParcel(Parcel dest, int flags) {
-		// TODO Auto-generated method stub
+		
 		dest.writeInt(this.getLatitudeE6());
 		dest.writeInt(this.getLongitudeE6());
 	}
-
+	
 	public static final Parcelable.Creator<ParcelableGeoPoint> CREATOR = 
 		new Parcelable.Creator<ParcelableGeoPoint>() {
 			public ParcelableGeoPoint createFromParcel(Parcel in) {

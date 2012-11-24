@@ -6,6 +6,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
 
+/**
+ * Class responsible for showing a splash screen when the application starts, 
+ * and closing the app when the last activity is closed.
+ */
+
 public class SplashScreen extends Activity {
 
     public void onCreate(Bundle savedInstanceState) {

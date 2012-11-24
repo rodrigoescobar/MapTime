@@ -34,13 +34,19 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+/**
+ * Home screen menu which can retrieve TimeLines, and launch the MainActivity
+ * either with reverse geocoded data to start with a navigation route, 
+ * or with no data so that the user can use the map for that.
+ */
+
 public class Home extends Activity {
 	
 	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
 	public LocationManager lMan;
 	public LocationUpdater locUp;
-
+	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
@@ -49,6 +55,11 @@ public class Home extends Activity {
 		
         refreshTimelines(null);
     }
+    
+    /**
+     * Places the user's current location in the Start of Route box
+     * @param view 
+     */
     
     public void getLocationStart(View view) {
     	Location loc = getCurrentLocation();
@@ -67,6 +78,11 @@ public class Home extends Activity {
     	}
     }
     
+    /**
+     * Places the user's current location in the End of Route box
+     * @param view
+     */
+    
     public void getLocationEnd(View view) {
     	Location loc = getCurrentLocation();
     	if(loc != null) {
@@ -84,6 +100,11 @@ public class Home extends Activity {
     	}
     }
     
+    /**
+     * 
+     * @return
+     */
+    
     private Location getCurrentLocation() {
     	lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
  		locUp = new LocationUpdater();
@@ -97,6 +118,10 @@ public class Home extends Activity {
  		}
     }
     
+    /**
+     * 
+     */
+    
     @Override
     protected void onStop() {
     	// TODO Auto-generated method stub
@@ -108,9 +133,19 @@ public class Home extends Activity {
     	}
     }
     
+    /**
+     * 
+     * @param view
+     */
+    
     public void refreshTimelines(View view) {
     	new TimelineRetrieverTask(this).execute();
     }
+    
+    /**
+     * 
+     * @param view
+     */
     
     public void plotRoute(View view) {
     	EditText eStartPoint = (EditText)findViewById(R.id.txtBoxStartPoint);
@@ -149,11 +184,20 @@ public class Home extends Activity {
     	}
     }
     
+    /**
+     * 
+     * @param view
+     */
+    
     public void gotoMap(View view) {
     	//Start the map screen
         Intent intent = new Intent(Home.this, MainActivity.class);
         Home.this.startActivity(intent);
     }
+    
+    /**
+     * 
+     */
     
     public void getTimelines() {
     	try {
@@ -163,7 +207,7 @@ public class Home extends Activity {
 		}
     }
 
-	/*
+	/**
 	 * Handles the caught error for fetching XML (can't put dialogs inside the actual catch(){} method without app breaking)
 	 */
 	private Handler handler = new Handler() {
@@ -178,8 +222,8 @@ public class Home extends Activity {
 	    }
 	};
     
-    /*
-	 * Read the timelines XML file in a nice way
+    /**
+	 * Read the timelines XML file in a fast way, using a javax parser.
 	 */
 	private void readXML() throws ParserConfigurationException, SAXException, IOException {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -253,6 +297,11 @@ public class Home extends Activity {
 		saxParser.parse(APIURL, xmlHandler);
 	}
 	
+	/**
+	 * 
+	 *
+	 */
+	
 	private class TimelineRetrieverTask extends AsyncTask<Void, Void, Void> {
 
 		private Context context;
@@ -292,7 +341,7 @@ public class Home extends Activity {
 		    progressDialog.dismiss();
 		}
 	}
-
+	
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_home, menu);
         return true;

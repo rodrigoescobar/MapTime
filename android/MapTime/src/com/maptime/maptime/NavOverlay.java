@@ -79,6 +79,12 @@ public class NavOverlay extends Overlay {
         isFullyCreated = true;
     }
 
+    /**
+     * 
+     * @param gps
+     * @param routeLength
+     */
+    
     public NavOverlay(ArrayList<ParcelableGeoPoint> gps, double routeLength) {
     	ArrayList<GeoPoint> geopoints = new ArrayList<GeoPoint>();
     	for (ParcelableGeoPoint pgp : gps) {
@@ -89,6 +95,14 @@ public class NavOverlay extends Overlay {
     	isFullyCreated = true;
     }
     
+    /**
+     * 
+     * @param g1
+     * @param g2
+     * @return
+     * @throws MalformedURLException
+     */
+    
     private URL makeURL (GeoPoint g1, GeoPoint g2) throws MalformedURLException { //using YOURS example server for navigation for now
     	
     	return new URL("http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat="+
@@ -98,6 +112,10 @@ public class NavOverlay extends Overlay {
     			"&tlon="+(double)((double)g2.getLongitudeE6()/1000000.0)+
     			"&v=motorcar&fast=1&layer=mapnik"); //rest of URL is static, at least until this service goes down
     } //http://wiki.openstreetmap.org/wiki/YOURS
+    
+    /**
+     * 
+     */
     
     @Override
     public boolean draw(Canvas canvas, MapView mapView, boolean shadow,
@@ -129,17 +147,36 @@ public class NavOverlay extends Overlay {
         return super.draw(canvas, mapView, shadow, when);
     }
 
+    /**
+     * 
+     * @return
+     */
+    
     public double getLength() {
 		return length;
 	}
+    
+    /**
+     * 
+     * @return
+     */
     
     public boolean isCreated() {
     	return isFullyCreated;
     }
     
+    /**
+     * 
+     * @return
+     */
+    
     public ArrayList<GeoPoint> getNavGPs() {
 		return navGPs;
 	}
+    
+    /**
+     * 
+     */
     
     @Override
     public void draw(Canvas canvas, MapView mapView, boolean shadow) {
