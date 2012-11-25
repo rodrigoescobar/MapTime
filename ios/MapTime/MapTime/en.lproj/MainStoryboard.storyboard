@@ -184,6 +184,23 @@
             <point key="canvasLocation" x="489" y="-16"/>
         </scene>
     </scenes>
+    <classes>
+        <class className="MainViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MainViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="fromLocationButtonPressed"/>
+                <relationship kind="action" name="toLocationButtonPressed"/>
+                <relationship kind="outlet" name="fromField" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="toField" candidateClass="UITextField"/>
+            </relationships>
+        </class>
+        <class className="MapTimeViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MapTimeViewController.h"/>
+        </class>
+        <class className="NSLayoutConstraint" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

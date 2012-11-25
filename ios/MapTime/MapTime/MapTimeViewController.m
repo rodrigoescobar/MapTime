@@ -450,7 +450,11 @@
 {
     NSLog(@"I am in the initRegionMonitoring method");
     if(![CLLocationManager regionMonitoringAvailable]) {
-        NSLog(@"Region monitoring not avaliable");
+        MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
+        hud.mode = MBProgressHUDModeText;
+        hud.detailsLabelText = @"Region monitoring is not supported on your device.";
+        [mapView addSubview:hud];
+        [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
         return;
     }
     
@@ -475,10 +479,8 @@
 
 -(void)waitForFourSeconds
 {
-    NSLog(@"I am starting to wait for four seconds");
     sleep(4);
     [self performSegueWithIdentifier:@"BackHome" sender:self];
-    NSLog(@"I have finished waiting");
 }
 
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
@@ -498,6 +500,16 @@
 -(void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
 {
     NSLog(@"Did enter region: %@", region.identifier);
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
+    hud.mode = MBProgressHUDModeText;
+    hud.detailsLabelText = [[NSString alloc] initWithFormat:@"%@", region.identifier];
+    [mapView addSubview:hud];
+    [hud showWhileExecuting:@selector(waitTwo) onTarget:self withObject:nil animated:YES];
+}
+
+-(void)waitTwo
+{
+    sleep(2);
 }
 
 -(void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region
