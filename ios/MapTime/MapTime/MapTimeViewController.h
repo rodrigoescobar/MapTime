@@ -13,7 +13,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "MBProgressHUD.h"
 
-@interface MapTimeViewController : UIViewController <NSURLConnectionDelegate>
+@interface MapTimeViewController : UIViewController <NSURLConnectionDelegate, CLLocationManagerDelegate>
 {
     NSMutableArray *coordinates;
     MKMapView *mapView;
@@ -25,7 +25,8 @@
     NSMutableArray *distanceBetweenLongLatPairs;
     NSMutableArray *cumulativeDistanceBetweenPairs;
     MBProgressHUD *mbhud;
-    CLLocationManager *locationManager; 
+    CLLocationManager *locationManager;
+    NSMutableArray *geofenceRegions;
 }
 
 @property (nonatomic, strong) NSString *fromLocation;

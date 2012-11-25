@@ -49,8 +49,8 @@
     cumulativeDistanceBetweenPairs = [[NSMutableArray alloc] initWithCapacity:30]; // holds the cumulative distance between long lat pairs
     
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
-    
     coordinates = [[NSMutableArray alloc] initWithCapacity:4];
+    geofenceRegions = [[NSMutableArray alloc] initWithCapacity:30];
     
     numberOfPoints = 0;
     
@@ -79,9 +79,10 @@
         [mapView addSubview:hud];
         [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
         return;
-    } else {
-        NSLog(@"Locaiton services are avaliable");
     }
+    
+    locationManager = [[CLLocationManager alloc] init];
+    locationManager.delegate = self;
 }
 
 -(void)forwardGeocode
@@ -113,10 +114,6 @@
 
 -(void)downloadNavigationData:(NSMutableArray *)array
 {
-
-   /* spinner.hidden = NO;
-    [spinner startAnimating];
-    */
     mbhud = [[MBProgressHUD alloc] init];
     mbhud.labelText = @"Getting navigation data";
     [mapView addSubview:mbhud];
@@ -202,17 +199,8 @@
     return nil;
 }
 
--(void)test
-{
-    UIAlertView *alert = [[UIAlertView alloc] init];
-    [alert setTitle:@"Testing"];
-    [alert show];
-}
-
 -(void)plotRoute:(NSString *)pairs
 {
-    NSLog(@"I am plotting the route, my pairs are: \n %@", pairs);
-    
         // pairs is the comma seperated value of long and lat pairs
         NSArray *lines = [pairs componentsSeparatedByString:@"\n"];
         for(NSString *str in lines)
@@ -322,6 +310,8 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [MBProgressHUD hideHUDForView:self.view animated:YES];
+            // Register the CLRegions with the CLocationManger here
+            [self initRegionMonitoring];
         });
     });
     
@@ -375,7 +365,9 @@
     
     MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
     point.coordinate = CLLocationCoordinate2DMake(latitude, longitude);
-    point.title = NSLocalizedString(tp.getName, "Title of the pin");
+    point.title = NSLocalizedString([tp getName], "Title of the pin");
+    CLRegion *region = [[CLRegion alloc] initCircularRegionWithCenter:point.coordinate radius:100 identifier:[tp getName]];
+    [geofenceRegions addObject:region];
     
     [mapView addAnnotation:point];
                                   
@@ -454,6 +446,21 @@
     }
 }
 
+-(void)initRegionMonitoring
+{
+    NSLog(@"I am in the initRegionMonitoring method");
+    if(![CLLocationManager regionMonitoringAvailable]) {
+        NSLog(@"Region monitoring not avaliable");
+        return;
+    }
+    
+    for(CLRegion *geofence in geofenceRegions)
+    {
+        NSLog(@"I found a new geofence %@", geofence.identifier);
+        [locationManager startMonitoringForRegion:geofence];
+    }
+}
+
 -(void)useNotAbleToDrawRouteNotification
 {
     NSLog(@"I have recieved a NotAbleToDrawRoute Notification");
@@ -480,6 +487,27 @@
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
     [aMapView setRegion:region animated:YES];
 
+}
+
+/**
+ 
+ The following methods are the delegate methdods that handle entering and exiting regions
+ 
+ */
+
+-(void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
+{
+    NSLog(@"Did enter region: %@", region.identifier);
+}
+
+-(void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region
+{
+    NSLog(@"Did exit region: %@", region.identifier);
+}
+
+-(void)locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region
+{
+    NSLog(@"I did start monitoring for region: %@", region.identifier);
 }
 
 @end
