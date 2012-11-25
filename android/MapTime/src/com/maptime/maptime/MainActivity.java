@@ -46,7 +46,8 @@ public class MainActivity extends MapActivity {
 	public volatile MapView mapView;
 	private NavOverlay routeOverlay;
 	public LocationManager lMan;
-	public LocationUpdater locUp;
+	public LocationUpdater locUpGPS;
+	public LocationUpdater locUpNetwork;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -59,8 +60,10 @@ public class MainActivity extends MapActivity {
 		Drawable pinDrawable = this.getResources().getDrawable(R.drawable.map_marker);
 		Drawable locationIcon = this.getResources().getDrawable(R.drawable.currentlocation_icon);
 		lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-		locUp = new LocationUpdater();
-		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+		locUpGPS = new LocationUpdater();
+		locUpNetwork = new LocationUpdater();
+		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
+		lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2500, (float) 30.0, locUpNetwork);
 		
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
 			
@@ -93,7 +96,12 @@ public class MainActivity extends MapActivity {
 					savedInstanceState.getDouble("navOverlayLength"));
 			mapOverlays.add(routeOverlay);
 		}
-		
+		if (savedInstanceState != null && savedInstanceState.containsKey("timeline")) {
+			curTimeline = savedInstanceState.getParcelable("timeline");
+		}
+		if(itemizedOverlay != null && routeOverlay != null && curTimeline != null) {
+			timeToPlace();
+		}
 		//If Plot Route was pressed get the GeopPoints of the given addresses and plot route
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -129,8 +137,10 @@ public class MainActivity extends MapActivity {
 		}
 		if (lMan != null) {
 			
-			lMan.removeUpdates(locUp);
-			locUp = null;
+			lMan.removeUpdates(locUpGPS);
+			lMan.removeUpdates(locUpNetwork);
+			locUpGPS = null;
+			locUpNetwork = null;
 			lMan = null;
 			/*itemizedOverlay = null;
 			locationOverlay = null;
@@ -298,6 +308,9 @@ public class MainActivity extends MapActivity {
 			outState.putParcelableArrayList("navOverlayList", plgp);
 			outState.putDouble("navOverlayLength", ((NavOverlay)routeOverlay).getLength());
 		}
+		if (curTimeline != null) {
+			outState.putParcelable("timeline", curTimeline);
+		}
 		stopLocation();
 	}
 	
@@ -312,8 +325,10 @@ public class MainActivity extends MapActivity {
 		super.onRestart();
 		if (lMan == null) {
 			lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-			locUp = new LocationUpdater();
-			lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+			locUpGPS = new LocationUpdater();
+			locUpNetwork = new LocationUpdater();
+			lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
+			lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, (float) 50.0, locUpNetwork);
 		}
 	}
 	
@@ -384,6 +399,7 @@ public class MainActivity extends MapActivity {
 						routeOverlay = new NavOverlay(point, point2);
 						mapOverlays.add(routeOverlay);
 					} catch (NoRouteException e) {
+						itemizedOverlay.clearMOverLays();
 						ma.runOnUiThread(new Runnable() {
 							public void run() {
 								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
@@ -403,6 +419,7 @@ public class MainActivity extends MapActivity {
 						routeOverlay = new NavOverlay(point, point2);
 						mapOverlays.set(2, routeOverlay);
 					} catch (NoRouteException e) {
+						itemizedOverlay.clearMOverLays();
 						ma.runOnUiThread(new Runnable() {
 							public void run() {
 								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);

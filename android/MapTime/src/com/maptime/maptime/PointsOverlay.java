@@ -87,6 +87,14 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	/**
+	 * 
+	 */
+	
+	public void clearMOverLays() {
+		mOverlays = new ArrayList<OverlayItem>();
+	}
+	
+	/**
 	 * Adds an OverlayItem to the Overlay
 	 * @param overlay The OverlayItem to add
 	 */
@@ -302,22 +310,31 @@ public class PointsOverlay extends ItemizedOverlay {
 
 		ArrayList<Double> distances = new ArrayList<Double>(); //List of distances from each point the user is
 		boolean isInit = false; //is the location service initialised
-		Location curLoc; //user's current location
+		Location curLocGPS; //user's current location from GPS
+		Location curLocNetwork; //user's current location from Network
+		Location curLocFinal; //The loaction we want to use
 		final static double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
 		
 		public void run() {
 						
 			while (!end) {
-				//String lProv = ((MainActivity) mContext).lMan.getBestProvider(new Criteria(), true);
-				String lProv = LocationManager.GPS_PROVIDER;
-				curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
+				String lProvNetwork = LocationManager.NETWORK_PROVIDER;
+				String lProvGPS = LocationManager.GPS_PROVIDER;
+				curLocGPS = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvGPS);
+				curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
 				//Log.i("test",lProv);
-				if (curLoc != null) {
+				if(curLocGPS != null && curLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
+					curLocFinal = curLocGPS;
+				}
+				else {
+					curLocFinal = curLocNetwork;
+				}
+				if (curLocFinal != null) {
 					//Log.i("Cur Loc", curLoc.toString());
 					if (!isInit || distances.size() != mOverlays.size()) { //if we have a different amount of points to last time through
 						distances.clear(); //reset the distances list and start again
 						for (OverlayItem oi: mOverlays) {
-							distances.add(MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+							distances.add(MainActivity.distanceKm(curLocFinal.getLatitude(), curLocFinal.getLongitude(),
 								(double)(oi.getPoint().getLatitudeE6())/1000000.0, 
 								(double)(oi.getPoint().getLongitudeE6())/1000000.0));
 						}
@@ -325,7 +342,7 @@ public class PointsOverlay extends ItemizedOverlay {
 					}
 					else { //else if the user has passed within THRESHOLD km of a point, alert the user
 						for (int i = 0; i < distances.size(); i++) {
-							double curDist = MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+							double curDist = MainActivity.distanceKm(curLocFinal.getLatitude(), curLocFinal.getLongitude(),
 								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
 								(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0);
 							if (curDist < threshold && distances.get(i) > threshold) {
@@ -333,7 +350,7 @@ public class PointsOverlay extends ItemizedOverlay {
 								closePoint.arg1 = i;
 								alertHandler.sendMessage(closePoint);
 							}
-							distances.set(i, (MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
+							distances.set(i, (MainActivity.distanceKm(curLocFinal.getLatitude(), curLocFinal.getLongitude(),
 								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
 								(double)(mOverlays.get(i).getPoint().getLongitudeE6())/1000000.0)));
 						}
