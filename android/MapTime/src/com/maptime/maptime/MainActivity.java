@@ -63,7 +63,7 @@ public class MainActivity extends MapActivity {
 		locUpGPS = new LocationUpdater();
 		locUpNetwork = new LocationUpdater();
 		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
-		lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, (float) 50.0, locUpNetwork);
+		lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2500, (float) 30.0, locUpNetwork);
 		
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
 			

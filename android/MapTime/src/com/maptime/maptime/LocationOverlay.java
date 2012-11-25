@@ -2,6 +2,7 @@ package com.maptime.maptime;
 
 import java.util.ArrayList;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
@@ -94,6 +95,7 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 		Location curLocNetwork; //user's current location from Network
 		Location curLocFinal; //The loaction we want to use
 		
+		@SuppressLint("NewApi")
 		public void run() {
 
 			((MainActivity)mContext).runOnUiThread(new Runnable() {
@@ -131,8 +133,10 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 				}
 				else {
 					curLocFinal = curLocNetwork;
+					((MainActivity) mContext).lMan.requestSingleUpdate(lProvNetwork, ((MainActivity) mContext).locUpNetwork, null);
+					curLocFinal = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
 				}
-				//Log.i("test",lProv);
+				Log.i("test",curLocFinal.toString());
 				if (curLocFinal != null) {
 					setLocation(new GeoPoint((int)(curLocFinal.getLatitude()*1000000.0),
 							(int)(curLocFinal.getLongitude()*1000000.0)));
