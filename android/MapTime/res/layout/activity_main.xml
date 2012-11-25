@@ -6,6 +6,6 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:clickable="true"
-    android:apiKey="0JCKs0GURnEEi-n7C66I8dAmBW0T4b8yVqo2yfQ"
+    android:apiKey="0De-kbV0g6PX8AHRKkpKm8TjANR9ZxPKt0zxROg"
     style="@style/mapview"
 />

@@ -19,6 +19,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -45,12 +46,17 @@ public class Home extends Activity {
 	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php"; //URL of the MapTime database API
 	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();//The local list of timelines to be displayed
 	public LocationManager lMan; //Local location manager for managing the state of location services
-	public LocationUpdater locUp; //Location listener for receiving location updates
+	public LocationUpdater locUpGPS; //Location listener for receiving location updates
+	public LocationUpdater locUpNetwork; //Location listener for receiving location updates
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        
+        lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+ 		locUpGPS = new LocationUpdater();
+ 		locUpNetwork = new LocationUpdater();
+ 		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 50.0, locUpGPS);
+ 		lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, (float) 50.0, locUpNetwork);
        
 		
         refreshTimelines(null);
@@ -106,14 +112,17 @@ public class Home extends Activity {
      */
     
     private Location getCurrentLocation() {
-    	lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
- 		locUp = new LocationUpdater();
- 		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+    	
+ 		Location lastLocGPS = lMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+ 		Location lastLocNetwork = lMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
  		
- 		Location lastLoc = lMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
- 		if(lastLoc != null) {
- 			return lastLoc;
- 		} else {                
+ 		if(lastLocGPS != null && lastLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
+ 			return lastLocGPS;
+ 		}
+ 		else if (lastLocNetwork != null) {                
+ 			return lastLocNetwork;
+ 		}
+ 		else {
  			return null;
  		}
     }
@@ -127,8 +136,10 @@ public class Home extends Activity {
     	// TODO Auto-generated method stub
     	super.onStop();
     	if (lMan != null) {
-    		lMan.removeUpdates(locUp);
-    		locUp = null;
+    		lMan.removeUpdates(locUpGPS);
+    		lMan.removeUpdates(locUpNetwork);
+    		locUpGPS = null;
+    		locUpNetwork = null;
     		lMan = null;
     	}
     }

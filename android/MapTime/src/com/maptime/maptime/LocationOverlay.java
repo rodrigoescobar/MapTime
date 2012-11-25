@@ -90,34 +90,52 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 	
 	private class LocationGetter implements Runnable {
 
-		Location curLoc;
+		Location curLocGPS; //user's current location from GPS
+		Location curLocNetwork; //user's current location from Network
+		Location curLocFinal; //The loaction we want to use
 		
 		public void run() {
 
 			((MainActivity)mContext).runOnUiThread(new Runnable() {
 				public void run() {
-					String lProv = LocationManager.GPS_PROVIDER;
-					if (lProv != null) {
-						curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
+					String lProvNetwork = LocationManager.NETWORK_PROVIDER;
+					String lProvGPS = LocationManager.GPS_PROVIDER;
+					curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+					if (lProvGPS != null) {
+						curLocGPS = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvGPS);
+					}
+					if(curLocGPS != null && curLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
+						curLocFinal = curLocGPS;
+					}
+					else {
+						curLocFinal = curLocNetwork;
 					}
 					//Log.i("test",lProv);
-					if (curLoc != null) { //first time this is run, animate the map over to where the icon is
+					if (curLocFinal != null) { //first time this is run, animate the map over to where the icon is
 						((MainActivity)mContext).mapView.getController().animateTo(
-								new GeoPoint((int)(curLoc.getLatitude()*1000000.0),
-										(int)(curLoc.getLongitude()*1000000.0)));
+								new GeoPoint((int)(curLocFinal.getLatitude()*1000000.0),
+										(int)(curLocFinal.getLongitude()*1000000.0)));
 					}
 				}
 			});
 			
 			while(!stop) {
-				//String lProv = ((MainActivity) mContext).lMan.getBestProvider(new Criteria(), true);
-				String lProv = LocationManager.GPS_PROVIDER;
-				if (lProv != null) {
-					curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
+				String lProvNetwork = LocationManager.NETWORK_PROVIDER;
+				String lProvGPS = LocationManager.GPS_PROVIDER;
+				curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+				if (lProvGPS != null) {
+					curLocGPS = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvGPS);
+				}
+				if(curLocGPS != null && curLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
+					curLocFinal = curLocGPS;
+				}
+				else {
+					curLocFinal = curLocNetwork;
 				}
 				//Log.i("test",lProv);
-				if (curLoc != null) {
-					setLocation(new GeoPoint((int)(curLoc.getLatitude()*1000000.0),(int)(curLoc.getLongitude()*1000000.0)));
+				if (curLocFinal != null) {
+					setLocation(new GeoPoint((int)(curLocFinal.getLatitude()*1000000.0),
+							(int)(curLocFinal.getLongitude()*1000000.0)));
 				}
 				try {
 					Thread.sleep(4000); //check every 4 seconds
