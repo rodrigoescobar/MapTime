@@ -33,10 +33,10 @@ import android.support.v4.app.NavUtils;
 public class Timelinechoice extends Activity {
 
 	public final static String GEOPOINTS = "com.maptime.maptime.GEOPOINTS";
-	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
-	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
-	private int timelineChoice = -1;
-	private ArrayAdapter<String> ad;
+	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php"; //URL of the MapTime Database API
+	private ArrayList<Timeline> timelines = new ArrayList<Timeline>(); //The local list of timelines to be displayed
+	private int timelineChoice = -1; //Index of the Timeline selected. -1 means none selected
+	private ArrayAdapter<String> ad; //ArrayAdapter used for creating the list later
 
     @SuppressLint({ "NewApi", "NewApi" }) //so it doesn't error on getActionBar()
     public void onCreate(Bundle savedInstanceState) {
@@ -45,29 +45,28 @@ public class Timelinechoice extends Activity {
         if (android.os.Build.VERSION.SDK_INT >= 11) { //11 = API 11 i.e. honeycomb
         	getActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        //TODO: get timeline list, populate list with timelines
-        //somehow return a list of geopoints to the main activity when something is selected here
-		//TODO: the intent returning needs to be done somehow before onPause() so 
-        //prob at after user selects a timeline from the list. Every time user selects timeline from list
         
         //new Thread(new TimelineRetriever(this)).start();
         		
-        new TimelineRetrieverTask(this).execute();
+        new TimelineRetrieverTask(this).execute(); //Start a task to retrieve the timelines from the server specified by APIURL
     }
 
+    /**
+     * Attempts to retirieve the Timelines from the API server, sending an error message to the user when necessary
+     */
     
     private void retrieveTimelines() {
     	try {
-			readXML();
+			readXML(); //read
 		} catch (Exception e) {
-			handler .sendEmptyMessage(0);
+			handler .sendEmptyMessage(0); //failed
 		}
 	}
     
-    /*
+    /**
      * Handles the caught error for fetching XML (can't put dialogs inside the actual catch(){} method without app breaking)
      */
-    private Handler handler = new Handler() {
+    private Handler handler = new Handler() { 
         public void handleMessage(Message message) {
         	String errorTitle = getResources().getString(R.string.error_title);
 			String errorMessage = getResources().getString(R.string.error_readXML);
@@ -79,8 +78,8 @@ public class Timelinechoice extends Activity {
         }
     };
     
-    /*
-	 * Read the XML file in a nice way
+    /**
+	 * Read the XML file in a fast way using a javax parser
 	 */
 	private void readXML() throws ParserConfigurationException, SAXException, IOException {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -175,27 +174,32 @@ public class Timelinechoice extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+	/**
+	 * Aysnctask tasked with calling the methods for retrieving the timelines 
+	 * off of the main thread, and displaying progress and error messages.
+	 */
+	
 	private class TimelineRetrieverTask extends AsyncTask<Void, Void, Void> {
 
-		private Context context;
-		private ProgressDialog progressDialog;
+		private Context context; //Activity that spawned the task. Always going to be an instace of TimelineChoice
+		private ProgressDialog progressDialog; //Object for displaying progress dialog.
 		
 		public TimelineRetrieverTask(Context ct) {
 			context = ct;
 		}
 		
-		protected void onPreExecute() {
+		protected void onPreExecute() { //Show the progress dialog
 			String progressTitle = getString(R.string.progress_loading);
 			String progressMessage = getString(R.string.progress_fetchingTimlines);
 			progressDialog = ProgressDialog.show(context, progressTitle , progressMessage);
 		}
 		
-		protected Void doInBackground(Void... params) {
+		protected Void doInBackground(Void... params) { 
 			retrieveTimelines();
 			return null;
 		}
 		
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Void result) { //Dismiss the progress dialog and populate the list of timelines
 			progressDialog.dismiss();
 			String[] tlNames = new String[timelines.size()];
 	        for (int i = 0; i < timelines.size(); i++) {

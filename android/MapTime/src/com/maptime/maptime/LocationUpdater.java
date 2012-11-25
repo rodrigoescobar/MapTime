@@ -5,7 +5,7 @@ import android.location.LocationListener;
 import android.os.Bundle;
 
 /**
- * Basically a dummy class used to make the app actually get location updates.
+ * A dummy LocationListener, registered with the location services so that they update.
  * @author Nathan
  *
  */

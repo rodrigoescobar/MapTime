@@ -11,7 +11,10 @@
     <string name="progress_fetchingTimlines">Fetching Timelines...</string>
     <string name="error_title">Error</string>
     <string name="error_readXML">Could not contact the MapTime API server!</string>
+    <string name="error_currentGPS">Could not get your current GPS location!</string>
     <string name="error_points">Please enter a Start and End address for your route!</string>
+    <string name ="error_refresh">Try refreshing the list, then plotting the route!</string>
+    <string name ="error_timelines">Timeline list not currently loaded!</string>
     <string name="progress_calculating">Calculating</string>
     <string name="progress_calculatingRoute">Calculating Route...</string>
     <string name="hello_world">Hello world!</string>

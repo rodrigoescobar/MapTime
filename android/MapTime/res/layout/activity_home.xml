@@ -87,6 +87,7 @@
 	    	
 	    	<ImageButton
 		    	    android:id="@+id/buttonLocateStart"
+		    	    android:onClick="getLocationStart"
 				    android:layout_width="wrap_content"
 				    android:layout_height="wrap_content"
 				    android:src="@drawable/locate_icon"
@@ -119,6 +120,7 @@
 		    	
 	    	<ImageButton
 		    	    android:id="@+id/buttonLocateEnd"
+		    	    android:onClick="getLocationEnd"
 				    android:layout_width="wrap_content"
 				    android:layout_height="wrap_content"
 				    android:src="@drawable/locate_icon"

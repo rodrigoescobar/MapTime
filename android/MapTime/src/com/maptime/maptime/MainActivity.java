@@ -29,18 +29,26 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
 
+/**
+ * The MainActivity provides the map view and activity, and as such, the base for 
+ * location services and retrieving navigation data
+ */
+
 public class MainActivity extends MapActivity {
 	
 	private MapController mapController;
-	private PointsOverlay itemizedOverlay;
+	private volatile PointsOverlay itemizedOverlay;
 	private LocationOverlay locationOverlay;
 	private List<Overlay> mapOverlays;
 	private GeoPoint point, point2;
 	private ArrayList<OverlayItem> timePoints;
 	private Timeline curTimeline; 
-	public MapView mapView;
-	private NavOverlay routeOverlay; 
+	public volatile MapView mapView;
+	private NavOverlay routeOverlay;
+	public LocationManager lMan;
+	public LocationUpdater locUp;
 	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
 		
@@ -50,27 +58,35 @@ public class MainActivity extends MapActivity {
         mapOverlays = mapView.getOverlays();
 		Drawable pinDrawable = this.getResources().getDrawable(R.drawable.map_marker);
 		Drawable locationIcon = this.getResources().getDrawable(R.drawable.currentlocation_icon);
+		lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		locUp = new LocationUpdater();
+		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+		
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
+			
 			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
+				
 				listOIs.add((ParcelableOverlayItem)p);
 			}
 			itemizedOverlay = new PointsOverlay(listOIs,
 					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayStart")),
-					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), pinDrawable, this, 
-					((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
+					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), pinDrawable, this);
 		}
 		else {
-			itemizedOverlay = new PointsOverlay(pinDrawable, this, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)));
-			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
-			itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
+			
+			itemizedOverlay = new PointsOverlay(pinDrawable, this);
+			//itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
+			//itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
 		}
 		mapOverlays.add(itemizedOverlay);
-		locationOverlay = new LocationOverlay(locationIcon, ((LocationManager)getSystemService(Context.LOCATION_SERVICE)), this);
+		locationOverlay = new LocationOverlay(locationIcon, this);
 		mapOverlays.add(locationOverlay);
 		if (savedInstanceState != null && savedInstanceState.containsKey("navOverlayList")) {
+			
 			ArrayList<ParcelableGeoPoint> listGPs = new ArrayList<ParcelableGeoPoint>();
 			for (Parcelable p: savedInstanceState.getParcelableArrayList("navOverlayList")) {
+				
 				listGPs.add((ParcelableGeoPoint)p);
 			}
 			routeOverlay = new NavOverlay(listGPs, 
@@ -81,6 +97,7 @@ public class MainActivity extends MapActivity {
 		//If Plot Route was pressed get the GeopPoints of the given addresses and plot route
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
+			
 			String[] addresses = extras.getStringArray("EXTRA_ADDRESSES");
 			curTimeline = (Timeline)extras.get("EXTRA_TIMELINE");
 			String startAddress = addresses[0];
@@ -89,12 +106,43 @@ public class MainActivity extends MapActivity {
 			point2 = reverseGeocoding(endAddress);
 			
 			if(point != null && point2 != null) {
+				
 				Thread nst = new Thread(new NavStartThread(this));
 				nst.start();
 			}
 		}		
     }    
     
+	/**
+	 * Stops the GPS service.
+	 * Called whenever the activity is stopped.	 
+	 */
+	
+	public void stopLocation() {
+		if (lMan != null && itemizedOverlay.geoFence != null) {
+			
+			itemizedOverlay.stopGPS();
+		}
+		if (lMan != null && locationOverlay.locationThread != null) {
+			
+			locationOverlay.stopGPS();
+		}
+		if (lMan != null) {
+			
+			lMan.removeUpdates(locUp);
+			locUp = null;
+			lMan = null;
+			/*itemizedOverlay = null;
+			locationOverlay = null;
+			mapOverlays = null;*/
+		}
+	}
+	
+	/**
+	 * When the activity has both a navigation route and a timeline, 
+	 * 
+	 */
+	
 	private void timeToPlace() {
 		itemizedOverlay.clearTimePoints();
 		ArrayList<GeoPoint> gp = routeOverlay.getNavGPs();
@@ -104,16 +152,19 @@ public class MainActivity extends MapActivity {
 		double timeRange = curTimeline.getPoint(timelineSize-1).getTimeInBC() - endTimeValue;
 		double[] relativePos = new double[timelineSize];
 		for (int i = 0; i < timelineSize; i++) {
+			
 			relativePos[i] = dist * ((timeRange - (curTimeline.getPoint((timelineSize-1)-i).getTimeInBC() - endTimeValue)) / timeRange);
 		}
 		int curCheck = 0;
 		double lengthSoFar = 0.0;
 		for(int i = 0; i < gp.size()-1; i++){
+			
 			double length = distanceKm((double)(gp.get(i).getLatitudeE6())/(double)1000000.0,
 					(double)(gp.get(i).getLongitudeE6())/(double)1000000.0,
 					(double)(gp.get(i+1).getLatitudeE6())/(double)1000000.0,
 					(double)(gp.get(i+1).getLongitudeE6())/(double)1000000.0);
 			while(curCheck < relativePos.length && relativePos[curCheck] < length + lengthSoFar) {
+				
 				double fraction = (relativePos[curCheck]-lengthSoFar) / length;
 				int lat1 = gp.get(i).getLatitudeE6();
 				int lon1 = gp.get(i).getLongitudeE6();
@@ -129,6 +180,7 @@ public class MainActivity extends MapActivity {
 			}
 			lengthSoFar += length;
 		}
+		itemizedOverlay.addOverlay(new OverlayItem(gp.get(0), curTimeline.getPoint(0).getName(), curTimeline.getPoint(0).getDescription()));
 		mapView.postInvalidate();
 		/*work out how far down route each TimePoint should be, normalised to dist, then
 		 *work out how far each geopoint is using distanceKm(), and if TimePoints should go 
@@ -137,7 +189,7 @@ public class MainActivity extends MapActivity {
 		*/
 	}
 	
-	/*
+	/**
 	 * Get the long and lat points of an address
 	 */
 	public GeoPoint reverseGeocoding(String addressString) {
@@ -150,6 +202,7 @@ public class MainActivity extends MapActivity {
 	        }
 		    return (gp);
 		} catch (IOException e) {
+			
 			e.getStackTrace();
 			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Error");
@@ -158,6 +211,15 @@ public class MainActivity extends MapActivity {
 			return null;
 		}
 	}
+	
+	/**
+	 * 
+	 * @param lat1
+	 * @param lon1
+	 * @param lat2
+	 * @param lon2
+	 * @return
+	 */
 	
 	public static double distanceKm(double lat1, double lon1, double lat2, double lon2) {
 	    int EARTH_RADIUS_KM = 6371;
@@ -168,6 +230,10 @@ public class MainActivity extends MapActivity {
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
 	}
 
+	/**
+	 * Stores the timeline object 
+	 */
+	
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == 0 && resultCode == RESULT_OK) {
@@ -183,7 +249,7 @@ public class MainActivity extends MapActivity {
 	    inflater.inflate(R.menu.activity_main, menu);
 	    return true;
 	}
-
+	
 	public boolean onOptionsItemSelected(MenuItem item){
 	    switch(item.getItemId()){
 	    case R.id.menu_timelines:
@@ -207,7 +273,7 @@ public class MainActivity extends MapActivity {
 	    }
 	    return false;
 	}
-
+	
 	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
@@ -232,19 +298,52 @@ public class MainActivity extends MapActivity {
 			outState.putParcelableArrayList("navOverlayList", plgp);
 			outState.putDouble("navOverlayLength", ((NavOverlay)routeOverlay).getLength());
 		}
+		stopLocation();
 	}
 	
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
 	
+	
+	@Override
+	protected void onRestart() {
+		// TODO Auto-generated method stub
+		super.onRestart();
+		if (lMan == null) {
+			lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			locUp = new LocationUpdater();
+			lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+		}
+	}
+	
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
+		stopLocation();
+	}
+	
+	/**
+	 * Runnable that retrieves navigation data from YOURS, based on user input, 
+	 * and creates an overlay showing that route, along with the Timeline if the
+	 * Timeline has already been selected.
+	 */
+	
 	private class NavStartThread implements Runnable {
 		public MainActivity ma;
 		public ProgressDialog progressDialog;
+		boolean broken = false;
+		
+		/**
+		 * General constructor
+		 * @param m The MainActivity that this thread was spawned from
+		 */
 		
 		public NavStartThread(MainActivity m) {
 			ma = m;
 		}
+		
 		
 		public void run() {
 			itemizedOverlay.clearPoints();
@@ -261,46 +360,82 @@ public class MainActivity extends MapActivity {
 				}
 				try {
 					Thread.sleep(2000);
+					System.out.println("Bananas!");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					broken = true;
+					break;
 				}
 			}
+			
 			itemizedOverlay.setNavMode(false);
+			if(!broken){	
+				waitHandler.sendEmptyMessage(0); //Start the pop-up progress bar
+				if(point == null || point2 == null) {
+					point = itemizedOverlay.getStartPoint();
+					point2 = itemizedOverlay.getEndPoint();	
+				}
+				itemizedOverlay.setStartPointOverlay(new OverlayItem(point, "Start", "Start of TimeLine"));
+				itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
+				//TODO: An asynctask which does the following since we can't network on main thread
+				if (mapOverlays.size() == 2) {
+					try {
+						routeOverlay = new NavOverlay(point, point2);
+						mapOverlays.add(routeOverlay);
+					} catch (NoRouteException e) {
+						ma.runOnUiThread(new Runnable() {
+							public void run() {
+								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
+								dialog.setTitle("Could not find route!");
+								dialog.setMessage("Try giving more information, or make sure there is a road connection.");
+								dialog.show();
+							}
+						});
+						/*routeOverlay = null;
+						if (mapOverlays.size() == 3) {
+							mapOverlays.remove(2);
+						}*/
+					}
+				}
+				else if (routeOverlay != null) {
+					try {
+						routeOverlay = new NavOverlay(point, point2);
+						mapOverlays.set(2, routeOverlay);
+					} catch (NoRouteException e) {
+						ma.runOnUiThread(new Runnable() {
+							public void run() {
+								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
+								dialog.setTitle("Could not find route!");
+								dialog.setMessage("Try giving more information, or make sure there is a road connection.");
+								dialog.show();
+							}
+						});
+						/*routeOverlay = null;
+						if (mapOverlays.size() == 3) {
+							mapOverlays.remove(2);
+						}*/
+					}
+				}
+				if(curTimeline != null && routeOverlay != null) {
+					timeToPlace();
+				}
+				else {
+					mapView.postInvalidate();
+				}
 			
-			waitHandler.sendEmptyMessage(0); //Start the pop-up progress bar
-			
-			if(point == null || point2 == null) {
-				point = itemizedOverlay.getStartPoint();
-				point2 = itemizedOverlay.getEndPoint();
-			}
-			itemizedOverlay.setStartPointOverlay(new OverlayItem(point, "Start", "Start of TimeLine"));
-			itemizedOverlay.setEndPointOverlay(new OverlayItem(point2, "End", "End of TimeLine"));
-			//TODO: An asynctask which does the following since we can't network on main thread
-			if (mapOverlays.size() == 2) {
-				routeOverlay = new NavOverlay(point, point2);
-				mapOverlays.add(routeOverlay);
-			}
-			else if (routeOverlay != null) {
-				routeOverlay = new NavOverlay(point, point2);
-				mapOverlays.set(2, routeOverlay);
-			}
-			if(curTimeline != null) {
-				timeToPlace();
-			}
-			else {
-				mapView.postInvalidate();
-			}
-			
-			waitHandler.sendEmptyMessage(1); //Dismiss the pop-up progress bar
+				waitHandler.sendEmptyMessage(1); //Dismiss the pop-up progress bar
+
 			
 			//Log.i("MAP_OVERLAYS", Integer.toString(mapOverlays.size()));
+			}
 		}
 		
-		/*
+		/**
 		 * Handler to display a progress pop-up while the route is being calculated
 		 */
-		private Handler waitHandler = new Handler() {
+		
+		private volatile Handler waitHandler = new Handler() {
             public void handleMessage(Message msg) {
             	if(msg.what == 0) {
             		String progressTitle = getString(R.string.progress_calculating);

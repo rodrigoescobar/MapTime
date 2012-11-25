@@ -6,24 +6,41 @@ import com.google.android.maps.OverlayItem;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * A Parcelable implementation of Android's OverlayItem class.
+ *
+ */
+
 public class ParcelableOverlayItem extends OverlayItem implements Parcelable{
 
+	/**
+	 * Standard constructor, identical to OverlayItem's
+	 * @param pos GeoPoint describing the location to place the OverlaayItem
+	 * @param name Title of the OverlayItem
+	 * @param desc Snippet of the OverlayItem
+	 */
+	
 	public ParcelableOverlayItem(GeoPoint pos, String name, String desc) {
 		super(pos, name, desc);
-		// TODO Auto-generated constructor stub
+		
 	}
 
+	/**
+	 * A constructor creating a ParcelableOverlayItem equivalent of an OverlayItem more directly.
+	 * @param oi OverlayItem to create an equivalent of.
+	 */
+	
 	public ParcelableOverlayItem(OverlayItem oi) {
 		super(new ParcelableGeoPoint(oi.getPoint()), oi.getTitle(), oi.getSnippet());
 	}
 	
 	public int describeContents() {
-		// TODO Auto-generated method stub
+
 		return 0;
 	}
 
 	public void writeToParcel(Parcel dest, int flags) {
-		// TODO Auto-generated method stub
+
 		dest.writeString(this.getTitle());
 		dest.writeString(this.getSnippet());
 		dest.writeParcelable(new ParcelableGeoPoint(this.getPoint()), 0);

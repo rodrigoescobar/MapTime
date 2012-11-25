@@ -12,6 +12,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,21 +34,118 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+/**
+ * Home screen menu which can retrieve TimeLines, and launch the MainActivity
+ * either with reverse geocoded data to start with a navigation route, 
+ * or with no data so that the user can use the map for that.
+ */
+
 public class Home extends Activity {
 	
-	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
-	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
-
+	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php"; //URL of the MapTime database API
+	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();//The local list of timelines to be displayed
+	public LocationManager lMan; //Local location manager for managing the state of location services
+	public LocationUpdater locUp; //Location listener for receiving location updates
+	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         
+       
+		
         refreshTimelines(null);
     }
+    
+    /**
+     * Places the user's current location in the Start of Route box
+     * @param view 
+     */
+    
+    public void getLocationStart(View view) {
+    	Location loc = getCurrentLocation();
+    	if(loc != null) {
+    		EditText eStartPoint = (EditText)findViewById(R.id.txtBoxStartPoint);
+    		String sLoc = loc.getLatitude() + ", " + loc.getLongitude();
+    		eStartPoint.setText(sLoc);
+    	} else {
+    		String errorTitle = getResources().getString(R.string.error_title);
+			String errorMessage = getResources().getString(R.string.error_currentGPS);
+			
+    		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
+			errDialog.setTitle(errorTitle);
+			errDialog.setMessage(errorMessage);
+			errDialog.show();
+    	}
+    }
+    
+    /**
+     * Places the user's current location in the End of Route box
+     * @param view
+     */
+    
+    public void getLocationEnd(View view) {
+    	Location loc = getCurrentLocation();
+    	if(loc != null) {
+    		EditText eStartPoint = (EditText)findViewById(R.id.txtBoxEndPoint);
+    		String sLoc = loc.getLatitude() + ", " + loc.getLongitude();
+    		eStartPoint.setText(sLoc);
+    	} else {
+    		String errorTitle = getResources().getString(R.string.error_title);
+			String errorMessage = getResources().getString(R.string.error_currentGPS);
+			
+    		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
+			errDialog.setTitle(errorTitle);
+			errDialog.setMessage(errorMessage);
+			errDialog.show();
+    	}
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    
+    private Location getCurrentLocation() {
+    	lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+ 		locUp = new LocationUpdater();
+ 		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, (float) 50.0, locUp);
+ 		
+ 		Location lastLoc = lMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+ 		if(lastLoc != null) {
+ 			return lastLoc;
+ 		} else {                
+ 			return null;
+ 		}
+    }
+    
+    /**
+     * 
+     */
+    
+    @Override
+    protected void onStop() {
+    	// TODO Auto-generated method stub
+    	super.onStop();
+    	if (lMan != null) {
+    		lMan.removeUpdates(locUp);
+    		locUp = null;
+    		lMan = null;
+    	}
+    }
+    
+    /**
+     * 
+     * @param view
+     */
     
     public void refreshTimelines(View view) {
     	new TimelineRetrieverTask(this).execute();
     }
+    
+    /**
+     * 
+     * @param view
+     */
     
     public void plotRoute(View view) {
     	EditText eStartPoint = (EditText)findViewById(R.id.txtBoxStartPoint);
@@ -53,9 +153,10 @@ public class Home extends Activity {
     	EditText eEndPoint = (EditText)findViewById(R.id.txtBoxEndPoint);
     	String sEndPoint = eEndPoint.getText().toString();
     	Spinner spinnerTimeline = (Spinner)findViewById(R.id.timelines_dropdown);
-    	Timeline selectedTimeline = timelines.get(spinnerTimeline.getSelectedItemPosition());
+    	Timeline selectedTimeline = null; 
     	
     	if(!sStartPoint.equals("") && !sEndPoint.equals("")) {
+    		selectedTimeline = timelines.get(spinnerTimeline.getSelectedItemPosition());
     		String[] addresses = new String[2];
     		addresses[0] = sStartPoint;
     		addresses[1] = sEndPoint;
@@ -63,6 +164,15 @@ public class Home extends Activity {
     		intent.putExtra("EXTRA_ADDRESSES", addresses);
     		intent.putExtra("EXTRA_TIMELINE", selectedTimeline);
             Home.this.startActivity(intent);
+    	} 
+    	else if (spinnerTimeline.getAdapter().getCount() == 0) {
+    		String errorTitle = getResources().getString(R.string.error_timelines);
+			String errorMessage = getResources().getString(R.string.error_refresh);
+			
+    		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
+			errDialog.setTitle(errorTitle);
+			errDialog.setMessage(errorMessage);
+			errDialog.show();
     	} else {
     		String errorTitle = getResources().getString(R.string.error_title);
 			String errorMessage = getResources().getString(R.string.error_points);
@@ -74,11 +184,20 @@ public class Home extends Activity {
     	}
     }
     
+    /**
+     * 
+     * @param view
+     */
+    
     public void gotoMap(View view) {
     	//Start the map screen
         Intent intent = new Intent(Home.this, MainActivity.class);
         Home.this.startActivity(intent);
     }
+    
+    /**
+     * 
+     */
     
     public void getTimelines() {
     	try {
@@ -88,7 +207,7 @@ public class Home extends Activity {
 		}
     }
 
-	/*
+	/**
 	 * Handles the caught error for fetching XML (can't put dialogs inside the actual catch(){} method without app breaking)
 	 */
 	private Handler handler = new Handler() {
@@ -103,8 +222,8 @@ public class Home extends Activity {
 	    }
 	};
     
-    /*
-	 * Read the timelines XML file in a nice way
+    /**
+	 * Read the timelines XML file in a fast way, using a javax parser.
 	 */
 	private void readXML() throws ParserConfigurationException, SAXException, IOException {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -178,6 +297,11 @@ public class Home extends Activity {
 		saxParser.parse(APIURL, xmlHandler);
 	}
 	
+	/**
+	 * 
+	 *
+	 */
+	
 	private class TimelineRetrieverTask extends AsyncTask<Void, Void, Void> {
 
 		private Context context;
@@ -217,7 +341,7 @@ public class Home extends Activity {
 		    progressDialog.dismiss();
 		}
 	}
-
+	
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_home, menu);
         return true;
