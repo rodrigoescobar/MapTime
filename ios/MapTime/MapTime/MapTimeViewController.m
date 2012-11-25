@@ -44,7 +44,8 @@
     
     distanceBetweenLongLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     cumulativeDistanceBetweenPairs = [[NSMutableArray alloc] initWithCapacity:30]; // holds the cumulative distance between long lat pairs
-    
+   
+    /*
     spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     spinner.color = [UIColor blackColor];
     spinner.center = CGPointMake(160, 240);
@@ -52,6 +53,7 @@
     spinner.hidden = YES;
     
     [mapView addSubview:spinner];
+    */
     
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     
@@ -104,8 +106,13 @@
 -(void)downloadNavigationData:(NSMutableArray *)array
 {
 
-    spinner.hidden = NO;
+   /* spinner.hidden = NO;
     [spinner startAnimating];
+    */
+    mbhud = [[MBProgressHUD alloc] init];
+    mbhud.labelText = @"Getting navigation data";
+    [mapView addSubview:mbhud];
+    [mbhud show:YES];
     xmlData = [[NSMutableData alloc] init];
     
     NSString *point1 =[array objectAtIndex:0];
@@ -425,9 +432,13 @@
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    NSLog(@"Finished");
+    /*NSLog(@"Finished");
     [spinner stopAnimating];
     spinner.hidden = YES;
+     */
+    [mbhud removeFromSuperview];
+    [mbhud show:NO];
+
     NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xmlData]];
     if([pairs isEqualToString:@"NoData"]) {
     } else {

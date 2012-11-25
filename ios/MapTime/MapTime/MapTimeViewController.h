@@ -11,6 +11,7 @@
 #import "TimeLineDownloaderDelegate.h"
 #import "LongLatPair.h"
 #import <CoreLocation/CoreLocation.h>
+#import "MBProgressHUD.h"
 
 @interface MapTimeViewController : UIViewController <NSURLConnectionDelegate>
 {
@@ -23,6 +24,7 @@
     NSString *distanceBetweenPoints; // KM distance between the plotted points
     NSMutableArray *distanceBetweenLongLatPairs;
     NSMutableArray *cumulativeDistanceBetweenPairs;
+    MBProgressHUD *mbhud;
 }
 
 @property (nonatomic, strong) NSString *fromLocation;
