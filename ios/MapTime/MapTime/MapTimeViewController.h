@@ -25,6 +25,7 @@
     NSMutableArray *distanceBetweenLongLatPairs;
     NSMutableArray *cumulativeDistanceBetweenPairs;
     MBProgressHUD *mbhud;
+    CLLocationManager *locationManager; 
 }
 
 @property (nonatomic, strong) NSString *fromLocation;

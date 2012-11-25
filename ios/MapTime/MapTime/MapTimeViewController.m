@@ -38,22 +38,15 @@
     
     [self registerForNotifications];
     
+    
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
     mapView.showsUserLocation = YES;
     
+    [self initLocationManager];
+    
     distanceBetweenLongLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     cumulativeDistanceBetweenPairs = [[NSMutableArray alloc] initWithCapacity:30]; // holds the cumulative distance between long lat pairs
-   
-    /*
-    spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    spinner.color = [UIColor blackColor];
-    spinner.center = CGPointMake(160, 240);
-    spinner.hidesWhenStopped = NO;
-    spinner.hidden = YES;
-    
-    [mapView addSubview:spinner];
-    */
     
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     
@@ -74,6 +67,21 @@
 -(void)registerForNotifications
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(useNotAbleToDrawRouteNotification) name:@"NotAbleToDrawRoute" object:nil];
+}
+
+-(void)initLocationManager
+{
+    // Are location services enabled?
+    if(![CLLocationManager locationServicesEnabled]) {
+        MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
+        hud.mode = MBProgressHUDModeText;
+        hud.detailsLabelText = @"Location services are required for this app to function.";
+        [mapView addSubview:hud];
+        [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
+        return;
+    } else {
+        NSLog(@"Locaiton services are avaliable");
+    }
 }
 
 -(void)forwardGeocode
