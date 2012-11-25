@@ -40,7 +40,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(toFieldChanged) name:UITextFieldTextDidChangeNotification object:toField];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fromFieldChanged) name:UITextFieldTextDidChangeNotification object:fromField];
-
     
 }
 
@@ -85,14 +84,12 @@
 
 -(NSInteger)pickerView:(UIPickerView *)thePickerView numberOfRowsInComponent:(NSInteger)component
 {
-   // return 1;
     return [[delegate getTimeLines] count];
 }
 
 -(NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
     return [[[delegate getTimeLines] objectAtIndex:row] getName];
-    //return @"HELLO?";
 }
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField
