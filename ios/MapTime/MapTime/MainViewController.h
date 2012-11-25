@@ -40,5 +40,10 @@
 
 -(void)useErrorNotification;
 
+-(IBAction)toLocationButtonPressed;
+
+-(IBAction)fromLocationButtonPressed;
+
+
 
 @end
