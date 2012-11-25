@@ -22,12 +22,6 @@
 
 -(BOOL)textFieldShouldReturn:(UITextField *)textField;
 
--(void)traverseTimeLineElement:(TBXMLElement *)element withTimeLineObject:(TimeLine *)timeLine;
-
--(void)traverseElement:(TBXMLElement *)element;
-
--(void)parseXML:(NSData *)xml;
-
 -(NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component;
 
 -(NSInteger)pickerView:(UIPickerView *)thePickerView numberOfRowsInComponent:(NSInteger)component;
@@ -41,6 +35,10 @@
 -(void)registerForNotifications;
 
 -(void)useFinishedNotification;
+
+-(void)waitForFourSeconds;
+
+-(void)useErrorNotification;
 
 
 @end

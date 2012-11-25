@@ -29,8 +29,15 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.    
+	// Do any additional setup after loading the view, typically from a nib.
+}
 
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self registerForNotifications];
+    
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
     mapView.showsUserLocation = YES;
@@ -43,15 +50,15 @@
     spinner.center = CGPointMake(160, 240);
     spinner.hidesWhenStopped = NO;
     spinner.hidden = YES;
-        
+    
     [mapView addSubview:spinner];
     
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     
     coordinates = [[NSMutableArray alloc] initWithCapacity:4];
-
+    
     numberOfPoints = 0;
-
+    
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleGesture:)];
     longPressGestureRecognizer.minimumPressDuration = 0.8;
     [mapView addGestureRecognizer:longPressGestureRecognizer];
@@ -60,6 +67,11 @@
         [self forwardGeocode];
     }
     
+}
+
+-(void)registerForNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(useNotAbleToDrawRouteNotification) name:@"NotAbleToDrawRoute" object:nil];
 }
 
 -(void)forwardGeocode
@@ -155,6 +167,7 @@
     NSError *error;
     TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:&error];
     if(error) {
+        NSLog(@"I AM FAILLING HERE!");
         NSLog(@"%@ %@", [error localizedDescription], [error userInfo]);
     } else {
         TBXMLElement *Document = [TBXML childElementNamed:@"Document" parentElement:tbxml.rootXMLElement];
@@ -164,13 +177,27 @@
         TBXMLElement *Placemark = [TBXML childElementNamed:@"Placemark" parentElement:Folder];
         TBXMLElement *LineString = [TBXML childElementNamed:@"LineString" parentElement:Placemark];
         TBXMLElement *coords = [TBXML childElementNamed:@"coordinates" parentElement:LineString];
-        return [TBXML textForElement:coords];
+        if([[TBXML textForElement:coords] isEqualToString:@""]) {
+            [self useNotAbleToDrawRouteNotification];
+            return @"NoData";
+        } else {
+            return [TBXML textForElement:coords];
+        }
     }
     return nil;
 }
 
+-(void)test
+{
+    UIAlertView *alert = [[UIAlertView alloc] init];
+    [alert setTitle:@"Testing"];
+    [alert show];
+}
+
 -(void)plotRoute:(NSString *)pairs
-{      
+{
+    NSLog(@"I am plotting the route, my pairs are: \n %@", pairs);
+    
         // pairs is the comma seperated value of long and lat pairs
         NSArray *lines = [pairs componentsSeparatedByString:@"\n"];
         for(NSString *str in lines)
@@ -246,6 +273,7 @@
     
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     hud.mode = MBProgressHUDModeAnnularDeterminate;
+    [self.view addSubview:hud];
     hud.labelText = @"Placing TimePoints";
     
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
@@ -395,19 +423,42 @@
     [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
 }
 
--(void)waitForFourSeconds
-{
-    sleep(4);
-    [self performSegueWithIdentifier:@"BackHome" sender:self];
-}
-
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     NSLog(@"Finished");
     [spinner stopAnimating];
     spinner.hidden = YES;
     NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xmlData]];
-    [self plotRoute:pairs];
+    if([pairs isEqualToString:@"NoData"]) {
+        /*MBProgressHUD *hud = [[MBProgressHUD alloc] init];
+        hud.mode = MBProgressHUDModeText;
+        hud.detailsLabelText = @"ERROR!!";
+        [mapView addSubview:hud];
+        [hud show:YES];
+         */
+    } else {
+        [self plotRoute:pairs];
+    }
+}
+
+-(void)useNotAbleToDrawRouteNotification
+{
+    NSLog(@"I have recieved a NotAbleToDrawRoute Notification");
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
+    hud.mode = MBProgressHUDModeText;
+    hud.detailsLabelText = @"Could not draw this route. Please try another.";
+    [mapView addSubview:hud];
+    NSLog(@"Do i make it here?");
+    [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
+}
+
+
+-(void)waitForFourSeconds
+{
+    NSLog(@"I am starting to wait for four seconds");
+    sleep(4);
+    [self performSegueWithIdentifier:@"BackHome" sender:self];
+    NSLog(@"I have finished waiting");
 }
 
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
