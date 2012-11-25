@@ -24,9 +24,9 @@ import android.util.Log;
 
 public class Timeline implements Parcelable {
 
-	private ArrayList<TimePoint> timePoints = new ArrayList<TimePoint>();
-	private String timelineName;
-	private int timelineNo;
+	private ArrayList<TimePoint> timePoints = new ArrayList<TimePoint>(); //Internal list of TimePoints
+	private String timelineName; //Name of the timeline
+	private int timelineNo; //Index of the timeline in TimelineChoice
 	
 	/**
 	 * Normal constructor

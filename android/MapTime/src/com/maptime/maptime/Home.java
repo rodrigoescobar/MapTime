@@ -42,10 +42,10 @@ import android.widget.TextView;
 
 public class Home extends Activity {
 	
-	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php";
-	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();
-	public LocationManager lMan;
-	public LocationUpdater locUp;
+	private final static String APIURL = "http://kanga-na8g09c.ecs.soton.ac.uk/api/fetchAll.php"; //URL of the MapTime database API
+	private ArrayList<Timeline> timelines = new ArrayList<Timeline>();//The local list of timelines to be displayed
+	public LocationManager lMan; //Local location manager for managing the state of location services
+	public LocationUpdater locUp; //Location listener for receiving location updates
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

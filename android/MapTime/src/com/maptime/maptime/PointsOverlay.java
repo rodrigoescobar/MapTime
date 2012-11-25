@@ -22,22 +22,27 @@ import com.google.android.maps.OverlayItem;
 
 public class PointsOverlay extends ItemizedOverlay {
 	
-	//LocationManager lMan;
-	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
-	private volatile Context mContext;
-	private boolean isPinch  =  false;
-	private String TAG = "TapHandler";
-	private boolean navMode = false;
-	private volatile boolean end = false;
-	private GeoPoint startPoint, endPoint;
-	Thread geoFence;
-	//LocationUpdater locUp;
-	Handler alertHandler = new Handler() {
+	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>(); //Local list of OverlayItems
+	//Dedicated indexes: 0 is the start point of the route, 1 is the end point, rest go from 1 after start to 1 before end
+	private volatile Context mContext; //Activity that this object is attached to, always a MainActivity
+	private boolean isPinch  =  false; //Used for determining taps
+	private String TAG = "TapHandler"; //
+	private boolean navMode = false; //Is the user currently setting points in the route
+	private volatile boolean end = false; //Do we want to terminate the geofencing thread
+	private GeoPoint startPoint, endPoint; //GeoPoints used to set the start and end OverlayItems
+	Thread geoFence; //Thread used for geofencing
+	Handler alertHandler = new Handler() { //Handler used to get geofencing alerts processed on the main thread
         public void handleMessage(final Message msgs) {
         	alertUser(mOverlays.get(msgs.arg1));
         }
         };
 	
+        /**
+         * Standard constructor
+         * @param defaultMarker Drawable containing map pin images
+         * @param context Activity that this object is attached to, always a MainActivity
+         */
+        
 	public PointsOverlay(Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
@@ -50,11 +55,19 @@ public class PointsOverlay extends ItemizedOverlay {
 		populate();
 	}
 	
-	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context, LocationManager locMan) {
+	/**
+	 * Constructer used from pre-existing information
+	 * @param ois List of OverlayItems
+	 * @param start GeoPoint for start of route
+	 * @param end GeoPoint for end of route
+	 * @param defaultMarker Drawable containing map pin images
+	 * @param context Activity that this object is attached to, always a MainActivity
+	 */
+	
+	public PointsOverlay(ArrayList<ParcelableOverlayItem> ois, ParcelableGeoPoint start, ParcelableGeoPoint end, Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
 		mContext = context;
-		((MainActivity) mContext).lMan = locMan;
-		((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
+		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
 		//((MainActivity) mContext).lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, (float) 100.0, new LocationUpdater());
 		ArrayList<OverlayItem> newOIs = new ArrayList<OverlayItem>();
 		for (ParcelableOverlayItem poi:ois) {
@@ -84,12 +97,12 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	/**
-	 * Sets the 
-	 * @param oi
+	 * Setter for the start point of the route
+	 * @param oi The start point of the route the user has entered
 	 */
 	
 	public void setStartPointOverlay(OverlayItem oi) {
-		if (mOverlays.size() == 0) {
+		if (mOverlays.size() == 0) { //If it doesn't exist, create it, else set it to it's dedicated index
 			mOverlays.add(oi);
 		}
 		else {
@@ -99,12 +112,12 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	/**
-	 * Setter for 
-	 * @param oi
+	 * Setter for the end point of the route
+	 * @param oi The end point of the route the user has entered
 	 */
 	
 	public void setEndPointOverlay(OverlayItem oi) {
-		if (mOverlays.size() == 1) {
+		if (mOverlays.size() == 1) { //If it doesn't exist, create it, else set it to it's dedicated index
 			mOverlays.add(oi);
 		}
 		else {
@@ -119,8 +132,8 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Getter for the local List mOverlays
+	 * @return The local list of OverlayItems
 	 */
 	
 	public ArrayList<OverlayItem> getMOverLays() {
@@ -128,7 +141,7 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	/**
-	 * 
+	 * @return The size of the local OverlayItem list
 	 */
 	
 	@Override
@@ -136,17 +149,14 @@ public class PointsOverlay extends ItemizedOverlay {
 		return mOverlays.size();
 	}
 	
-	/**
-	 * 
-	 */
 	
 	@Override
 	protected boolean onTap(int index) {
 		OverlayItem item;
-		if (mOverlays.size() == 2) {
+		if (mOverlays.size() == 2) { //If the timeline hasn't been set yet, return the message of the points we have
 			item = mOverlays.get(index);
 		}
-		else {
+		else { //Else, if we're touching the start or end points, show the start and end timeline descriptions instead
 			if (index == 0) {
 				item = mOverlays.get(2);
 			}
@@ -157,7 +167,7 @@ public class PointsOverlay extends ItemizedOverlay {
 				item = mOverlays.get(index);
 			}
 		}
-		AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
+		AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext); //Show the TimePoint descriptions
 		dialog.setTitle(item.getTitle());
 		dialog.setMessage(item.getSnippet());
 		dialog.show();
@@ -169,7 +179,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		if (isPinch) {
 			return false;
 		} else {
-			Log.i(TAG,"TAP!"); //TODO: Debug code, not needed
+			//Log.i(TAG,"TAP!"); 
 			if ( p!=null ) {
 				
 				//handleGeoPoint(p);
@@ -194,7 +204,7 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	@Override
-	public boolean onTouchEvent(MotionEvent e, MapView mapView) {
+	public boolean onTouchEvent(MotionEvent e, MapView mapView) { //for determining if a touch event is a tap, slide or pinch
 		
 		int fingers = e.getPointerCount();
 		if( e.getAction()==MotionEvent.ACTION_DOWN ) {
@@ -204,15 +214,15 @@ public class PointsOverlay extends ItemizedOverlay {
 		
 		if ( e.getAction()==MotionEvent.ACTION_MOVE && fingers==2 ) {
 			
-    	isPinch=true;   // Two fingers, def a pinch
+    	isPinch=true;   // Two fingers, definitely a pinch
     	}
 		
     return super.onTouchEvent(e,mapView);
 	}
 	
 	/**
-	 * 
-	 * @param b
+	 * Setter for navMode
+	 * @param b Enable navMode
 	 */
 	
 	public void setNavMode(boolean b) {
@@ -270,7 +280,7 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	/**
-	 * Ends the thread that checks for location data
+	 * Ends the thread that works out if the user has entered some distance from a point
 	 */
 	
 	public void stopGPS() {
@@ -284,32 +294,28 @@ public class PointsOverlay extends ItemizedOverlay {
 	}
 	
 	/**
-	 * 
-	 *
+	 * Task that implements geofencing, that is, working out if a user has crossed a 
+	 * distance threshold of a point
 	 */
 	
 	private class GeoFenceTask implements Runnable {
 
-		ArrayList<Double> distances = new ArrayList<Double>();
-		boolean isInit = false;
-		Location curLoc;
+		ArrayList<Double> distances = new ArrayList<Double>(); //List of distances from each point the user is
+		boolean isInit = false; //is the location service initialised
+		Location curLoc; //user's current location
 		final static double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
 		
 		public void run() {
-			// TODO Auto-generated method stub
 						
 			while (!end) {
 				//String lProv = ((MainActivity) mContext).lMan.getBestProvider(new Criteria(), true);
 				String lProv = LocationManager.GPS_PROVIDER;
 				curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
-				Log.i("test",lProv);
-				curLoc = ((MainActivity) mContext).lMan.getLastKnownLocation(lProv);
+				//Log.i("test",lProv);
 				if (curLoc != null) {
-				Log.i("Cur Loc", curLoc.toString());
-				}
-				if (curLoc != null) {
-					if (!isInit || distances.size() != mOverlays.size()) {
-						distances.clear();
+					//Log.i("Cur Loc", curLoc.toString());
+					if (!isInit || distances.size() != mOverlays.size()) { //if we have a different amount of points to last time through
+						distances.clear(); //reset the distances list and start again
 						for (OverlayItem oi: mOverlays) {
 							distances.add(MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
 								(double)(oi.getPoint().getLatitudeE6())/1000000.0, 
@@ -317,7 +323,7 @@ public class PointsOverlay extends ItemizedOverlay {
 						}
 						isInit = true;
 					}
-					else {
+					else { //else if the user has passed within THRESHOLD km of a point, alert the user
 						for (int i = 0; i < distances.size(); i++) {
 							double curDist = MainActivity.distanceKm(curLoc.getLatitude(), curLoc.getLongitude(),
 								(double)(mOverlays.get(i).getPoint().getLatitudeE6())/1000000.0, 
@@ -334,12 +340,10 @@ public class PointsOverlay extends ItemizedOverlay {
 					}
 				}
 				try {
-					Log.i("Sleep","yes");
-					Thread.sleep(5000); //Wait for a few seconds, GPS doesn't update that often.
-					Log.i("Sleep","no");
+					//Log.i("Sleep","yes");
+					Thread.sleep(6000); //Wait for a few seconds, GPS doesn't update that often.
+					//Log.i("Sleep","no");
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 					break;
 				}
 				

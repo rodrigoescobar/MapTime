@@ -10,13 +10,13 @@ import android.os.Parcelable;
 
 public class TimePoint implements Parcelable, Comparable<TimePoint>{
 	
-	private double timeInBC;
-	private int id;
-	private String name;
-	private String description;
-	private int month;
-	private int day;
-	private boolean fineDate = true;
+	private double timeInBC; //Time in BC of the event, i.e. number of years before 0AD
+	private int id; //ID of the event in the MapTime database
+	private String name; //Name of the event
+	private String description; //Description of the event
+	private int month; //Month the event took place
+	private int day; //Day the event took place
+	private boolean fineDate = true;  //Whether month and day are available or not
 	
 	/**
 	 * Standard constructor
@@ -25,7 +25,7 @@ public class TimePoint implements Parcelable, Comparable<TimePoint>{
 	 * @param nameSet Name of the Event
 	 * @param descSet Description of the event
 	 * @param monthSet Month the event took place
-	 * @param daySet Day the event took plce
+	 * @param daySet Day the event took place
 	 */
 	
 	public TimePoint(double timeSet, int idSet, String nameSet, String descSet, int monthSet, int daySet) {

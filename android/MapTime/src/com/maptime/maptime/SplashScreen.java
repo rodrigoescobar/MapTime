@@ -19,7 +19,7 @@ public class SplashScreen extends Activity {
         
         Handler handler = new Handler();
         
-        // run a thread after 2 seconds to start the home screen
+        // run a thread after 0.75 seconds to start the home screen
         handler.postDelayed(new Runnable() {
  
             public void run() { 
@@ -31,23 +31,23 @@ public class SplashScreen extends Activity {
                 SplashScreen.this.startActivityForResult(intent, 0);
             }
  
-        }, 1250);
+        }, 750);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) { //When the Home activity is closed, release all resources
     	// TODO Auto-generated method stub
     	super.onActivityResult(requestCode, resultCode, data);
     	if  (requestCode == 0) {
-    		finish();
+    		//finish();
     	}
     }
     
     @Override
-    protected void onDestroy() {
+    protected void onDestroy() { //When the resources are released, kill the process to clean up background threads
     	// TODO Auto-generated method stub
     	super.onDestroy();
-    	android.os.Process.killProcess(android.os.Process.myPid());
+    	//android.os.Process.killProcess(android.os.Process.myPid());
     }
     
     public boolean onCreateOptionsMenu(Menu menu) {

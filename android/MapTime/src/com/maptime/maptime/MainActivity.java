@@ -47,10 +47,6 @@ public class MainActivity extends MapActivity {
 	private NavOverlay routeOverlay;
 	public LocationManager lMan;
 	public LocationUpdater locUp;
-
-	/**
-	 * 
-	 */
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,8 +71,7 @@ public class MainActivity extends MapActivity {
 			}
 			itemizedOverlay = new PointsOverlay(listOIs,
 					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayStart")),
-					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), pinDrawable, this, 
-					lMan);
+					((ParcelableGeoPoint)savedInstanceState.getParcelable("pointsOverlayEnd")), pinDrawable, this);
 		}
 		else {
 			
