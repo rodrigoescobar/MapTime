@@ -430,12 +430,6 @@
     spinner.hidden = YES;
     NSString *pairs = [[NSString alloc] initWithString:[self parseXML:xmlData]];
     if([pairs isEqualToString:@"NoData"]) {
-        /*MBProgressHUD *hud = [[MBProgressHUD alloc] init];
-        hud.mode = MBProgressHUDModeText;
-        hud.detailsLabelText = @"ERROR!!";
-        [mapView addSubview:hud];
-        [hud show:YES];
-         */
     } else {
         [self plotRoute:pairs];
     }

@@ -21,8 +21,6 @@
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-
-    
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -30,6 +28,7 @@
     [super viewDidAppear:animated];
     [self registerForNotifications];
     [self downloadTimelines];
+    [self fromFieldChanged];
 }
 
 -(void)registerForNotifications
@@ -38,6 +37,36 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(useErrorNotification) name:@"ErrorNotification" object:nil];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(toFieldChanged) name:UITextFieldTextDidChangeNotification object:toField];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fromFieldChanged) name:UITextFieldTextDidChangeNotification object:fromField];
+
+    
+}
+
+-(void)toFieldChanged
+{
+    UIButton *button = (UIButton *)[self.view viewWithTag:2];
+    if([toField.text compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+        toField.textColor = [UIColor blueColor];
+        button.hidden = YES;
+    } else {
+        toField.textColor = [UIColor blackColor];
+        button.hidden = NO;
+    }
+}
+
+-(void)fromFieldChanged
+{
+    UIButton *button = (UIButton *)[self.view viewWithTag:1];
+
+    if([fromField.text compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+        fromField.textColor = [UIColor blueColor];
+        button.hidden = YES;
+    } else {
+        fromField.textColor = [UIColor blackColor];
+        button.hidden = NO;
+    }
 }
 
 -(void)downloadTimelines
@@ -119,5 +148,19 @@
     [self.view addSubview:hud];
     [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
 }
+
+-(IBAction)toLocationButtonPressed
+{
+    toField.text = @"Current Location";
+    [self toFieldChanged];
+}
+
+-(IBAction)fromLocationButtonPressed
+{
+    fromField.text = @"Current Location";
+    [self fromFieldChanged];
+}
+
+
 
 @end
