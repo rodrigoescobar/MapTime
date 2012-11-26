@@ -56,6 +56,7 @@
     geofenceRegions = [[NSMutableArray alloc] initWithCapacity:30];
     
     numberOfPoints = 0;
+    NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
     
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleGesture:)];
     longPressGestureRecognizer.minimumPressDuration = 0.8;
@@ -94,9 +95,9 @@
         hud.detailsLabelText = @"Please long press on two points to dra a route between them.";
         [mapView addSubview:hud];
         [hud showWhileExecuting:@selector(waitTwo) onTarget:self withObject:nil animated:YES];
-        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
-        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
-        [mapView setRegion:region animated:YES];
+//        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+//        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
+//        [mapView setRegion:region animated:YES];
     }
     
 
@@ -530,12 +531,15 @@
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
-   // NSLog(@"location updated");
-    currentLocation = userLocation;
+    NSLog(@"location updated");
+   // currentLocation = userLocation;
   //  NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+    if(currentLocation.coordinate.latitude == 0.000000 && currentLocation.coordinate.longitude == 0.000000){
+        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 10000, 10000);
+        [aMapView setRegion:region animated:YES];
+    }
+    currentLocation = userLocation;
     
-    //MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
-    //[aMapView setRegion:region animated:YES];
 }
 - (IBAction)zoomInToCurrentLocation{
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
