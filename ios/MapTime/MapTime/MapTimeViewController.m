@@ -26,6 +26,7 @@
 @synthesize toLocation;
 @synthesize timeLine;
 
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -51,18 +52,20 @@
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     coordinates = [[NSMutableArray alloc] initWithCapacity:4];
     geofenceRegions = [[NSMutableArray alloc] initWithCapacity:30];
-    
+    currentLocation = [[MKUserLocation alloc] init];
     numberOfPoints = 0;
     
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleGesture:)];
     longPressGestureRecognizer.minimumPressDuration = 0.8;
     [mapView addGestureRecognizer:longPressGestureRecognizer];
     
+    
     if(![fromLocation isEqualToString:@""] && ![toLocation isEqualToString:@""]) {
         [self forwardGeocode];
     }
     
 }
+
 
 -(void)registerForNotifications
 {
@@ -83,6 +86,10 @@
     
     locationManager = [[CLLocationManager alloc] init];
     locationManager.delegate = self;
+    
+    //CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+    //MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
+    //[mapView setRegion:region animated:YES];
 }
 
 -(void)forwardGeocode
@@ -92,15 +99,26 @@
     __block NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:4]; // stores the longlat of start and end, needs the __block modifier as is used in below blocks
     
     [geocoder geocodeAddressString:fromLocation completionHandler:^(NSArray *placemarks, NSError *error) { // forward geocode the address from the from field
-        CLLocation *location = [placemarks[0] location];
-        [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
-        [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+        if ([fromLocation compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+            MKUserLocation *location = currentLocation;
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+        }else{
+            CLLocation *location = [placemarks[0] location];
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+        }
         
         [geocoder geocodeAddressString:toLocation completionHandler:^(NSArray *placemarks, NSError *error) { // once from location has finished, perform forward geocode on address in toField
-            CLLocation *location = [placemarks[0] location];
-            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]];
-            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]];
-            
+            if ([toLocation compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                MKUserLocation *location = currentLocation;
+                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+            }else{
+                CLLocation *location = [placemarks[0] location];
+                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+            }
             [self downloadNavigationData:points]; // once all geocoding has complete, download all the data and kick it all off
         }];
         
@@ -175,7 +193,7 @@
 		
 -(NSString *)parseXML:(NSData *)xml
 {
-    // method that parses the XML nabigation data
+    // method that parses the XML navigation data
     NSError *error;
     TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:&error];
     if(error) {
@@ -486,10 +504,18 @@
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
-    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
-    [aMapView setRegion:region animated:YES];
+    currentLocation = userLocation;
+    //MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
+    //[aMapView setRegion:region animated:YES];
 
 }
+- (IBAction)zoomInToCurrentLocation{
+    CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
+    [mapView setRegion:region animated:YES];
+}
+  
+
 
 /**
  

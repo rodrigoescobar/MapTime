@@ -27,6 +27,7 @@
     MBProgressHUD *mbhud;
     CLLocationManager *locationManager;
     NSMutableArray *geofenceRegions;
+    MKUserLocation *currentLocation;
 }
 
 @property (nonatomic, strong) NSString *fromLocation;
@@ -34,9 +35,9 @@
 @property (nonatomic, strong) TimeLine *timeLine;
 
 - (void)viewDidLoad;
+- (void)forwardGeocode;
 
--(void)forwardGeocode;
-
+- (IBAction)zoomInToCurrentLocation;
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
 
 -(void)downloadNavigationData:(NSMutableArray *)array;
