@@ -185,7 +185,9 @@
     pointAnnotation.coordinate = touchMapCoordinate;
     pointAnnotation.title = [[NSString alloc] initWithFormat:@"%f, %f", pointAnnotation.coordinate.latitude, pointAnnotation.coordinate.longitude];
     
-    if (numberOfPoints == 2){
+
+    
+    if (numberOfPoints == 1){
         [mapView removeAnnotations:mapView.annotations];
         [mapView removeOverlays: mapView.overlays];
         [longLatPairs removeAllObjects];
@@ -196,17 +198,21 @@
     }
     if (numberOfPoints == 0) {
         [mapView addAnnotation:pointAnnotation];
-        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
-        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
-        numberOfPoints++;
-
-    } else {
-        [mapView addAnnotation:pointAnnotation];
+        [coordinates addObject:[NSNumber numberWithDouble:currentLocation.coordinate.latitude]];
+        [coordinates addObject:[NSNumber numberWithDouble:currentLocation.coordinate.longitude]];
         [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
         [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
         numberOfPoints++;
         [self downloadNavigationData:coordinates];
     }
+
+//    } else {
+//        [mapView addAnnotation:pointAnnotation];
+//        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
+//        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
+//        numberOfPoints++;
+//        [self downloadNavigationData:coordinates];
+//    }
 }
 
 		
@@ -524,9 +530,9 @@
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
-    NSLog(@"location updated");
+   // NSLog(@"location updated");
     currentLocation = userLocation;
-    NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+  //  NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
     
     //MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
     //[aMapView setRegion:region animated:YES];
