@@ -30,6 +30,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    currentLocation = [[MKUserLocation alloc] init];
 	// Do any additional setup after loading the view, typically from a nib.
 }
 
@@ -39,7 +40,7 @@
     
     [self registerForNotifications];
     
-    
+
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
     mapView.showsUserLocation = YES;
@@ -52,7 +53,7 @@
     longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
     coordinates = [[NSMutableArray alloc] initWithCapacity:4];
     geofenceRegions = [[NSMutableArray alloc] initWithCapacity:30];
-    currentLocation = [[MKUserLocation alloc] init];
+    
     numberOfPoints = 0;
     
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleGesture:)];
@@ -86,19 +87,28 @@
     
     locationManager = [[CLLocationManager alloc] init];
     locationManager.delegate = self;
+    if([fromLocation isEqualToString:@""] || [toLocation isEqualToString:@""]){
+        MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
+        hud.mode = MBProgressHUDModeText;
+        hud.detailsLabelText = @"Please long press on two points to dra a route between them.";
+        [mapView addSubview:hud];
+        [hud showWhileExecuting:@selector(waitTwo) onTarget:self withObject:nil animated:YES];
+        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
+        [mapView setRegion:region animated:YES];
+    }
     
-    //CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
-    //MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
-    //[mapView setRegion:region animated:YES];
 }
 
 -(void)forwardGeocode
 {
+    [self waitTwo];
     CLGeocoder *geocoder = [[CLGeocoder alloc] init]; // creates a geocoder object
     
     __block NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:4]; // stores the longlat of start and end, needs the __block modifier as is used in below blocks
     
     [geocoder geocodeAddressString:fromLocation completionHandler:^(NSArray *placemarks, NSError *error) { // forward geocode the address from the from field
+    
         if ([fromLocation compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
             MKUserLocation *location = currentLocation;
             [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
@@ -119,6 +129,7 @@
                 [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
                 [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
             }
+            NSLog(@"%f , %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
             [self downloadNavigationData:points]; // once all geocoding has complete, download all the data and kick it all off
         }];
         
@@ -504,7 +515,10 @@
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
+    NSLog(@"location updated");
     currentLocation = userLocation;
+    NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+    
     //MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
     //[aMapView setRegion:region animated:YES];
 
