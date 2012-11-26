@@ -95,10 +95,10 @@
                             <constraint firstItem="xAN-qW-0zs" firstAttribute="leading" secondItem="EoH-dX-T84" secondAttribute="leading" constant="65" id="zpO-BI-z4T"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="MapTime" id="haq-fJ-awO">
-                        <barButtonItem key="rightBarButtonItem" title="Go" id="qSP-cn-oOt">
+                    <navigationItem key="navigationItem" title="MapTime" id="3jR-Jl-bwc">
+                        <barButtonItem key="rightBarButtonItem" title="Go" id="G29-bB-7tn">
                             <connections>
-                                <segue destination="2" kind="push" identifier="MoveToMap" id="rDU-Ef-dRG"/>
+                                <segue destination="2" kind="push" identifier="MoveToMap" id="ZCm-1s-pFi"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

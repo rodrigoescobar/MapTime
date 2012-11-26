@@ -19,6 +19,7 @@
 #define degreesToRadians( degrees ) ( ( degrees ) / 180.0 * M_PI )
 #define METERS_PER_MILE 1609.344
 #define RADIUS_OF_EARTH 6371
+#define PROXIMITY_TO_FIRE 1
 
 @implementation MapTimeViewController
 
@@ -98,6 +99,13 @@
         [mapView setRegion:region animated:YES];
     }
     
+
+    locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    locationManager.distanceFilter = 1;
+    
+    [locationManager startUpdatingLocation];
+
+
 }
 
 -(void)forwardGeocode
@@ -395,8 +403,9 @@
     MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
     point.coordinate = CLLocationCoordinate2DMake(latitude, longitude);
     point.title = NSLocalizedString([tp getName], "Title of the pin");
-    CLRegion *region = [[CLRegion alloc] initCircularRegionWithCenter:point.coordinate radius:100 identifier:[tp getName]];
+    CLRegion *region = [[CLRegion alloc] initCircularRegionWithCenter:point.coordinate radius:PROXIMITY_TO_FIRE identifier:[tp getName]];
     [geofenceRegions addObject:region];
+    NSLog(@"New geofence region: Lat at: %f Long at: %f", latitude, longitude);
     
     [mapView addAnnotation:point];
                                   
@@ -521,7 +530,6 @@
     
     //MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
     //[aMapView setRegion:region animated:YES];
-
 }
 - (IBAction)zoomInToCurrentLocation{
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
