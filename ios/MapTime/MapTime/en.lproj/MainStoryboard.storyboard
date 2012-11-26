@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2843" systemVersion="12C60" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Wy6-tM-lbp">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2844" systemVersion="12C60" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Wy6-tM-lbp">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1929"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1930"/>
     </dependencies>
     <scenes>
         <!--Main View Controller - MapTime-->
@@ -127,16 +127,21 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="fsP-xP-JVd" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="KiN-DS-DPw"/>
-                            <constraint firstItem="fsP-xP-JVd" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="default" id="Kx2-oI-5Ki"/>
-                            <constraint firstItem="fsP-xP-JVd" firstAttribute="top" secondItem="3" secondAttribute="top" type="default" id="g4H-ge-M0A"/>
-                            <constraint firstItem="fsP-xP-JVd" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="kSu-8m-h92"/>
+                            <constraint firstItem="fsP-xP-JVd" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="default" id="BtI-k8-ZRN"/>
+                            <constraint firstItem="fsP-xP-JVd" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="LsL-bY-o2W"/>
+                            <constraint firstItem="fsP-xP-JVd" firstAttribute="top" secondItem="3" secondAttribute="top" type="default" id="NB7-9l-uip"/>
+                            <constraint firstItem="fsP-xP-JVd" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="tdx-fB-Fv6"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="TimeLine" id="8pu-sG-UBT">
                         <barButtonItem key="leftBarButtonItem" title="Back" id="bXK-jE-sgH">
                             <connections>
                                 <segue destination="YLa-f0-811" kind="push" identifier="BackHome" id="gzV-v4-VZy"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="refresh" id="EDE-vh-4vI">
+                            <connections>
+                                <action selector="zoomInToCurrentLocation" destination="2" id="qq5-8T-Bln"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -196,6 +201,9 @@
         </class>
         <class className="MapTimeViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/MapTimeViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="zoomInToCurrentLocation"/>
+            </relationships>
         </class>
         <class className="NSLayoutConstraint" superclassName="NSObject">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
