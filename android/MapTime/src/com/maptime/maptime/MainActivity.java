@@ -13,6 +13,8 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -50,6 +52,7 @@ public class MainActivity extends MapActivity {
 	public LocationUpdater locUpNetwork;
 	public boolean gps = false;
 	public boolean network = false;
+	public boolean networkLoss = false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -251,6 +254,39 @@ public class MainActivity extends MapActivity {
 	    double deltaLonRad = Math.toRadians(lon2 - lon1);
 
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
+	}
+	
+	/**
+	 * Check's if there's a network connection available
+	 * @return If there is a network connection available
+	 */
+	
+	private boolean isNetworkAvailable() {
+	    ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+	}
+	
+	/**
+	 * Makes GPS update more often if internet access is removed, 
+	 * returns to normal when internet access resumes.
+	 */
+	
+	public void changeGPS() {
+		if (network && gps) {
+			if (!networkLoss && !isNetworkAvailable()) {
+				networkLoss = true;
+				lMan.removeUpdates(locUpGPS); //unregister current network and gps stuff
+				lMan.removeUpdates(locUpNetwork);
+				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, (float) 50.0, locUpGPS); //register new gps stuff
+			}
+			else if (networkLoss && isNetworkAvailable()) {
+				networkLoss = false;
+				lMan.removeUpdates(locUpGPS);//unregister new gps stuff
+				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
+				lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2500, (float) 30.0, locUpGPS);//restore old stuff
+			}
+		}
 	}
 	
 	/**

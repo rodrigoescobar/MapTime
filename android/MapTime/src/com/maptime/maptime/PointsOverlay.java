@@ -285,6 +285,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
 		dialog.setTitle(oi.getTitle());
 		dialog.setMessage(oi.getSnippet());
+		dialog.setPositiveButton("OK", new DismissListener());
 		dialog.show();
 	}
 	
@@ -328,7 +329,8 @@ public class PointsOverlay extends ItemizedOverlay {
 					curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
 				}
 				//Log.i("test",lProv);
-				if(curLocGPS != null && curLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
+				if(curLocGPS != null && (curLocGPS.getTime() > (System.currentTimeMillis() - 5000)|| 
+						!((MainActivity) mContext).network || ((MainActivity) mContext).networkLoss)) {
 					curLocFinal = curLocGPS;
 				}
 				else if (curLocNetwork != null) {

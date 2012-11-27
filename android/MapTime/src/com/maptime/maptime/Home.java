@@ -31,6 +31,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -99,6 +100,7 @@ public class Home extends Activity {
     		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
 			errDialog.setTitle(errorTitle);
 			errDialog.setMessage(errorMessage);
+			errDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK", new DismissListener());
 			errDialog.show();
     	}
     }
@@ -121,6 +123,7 @@ public class Home extends Activity {
     		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
 			errDialog.setTitle(errorTitle);
 			errDialog.setMessage(errorMessage);
+			errDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK", new DismissListener());
 			errDialog.show();
     	}
     }
@@ -208,6 +211,7 @@ public class Home extends Activity {
     		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
 			errDialog.setTitle(errorTitle);
 			errDialog.setMessage(errorMessage);
+			errDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK", new DismissListener());
 			errDialog.show();
     	} else {
     		String errorTitle = getResources().getString(R.string.error_title);
@@ -216,6 +220,7 @@ public class Home extends Activity {
     		AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
 			errDialog.setTitle(errorTitle);
 			errDialog.setMessage(errorMessage);
+			errDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK", new DismissListener());
 			errDialog.show();
     	}
     }
@@ -254,6 +259,7 @@ public class Home extends Activity {
 			AlertDialog errDialog = new AlertDialog.Builder(Home.this).create();
 			errDialog.setTitle(errorTitle);
 			errDialog.setMessage(errorMessage);
+			errDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK", new DismissListener());
 			errDialog.show();
 	    }
 	};
