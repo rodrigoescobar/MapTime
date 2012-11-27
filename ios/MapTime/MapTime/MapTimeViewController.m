@@ -19,6 +19,7 @@
 #define degreesToRadians( degrees ) ( ( degrees ) / 180.0 * M_PI )
 #define METERS_PER_MILE 1609.344
 #define RADIUS_OF_EARTH 6371
+#define PROXIMITY_TO_FIRE 1
 
 @implementation MapTimeViewController
 
@@ -26,9 +27,11 @@
 @synthesize toLocation;
 @synthesize timeLine;
 
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    currentLocation = [[MKUserLocation alloc] init];
 	// Do any additional setup after loading the view, typically from a nib.
 }
 
@@ -38,7 +41,7 @@
     
     [self registerForNotifications];
     
-    
+
     mapView = (MKMapView *)[self.view viewWithTag:1001];
     [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
     mapView.showsUserLocation = YES;
@@ -53,16 +56,19 @@
     geofenceRegions = [[NSMutableArray alloc] initWithCapacity:30];
     
     numberOfPoints = 0;
+    NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
     
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleGesture:)];
     longPressGestureRecognizer.minimumPressDuration = 0.8;
     [mapView addGestureRecognizer:longPressGestureRecognizer];
+    
     
     if(![fromLocation isEqualToString:@""] && ![toLocation isEqualToString:@""]) {
         [self forwardGeocode];
     }
     
 }
+
 
 -(void)registerForNotifications
 {
@@ -83,24 +89,56 @@
     
     locationManager = [[CLLocationManager alloc] init];
     locationManager.delegate = self;
+    if([fromLocation isEqualToString:@""] || [toLocation isEqualToString:@""]){
+        MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
+        hud.mode = MBProgressHUDModeText;
+        hud.detailsLabelText = @"Please long press on two points to dra a route between them.";
+        [mapView addSubview:hud];
+        [hud showWhileExecuting:@selector(waitTwo) onTarget:self withObject:nil animated:YES];
+//        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+//        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
+//        [mapView setRegion:region animated:YES];
+    }
+    
+
+    locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    locationManager.distanceFilter = 1;
+    
+    [locationManager startUpdatingLocation];
+
+
 }
 
 -(void)forwardGeocode
 {
+    [self waitTwo];
     CLGeocoder *geocoder = [[CLGeocoder alloc] init]; // creates a geocoder object
     
     __block NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:4]; // stores the longlat of start and end, needs the __block modifier as is used in below blocks
     
     [geocoder geocodeAddressString:fromLocation completionHandler:^(NSArray *placemarks, NSError *error) { // forward geocode the address from the from field
-        CLLocation *location = [placemarks[0] location];
-        [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
-        [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+    
+        if ([fromLocation compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+            MKUserLocation *location = currentLocation;
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+        }else{
+            CLLocation *location = [placemarks[0] location];
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+        }
         
         [geocoder geocodeAddressString:toLocation completionHandler:^(NSArray *placemarks, NSError *error) { // once from location has finished, perform forward geocode on address in toField
-            CLLocation *location = [placemarks[0] location];
-            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]];
-            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]];
-            
+            if ([toLocation compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                MKUserLocation *location = currentLocation;
+                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+            }else{
+                CLLocation *location = [placemarks[0] location];
+                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
+                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+            }
+            NSLog(@"%f , %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
             [self downloadNavigationData:points]; // once all geocoding has complete, download all the data and kick it all off
         }];
         
@@ -148,7 +186,9 @@
     pointAnnotation.coordinate = touchMapCoordinate;
     pointAnnotation.title = [[NSString alloc] initWithFormat:@"%f, %f", pointAnnotation.coordinate.latitude, pointAnnotation.coordinate.longitude];
     
-    if (numberOfPoints == 2){
+
+    
+    if (numberOfPoints == 1){
         [mapView removeAnnotations:mapView.annotations];
         [mapView removeOverlays: mapView.overlays];
         [longLatPairs removeAllObjects];
@@ -159,23 +199,27 @@
     }
     if (numberOfPoints == 0) {
         [mapView addAnnotation:pointAnnotation];
-        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
-        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
-        numberOfPoints++;
-
-    } else {
-        [mapView addAnnotation:pointAnnotation];
+        [coordinates addObject:[NSNumber numberWithDouble:currentLocation.coordinate.latitude]];
+        [coordinates addObject:[NSNumber numberWithDouble:currentLocation.coordinate.longitude]];
         [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
         [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
         numberOfPoints++;
         [self downloadNavigationData:coordinates];
     }
+
+//    } else {
+//        [mapView addAnnotation:pointAnnotation];
+//        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
+//        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
+//        numberOfPoints++;
+//        [self downloadNavigationData:coordinates];
+//    }
 }
 
 		
 -(NSString *)parseXML:(NSData *)xml
 {
-    // method that parses the XML nabigation data
+    // method that parses the XML navigation data
     NSError *error;
     TBXML *tbxml = [TBXML newTBXMLWithXMLData:xml error:&error];
     if(error) {
@@ -366,8 +410,9 @@
     MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
     point.coordinate = CLLocationCoordinate2DMake(latitude, longitude);
     point.title = NSLocalizedString([tp getName], "Title of the pin");
-    CLRegion *region = [[CLRegion alloc] initCircularRegionWithCenter:point.coordinate radius:100 identifier:[tp getName]];
+    CLRegion *region = [[CLRegion alloc] initCircularRegionWithCenter:point.coordinate radius:PROXIMITY_TO_FIRE identifier:[tp getName]];
     [geofenceRegions addObject:region];
+    NSLog(@"New geofence region: Lat at: %f Long at: %f", latitude, longitude);
     
     [mapView addAnnotation:point];
                                   
@@ -486,10 +531,23 @@
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
-    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
-    [aMapView setRegion:region animated:YES];
-
+    NSLog(@"location updated");
+   // currentLocation = userLocation;
+  //  NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+    if(currentLocation.coordinate.latitude == 0.000000 && currentLocation.coordinate.longitude == 0.000000){
+        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 10000, 10000);
+        [aMapView setRegion:region animated:YES];
+    }
+    currentLocation = userLocation;
+    
 }
+- (IBAction)zoomInToCurrentLocation{
+    CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
+    [mapView setRegion:region animated:YES];
+}
+  
+
 
 /**
  
