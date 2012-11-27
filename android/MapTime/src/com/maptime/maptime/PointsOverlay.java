@@ -178,6 +178,7 @@ public class PointsOverlay extends ItemizedOverlay {
 		AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext); //Show the TimePoint descriptions
 		dialog.setTitle(item.getTitle());
 		dialog.setMessage(item.getSnippet());
+		dialog.setPositiveButton("OK", new DismissListener());
 		dialog.show();
 		return true;
 	}
@@ -196,7 +197,7 @@ public class PointsOverlay extends ItemizedOverlay {
 					AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
 					dialog.setTitle("Navigation Mode");
 					dialog.setMessage("Now tap the endPoint of your route");
-					//dialog.setNeutralButton("OK", null);
+					dialog.setPositiveButton("OK", new DismissListener());
 					dialog.show();
 				} else if (navMode && endPoint == null) {
 					endPoint = p;
@@ -310,9 +311,9 @@ public class PointsOverlay extends ItemizedOverlay {
 
 		ArrayList<Double> distances = new ArrayList<Double>(); //List of distances from each point the user is
 		boolean isInit = false; //is the location service initialised
-		Location curLocGPS; //user's current location from GPS
-		Location curLocNetwork; //user's current location from Network
-		Location curLocFinal; //The loaction we want to use
+		Location curLocGPS = null; //user's current location from GPS
+		Location curLocNetwork = null; //user's current location from Network
+		Location curLocFinal = null; //The loaction we want to use
 		final static double threshold = 0.1; //distance in KM from timeline point that we want to alert the user
 		
 		public void run() {
@@ -320,13 +321,17 @@ public class PointsOverlay extends ItemizedOverlay {
 			while (!end) {
 				String lProvNetwork = LocationManager.NETWORK_PROVIDER;
 				String lProvGPS = LocationManager.GPS_PROVIDER;
-				curLocGPS = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvGPS);
-				curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+				if (((MainActivity) mContext).gps) {
+					curLocGPS = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvGPS);
+				}
+				if (((MainActivity) mContext).network) {
+					curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+				}
 				//Log.i("test",lProv);
 				if(curLocGPS != null && curLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
 					curLocFinal = curLocGPS;
 				}
-				else {
+				else if (curLocNetwork != null) {
 					curLocFinal = curLocNetwork;
 				}
 				if (curLocFinal != null) {

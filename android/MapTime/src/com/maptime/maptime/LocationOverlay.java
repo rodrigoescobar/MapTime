@@ -91,9 +91,9 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 	
 	private class LocationGetter implements Runnable {
 
-		Location curLocGPS; //user's current location from GPS
-		Location curLocNetwork; //user's current location from Network
-		Location curLocFinal; //The loaction we want to use
+		Location curLocGPS = null; //user's current location from GPS
+		Location curLocNetwork = null; //user's current location from Network
+		Location curLocFinal = null; //The loaction we want to use
 		
 		@SuppressLint("NewApi")
 		public void run() {
@@ -128,13 +128,15 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 				if (lProvGPS != null) {
 					curLocGPS = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvGPS);
 				}
-				if(curLocGPS != null && curLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
+				if(curLocGPS != null && (curLocGPS.getTime() > (System.currentTimeMillis() - 5000) || !((MainActivity) mContext).network)) {
 					curLocFinal = curLocGPS;
 				}
-				else {
+				else if (curLocNetwork != null){
 					curLocFinal = curLocNetwork;
-					((MainActivity) mContext).lMan.requestSingleUpdate(lProvNetwork, ((MainActivity) mContext).locUpNetwork, null);
-					curLocFinal = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+					if (android.os.Build.VERSION.SDK_INT > 8) { //if newer than android 2.2
+						((MainActivity) mContext).lMan.requestSingleUpdate(lProvNetwork, ((MainActivity) mContext).locUpNetwork, ((MainActivity) mContext).getMainLooper());
+						curLocFinal = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+					}
 				}
 				Log.i("test",curLocFinal.toString());
 				if (curLocFinal != null) {

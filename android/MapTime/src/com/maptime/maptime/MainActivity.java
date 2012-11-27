@@ -48,6 +48,8 @@ public class MainActivity extends MapActivity {
 	public LocationManager lMan;
 	public LocationUpdater locUpGPS;
 	public LocationUpdater locUpNetwork;
+	public boolean gps = false;
+	public boolean network = false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,9 +64,19 @@ public class MainActivity extends MapActivity {
 		lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 		locUpGPS = new LocationUpdater();
 		locUpNetwork = new LocationUpdater();
-		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
-		lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2500, (float) 30.0, locUpNetwork);
-		
+ 		if (lMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+ 			lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2500, (float) 30.0, locUpNetwork);
+ 			network = true;
+ 		}
+ 		if (lMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+ 			if (network) {
+ 				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
+ 			}
+ 			else {
+ 				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, (float) 50.0, locUpGPS);
+ 			}
+ 			gps = true;
+ 		}
 		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
 			
 			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
@@ -93,7 +105,7 @@ public class MainActivity extends MapActivity {
 				listGPs.add((ParcelableGeoPoint)p);
 			}
 			routeOverlay = new NavOverlay(listGPs, 
-					savedInstanceState.getDouble("navOverlayLength"));
+					savedInstanceState.getDouble("navOverlayLength"), this);
 			mapOverlays.add(routeOverlay);
 		}
 		if (savedInstanceState != null && savedInstanceState.containsKey("timeline")) {
@@ -217,6 +229,7 @@ public class MainActivity extends MapActivity {
 			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Error");
 			dialog.setMessage("Cannot get location points of address");
+			dialog.setNegativeButton("OK", new DismissListener());
 			dialog.show();
 			return null;
 		}
@@ -239,7 +252,7 @@ public class MainActivity extends MapActivity {
 
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
 	}
-
+	
 	/**
 	 * Stores the timeline object 
 	 */
@@ -270,6 +283,7 @@ public class MainActivity extends MapActivity {
 	    	AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Navigation Mode");
 			dialog.setMessage("Tap where you want to start your timeline");
+			dialog.setPositiveButton("OK", new DismissListener());
 			dialog.show();
 			point = null;
 			point2 = null;
@@ -396,7 +410,7 @@ public class MainActivity extends MapActivity {
 				//TODO: An asynctask which does the following since we can't network on main thread
 				if (mapOverlays.size() == 2) {
 					try {
-						routeOverlay = new NavOverlay(point, point2);
+						routeOverlay = new NavOverlay(point, point2, ma);
 						mapOverlays.add(routeOverlay);
 					} catch (NoRouteException e) {
 						itemizedOverlay.clearMOverLays();
@@ -405,6 +419,7 @@ public class MainActivity extends MapActivity {
 								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
 								dialog.setTitle("Could not find route!");
 								dialog.setMessage("Try giving more information, or make sure there is a road connection.");
+								dialog.setNegativeButton("OK", new DismissListener());
 								dialog.show();
 							}
 						});
@@ -416,7 +431,7 @@ public class MainActivity extends MapActivity {
 				}
 				else if (routeOverlay != null) {
 					try {
-						routeOverlay = new NavOverlay(point, point2);
+						routeOverlay = new NavOverlay(point, point2, ma);
 						mapOverlays.set(2, routeOverlay);
 					} catch (NoRouteException e) {
 						itemizedOverlay.clearMOverLays();
@@ -425,6 +440,7 @@ public class MainActivity extends MapActivity {
 								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
 								dialog.setTitle("Could not find route!");
 								dialog.setMessage("Try giving more information, or make sure there is a road connection.");
+								dialog.setNegativeButton("OK", new DismissListener());
 								dialog.show();
 							}
 						});

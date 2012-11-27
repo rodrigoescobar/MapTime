@@ -48,18 +48,37 @@ public class Home extends Activity {
 	public LocationManager lMan; //Local location manager for managing the state of location services
 	public LocationUpdater locUpGPS; //Location listener for receiving location updates
 	public LocationUpdater locUpNetwork; //Location listener for receiving location updates
+	private boolean gps = false;
+	private boolean network = false;
 	
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        
+ 		
+        refreshTimelines(null);
+    }
+    
+    @Override
+    protected void onStart() {
+    	// TODO Auto-generated method stub
+    	super.onStart();
+    	lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
  		locUpGPS = new LocationUpdater();
  		locUpNetwork = new LocationUpdater();
- 		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 50.0, locUpGPS);
- 		lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, (float) 50.0, locUpNetwork);
-       
-		
-        refreshTimelines(null);
+ 		if (lMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+ 			lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, (float) 50.0, locUpNetwork);
+ 			network = true;
+ 		}
+ 		if (lMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+ 			if (network) {
+ 				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
+ 			}
+ 			else {
+ 				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, (float) 50.0, locUpGPS);
+ 			}
+ 			gps = true;
+ 		}
     }
     
     /**
@@ -113,8 +132,14 @@ public class Home extends Activity {
     
     private Location getCurrentLocation() {
     	
- 		Location lastLocGPS = lMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
- 		Location lastLocNetwork = lMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+    	Location lastLocGPS = null;
+    	Location lastLocNetwork = null;
+    	if (gps) {
+    		lastLocGPS = lMan.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+    	}
+    	if (network) {
+    		lastLocNetwork = lMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+    	}
  		
  		if(lastLocGPS != null && lastLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
  			return lastLocGPS;
