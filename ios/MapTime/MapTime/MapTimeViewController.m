@@ -342,7 +342,7 @@
         for(TimePoint *tp in timePoints) {
            // NSLog(@"%i", count);
             NSNumber *bcYear = [f numberFromString:[tp getYearInBc]];
-            float percentage = ([bcYear floatValue] - [firstYear floatValue]) / diff;
+            float percentage = 1-(([bcYear floatValue] - [firstYear floatValue]) / diff);
             float distance = [[f numberFromString:distanceBetweenPoints] floatValue];
             float distanceToDrawPoint = distance * percentage;
 
