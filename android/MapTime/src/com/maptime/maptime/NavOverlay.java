@@ -7,6 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+
+import android.app.AlertDialog;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -23,19 +25,22 @@ public class NavOverlay extends Overlay {
     private ArrayList<Point> navPoints = new ArrayList<Point>();; //List of Points used when drawing the map
     private double length; //length of the route
     private boolean isFullyCreated = false; //Has the constructor finished
-
+    MainActivity ma;
+    
     /**
      * Standard constructor
      * @param gp1 Start of Route
      * @param gp2 End of Route
      */
     
-    public NavOverlay(GeoPoint gp1, GeoPoint gp2) throws NoRouteException{
+    public NavOverlay(GeoPoint gp1, GeoPoint gp2, MainActivity a) throws NoRouteException{
+    	ma = a;
         navGPs = new ArrayList<GeoPoint>();
         navGPs.add(gp1); //add start point
         try {
         	URL url = makeURL(gp1,gp2);
         	URLConnection urlC = url.openConnection();
+        	urlC.setReadTimeout(10000);
         	urlC.addRequestProperty("X-Yours-client", "MapTime"); //The YOURS API requests an extra header when using their servers
         	BufferedReader in = new BufferedReader(new InputStreamReader(urlC.getInputStream()));
 			String str;
@@ -67,6 +72,15 @@ public class NavOverlay extends Overlay {
 			in.close();
         } catch (MalformedURLException e) {
         } catch (IOException e) {
+		} catch (Exception e) {
+			ma.runOnUiThread(new Runnable() {
+				public void run() {
+					AlertDialog.Builder dialog = new AlertDialog.Builder(ma);
+					dialog.setTitle("Navigation Server Error");
+					dialog.setMessage("There was an error when contacting the Navigation Server");
+					dialog.show();
+				}
+			});
 		}
         navGPs.add(gp2); //add end point
         length = 0.0; //null length again so we can work it out for ourselves (length supplied does not match our needs 
@@ -85,7 +99,8 @@ public class NavOverlay extends Overlay {
      * @param routeLength Length of the route
      */
     
-    public NavOverlay(ArrayList<ParcelableGeoPoint> gps, double routeLength) {
+    public NavOverlay(ArrayList<ParcelableGeoPoint> gps, double routeLength, MainActivity a) {
+    	ma = a;
     	ArrayList<GeoPoint> geopoints = new ArrayList<GeoPoint>();
     	for (ParcelableGeoPoint pgp : gps) {
     		geopoints.add(new GeoPoint(pgp.getLatitudeE6(), pgp.getLongitudeE6()));

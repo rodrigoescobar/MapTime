@@ -13,6 +13,8 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -36,18 +38,20 @@ import android.location.LocationManager;
 
 public class MainActivity extends MapActivity {
 	
-	private MapController mapController;
-	private volatile PointsOverlay itemizedOverlay;
-	private LocationOverlay locationOverlay;
-	private List<Overlay> mapOverlays;
-	private GeoPoint point, point2;
-	private ArrayList<OverlayItem> timePoints;
-	private Timeline curTimeline; 
-	public volatile MapView mapView;
-	private NavOverlay routeOverlay;
-	public LocationManager lMan;
-	public LocationUpdater locUpGPS;
-	public LocationUpdater locUpNetwork;
+	private MapController mapController; //Reference for the MapController
+	private volatile PointsOverlay itemizedOverlay; //Overlay for information pins on the map
+	private LocationOverlay locationOverlay; //Overlay for the users current location
+	private List<Overlay> mapOverlays; //List of map overlays for android. index 0 is itemizedOverlay, 1 is locationOvery and 2 is routeOverlay
+	private GeoPoint point, point2; //The two points tapped for the purposes of creating a route
+	private Timeline curTimeline;  //The current timeline loaded
+	public volatile MapView mapView; //Reference for the MapView
+	private NavOverlay routeOverlay; //Overlay for the navigation route
+	public LocationManager lMan; //LocationManager
+	public LocationUpdater locUpGPS; //Location Listener for the GPS
+	public LocationUpdater locUpNetwork; //Location Listener for location via networks
+	public boolean gps = false; // Is there an enabled GPS location system
+	public boolean network = false; // Is there an enabled system for location via networks
+	public boolean networkLoss = false; //Is there currently an internet connection
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,13 +66,22 @@ public class MainActivity extends MapActivity {
 		lMan = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 		locUpGPS = new LocationUpdater();
 		locUpNetwork = new LocationUpdater();
-		lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
-		lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2500, (float) 30.0, locUpNetwork);
-		
-		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) {
-			
-			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>();
-			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) {
+ 		if (lMan.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+ 			lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2500, (float) 30.0, locUpNetwork);
+ 			network = true;
+ 		}
+ 		if (lMan.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+ 			if (network) {
+ 				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
+ 			}
+ 			else {
+ 				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, (float) 50.0, locUpGPS);
+ 			}
+ 			gps = true;
+ 		}
+		if (savedInstanceState != null && savedInstanceState.containsKey("pointsOverlayList")) { //If we have a savedInstanceState and it has
+			ArrayList<ParcelableOverlayItem> listOIs = new ArrayList<ParcelableOverlayItem>(); //info on the PointsOverlay then get it. Repeat
+			for (Parcelable p: savedInstanceState.getParcelableArrayList("pointsOverlayList")) { //for everything else in the savedInstanceState
 				
 				listOIs.add((ParcelableOverlayItem)p);
 			}
@@ -79,8 +92,6 @@ public class MainActivity extends MapActivity {
 		else {
 			
 			itemizedOverlay = new PointsOverlay(pinDrawable, this);
-			//itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this"));
-			//itemizedOverlay.addOverlay(new OverlayItem(new GeoPoint(0, 0), "whoops", "you shouldn't see this")); //debug code to avoid null pointer exceptions. fix later
 		}
 		mapOverlays.add(itemizedOverlay);
 		locationOverlay = new LocationOverlay(locationIcon, this);
@@ -93,7 +104,7 @@ public class MainActivity extends MapActivity {
 				listGPs.add((ParcelableGeoPoint)p);
 			}
 			routeOverlay = new NavOverlay(listGPs, 
-					savedInstanceState.getDouble("navOverlayLength"));
+					savedInstanceState.getDouble("navOverlayLength"), this);
 			mapOverlays.add(routeOverlay);
 		}
 		if (savedInstanceState != null && savedInstanceState.containsKey("timeline")) {
@@ -142,32 +153,30 @@ public class MainActivity extends MapActivity {
 			locUpGPS = null;
 			locUpNetwork = null;
 			lMan = null;
-			/*itemizedOverlay = null;
-			locationOverlay = null;
-			mapOverlays = null;*/
+
 		}
 	}
 	
 	/**
 	 * When the activity has both a navigation route and a timeline, 
-	 * 
+	 * put the TimePoints on the route
 	 */
 	
 	private void timeToPlace() {
-		itemizedOverlay.clearTimePoints();
+		itemizedOverlay.clearTimePoints(); //clear existing timepoints
 		ArrayList<GeoPoint> gp = routeOverlay.getNavGPs();
 		double dist = routeOverlay.getLength();
 		int timelineSize = curTimeline.size();
 		double endTimeValue = curTimeline.getPoint(0).getTimeInBC();
 		double timeRange = curTimeline.getPoint(timelineSize-1).getTimeInBC() - endTimeValue;
 		double[] relativePos = new double[timelineSize];
-		for (int i = 0; i < timelineSize; i++) {
+		for (int i = 0; i < timelineSize; i++) { //for each TimePoint, get the distancle along the route they should go
 			
 			relativePos[i] = dist * ((timeRange - (curTimeline.getPoint((timelineSize-1)-i).getTimeInBC() - endTimeValue)) / timeRange);
 		}
 		int curCheck = 0;
 		double lengthSoFar = 0.0;
-		for(int i = 0; i < gp.size()-1; i++){
+		for(int i = 0; i < gp.size()-1; i++){ //for each pair of GeoPoints in the route
 			
 			double length = distanceKm((double)(gp.get(i).getLatitudeE6())/(double)1000000.0,
 					(double)(gp.get(i).getLongitudeE6())/(double)1000000.0,
@@ -217,18 +226,19 @@ public class MainActivity extends MapActivity {
 			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Error");
 			dialog.setMessage("Cannot get location points of address");
+			dialog.setNegativeButton("OK", new DismissListener());
 			dialog.show();
 			return null;
 		}
 	}
 	
 	/**
-	 * 
-	 * @param lat1
-	 * @param lon1
-	 * @param lat2
-	 * @param lon2
-	 * @return
+	 * Works out distance between two points using the Haversine formula
+	 * @param lat1 Latitude of the first point
+	 * @param lon1 Longitude of the first point
+	 * @param lat2 Latitude of the second point
+	 * @param lon2 Longitude of the second point
+	 * @return The distance between the two points
 	 */
 	
 	public static double distanceKm(double lat1, double lon1, double lat2, double lon2) {
@@ -239,9 +249,42 @@ public class MainActivity extends MapActivity {
 
 	    return Math.acos(Math.sin(lat1Rad) * Math.sin(lat2Rad) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLonRad)) * EARTH_RADIUS_KM;
 	}
-
+	
 	/**
-	 * Stores the timeline object 
+	 * Check's if there's a network connection available
+	 * @return If there is a network connection available
+	 */
+	
+	private boolean isNetworkAvailable() {
+	    ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+	}
+	
+	/**
+	 * Makes GPS update more often if internet access is removed, 
+	 * returns to normal when internet access resumes.
+	 */
+	
+	public void changeGPS() {
+		if (network && gps) {
+			if (!networkLoss && !isNetworkAvailable()) {
+				networkLoss = true;
+				lMan.removeUpdates(locUpGPS); //unregister current network and gps stuff
+				lMan.removeUpdates(locUpNetwork);
+				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, (float) 50.0, locUpGPS); //register new gps stuff
+			}
+			else if (networkLoss && isNetworkAvailable()) {
+				networkLoss = false;
+				lMan.removeUpdates(locUpGPS);//unregister new gps stuff
+				lMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, (float) 500.0, locUpGPS);
+				lMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2500, (float) 30.0, locUpGPS);//restore old stuff
+			}
+		}
+	}
+	
+	/**
+	 * Stores the timeline object from TimelineChoice
 	 */
 	
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
@@ -270,6 +313,7 @@ public class MainActivity extends MapActivity {
 	    	AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 			dialog.setTitle("Navigation Mode");
 			dialog.setMessage("Tap where you want to start your timeline");
+			dialog.setPositiveButton("OK", new DismissListener());
 			dialog.show();
 			point = null;
 			point2 = null;
@@ -320,7 +364,7 @@ public class MainActivity extends MapActivity {
 	
 	
 	@Override
-	protected void onRestart() {
+	protected void onRestart() { //Bring Location Services back up if necessary
 		// TODO Auto-generated method stub
 		super.onRestart();
 		if (lMan == null) {
@@ -334,7 +378,7 @@ public class MainActivity extends MapActivity {
 	
 	@Override
 	protected void onStop() {
-		// TODO Auto-generated method stub
+		
 		super.onStop();
 		stopLocation();
 	}
@@ -363,13 +407,9 @@ public class MainActivity extends MapActivity {
 		public void run() {
 			itemizedOverlay.clearPoints();
 	    	itemizedOverlay.setNavMode(true);
-			while (itemizedOverlay.getEndPoint() == null) {
-			//get alerted when user has entered both points
-			//pop up alert with are these two points correct? Yes/No. If no, set navMode to false, remove both points.
-			//if yes, then set navmode to false and set the points to be used in the NavOverlay
-			//then add the two points to the navOverlay and display the route.
-			
-			//TODO: Again, really needs to be some sort  of wait here, with the following code run only after we have our two points
+			while (itemizedOverlay.getEndPoint() == null) { //while there isn't an endpoint, check 
+		
+
 				if(point != null && point2 != null) {
 					break;
 				}
@@ -378,7 +418,7 @@ public class MainActivity extends MapActivity {
 					System.out.println("Bananas!");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
 					broken = true;
 					break;
 				}
@@ -396,7 +436,7 @@ public class MainActivity extends MapActivity {
 				//TODO: An asynctask which does the following since we can't network on main thread
 				if (mapOverlays.size() == 2) {
 					try {
-						routeOverlay = new NavOverlay(point, point2);
+						routeOverlay = new NavOverlay(point, point2, ma);
 						mapOverlays.add(routeOverlay);
 					} catch (NoRouteException e) {
 						itemizedOverlay.clearMOverLays();
@@ -405,18 +445,15 @@ public class MainActivity extends MapActivity {
 								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
 								dialog.setTitle("Could not find route!");
 								dialog.setMessage("Try giving more information, or make sure there is a road connection.");
+								dialog.setNegativeButton("OK", new DismissListener());
 								dialog.show();
 							}
 						});
-						/*routeOverlay = null;
-						if (mapOverlays.size() == 3) {
-							mapOverlays.remove(2);
-						}*/
 					}
 				}
 				else if (routeOverlay != null) {
 					try {
-						routeOverlay = new NavOverlay(point, point2);
+						routeOverlay = new NavOverlay(point, point2, ma);
 						mapOverlays.set(2, routeOverlay);
 					} catch (NoRouteException e) {
 						itemizedOverlay.clearMOverLays();
@@ -425,6 +462,7 @@ public class MainActivity extends MapActivity {
 								AlertDialog.Builder  dialog = new AlertDialog.Builder(ma);
 								dialog.setTitle("Could not find route!");
 								dialog.setMessage("Try giving more information, or make sure there is a road connection.");
+								dialog.setNegativeButton("OK", new DismissListener());
 								dialog.show();
 							}
 						});

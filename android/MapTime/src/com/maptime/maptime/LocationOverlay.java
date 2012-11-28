@@ -91,9 +91,9 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 	
 	private class LocationGetter implements Runnable {
 
-		Location curLocGPS; //user's current location from GPS
-		Location curLocNetwork; //user's current location from Network
-		Location curLocFinal; //The loaction we want to use
+		Location curLocGPS = null; //user's current location from GPS
+		Location curLocNetwork = null; //user's current location from Network
+		Location curLocFinal = null; //The loaction we want to use
 		
 		@SuppressLint("NewApi")
 		public void run() {
@@ -102,14 +102,17 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 				public void run() {
 					String lProvNetwork = LocationManager.NETWORK_PROVIDER;
 					String lProvGPS = LocationManager.GPS_PROVIDER;
-					curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
-					if (lProvGPS != null) {
+					if (((MainActivity) mContext).gps) {
 						curLocGPS = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvGPS);
 					}
+					if (((MainActivity) mContext).network) {
+						curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+					}
+					//Log.i("test",lProv);
 					if(curLocGPS != null && curLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
 						curLocFinal = curLocGPS;
 					}
-					else {
+					else if (curLocNetwork != null) {
 						curLocFinal = curLocNetwork;
 					}
 					//Log.i("test",lProv);
@@ -124,24 +127,37 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 			while(!stop) {
 				String lProvNetwork = LocationManager.NETWORK_PROVIDER;
 				String lProvGPS = LocationManager.GPS_PROVIDER;
-				curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
-				if (lProvGPS != null) {
+				if (((MainActivity) mContext).gps) {
 					curLocGPS = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvGPS);
 				}
-				if(curLocGPS != null && curLocGPS.getTime() > (System.currentTimeMillis() - 5000)) {
+				if (((MainActivity) mContext).network) {
+					curLocNetwork = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+				}
+				//Log.i("test",lProv);
+				if(curLocGPS != null && (curLocGPS.getTime() > (System.currentTimeMillis() - 5000) || 
+						!((MainActivity) mContext).network || ((MainActivity) mContext).networkLoss)) {
 					curLocFinal = curLocGPS;
 				}
-				else {
+				else if (curLocNetwork != null) {
 					curLocFinal = curLocNetwork;
-					((MainActivity) mContext).lMan.requestSingleUpdate(lProvNetwork, ((MainActivity) mContext).locUpNetwork, null);
-					curLocFinal = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+					if (android.os.Build.VERSION.SDK_INT > 8) { //if newer than android 2.2
+						((MainActivity) mContext).lMan.requestSingleUpdate(lProvNetwork, ((MainActivity) mContext).locUpNetwork, ((MainActivity) mContext).getMainLooper());
+						curLocFinal = ((MainActivity) mContext).lMan.getLastKnownLocation(lProvNetwork);
+					}
 				}
-				Log.i("test",curLocFinal.toString());
+				//Log.i("test",curLocFinal.toString());
 				if (curLocFinal != null) {
 					setLocation(new GeoPoint((int)(curLocFinal.getLatitude()*1000000.0),
 							(int)(curLocFinal.getLongitude()*1000000.0)));
 				}
-				try {
+				try { 
+					((MainActivity) mContext).runOnUiThread(new Runnable() {
+						
+						public void run() {
+							// TODO Auto-generated method stub
+							((MainActivity) mContext).changeGPS();
+						}
+					});
 					Thread.sleep(4000); //check every 4 seconds
 				} catch (InterruptedException e) {
 					break; //If interrupted, break out of the loop.
