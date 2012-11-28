@@ -196,7 +196,7 @@ public class PointsOverlay extends ItemizedOverlay {
 					startPoint = p;
 					AlertDialog.Builder  dialog = new AlertDialog.Builder(mContext);
 					dialog.setTitle("Navigation Mode");
-					dialog.setMessage("Now tap the endPoint of your route");
+					dialog.setMessage("Now tap where you want to end your Timeline");
 					dialog.setPositiveButton("OK", new DismissListener());
 					dialog.show();
 				} else if (navMode && endPoint == null) {
