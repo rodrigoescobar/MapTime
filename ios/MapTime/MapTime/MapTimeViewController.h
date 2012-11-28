@@ -82,4 +82,6 @@
 
 -(void)useNotAbleToDrawRouteNotification;
 
+-(void)triggerNotification:(CLRegion *)region;
+
 @end

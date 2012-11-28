@@ -577,6 +577,12 @@
         return;
     }
    // notif.fireDate =
+    [self triggerNotification:region];
+    
+}
+
+-(void)triggerNotification:(CLRegion *)region
+{
     
 }
 
