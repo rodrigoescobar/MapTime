@@ -120,25 +120,25 @@
     
         if ([fromLocation compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
             MKUserLocation *location = currentLocation;
-            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
-            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+            [points addObject:[[NSNumber alloc] initWithDouble:location.coordinate.latitude]]; // add the longitude
+            [points addObject:[[NSNumber alloc] initWithDouble:location.coordinate.longitude]]; // add the latitude
         }else{
             CLLocation *location = [placemarks[0] location];
-            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
-            [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+            [points addObject:[[NSNumber alloc] initWithDouble:location.coordinate.latitude]]; // add the longitude
+            [points addObject:[[NSNumber alloc] initWithDouble:location.coordinate.longitude]]; // add the latitude
         }
         
         [geocoder geocodeAddressString:toLocation completionHandler:^(NSArray *placemarks, NSError *error) { // once from location has finished, perform forward geocode on address in toField
             if ([toLocation compare:@"Current Location" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
                 MKUserLocation *location = currentLocation;
-                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
-                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+                [points addObject:[[NSNumber alloc] initWithDouble:location.coordinate.latitude]]; // add the longitude
+                [points addObject:[[NSNumber alloc] initWithDouble:location.coordinate.longitude]]; // add the latitude
             }else{
                 CLLocation *location = [placemarks[0] location];
-                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.latitude]]; // add the longitude
-                [points addObject:[[NSNumber alloc] initWithFloat:location.coordinate.longitude]]; // add the latitude
+                [points addObject:[[NSNumber alloc] initWithDouble:location.coordinate.latitude]]; // add the longitude
+                [points addObject:[[NSNumber alloc] initWithDouble:location.coordinate.longitude]]; // add the latitude
             }
-            NSLog(@"%f , %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+            NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
             [self downloadNavigationData:points]; // once all geocoding has complete, download all the data and kick it all off
         }];
         
@@ -288,7 +288,7 @@
     if(index < count-1) {
         LongLatPair *current = [longLatPairs objectAtIndex:index];
         LongLatPair *next = [longLatPairs objectAtIndex:index+1];
-        NSNumber *distanceBetween = [[NSNumber alloc] initWithFloat:[self distanceBetween:current and:next]];
+        NSNumber *distanceBetween = [[NSNumber alloc] initWithDouble:[self distanceBetween:current and:next]];
         [distanceBetweenLongLatPairs addObject:distanceBetween];
     }
 }
@@ -300,8 +300,8 @@
         if(count == 0) {
             [cumulativeDistanceBetweenPairs addObject:[distanceBetweenLongLatPairs objectAtIndex:0]];
         } else {
-            float cumulativeDistance = [[cumulativeDistanceBetweenPairs objectAtIndex:i-1] floatValue] + [[distanceBetweenLongLatPairs objectAtIndex:i] floatValue];
-            [cumulativeDistanceBetweenPairs addObject:[[NSNumber alloc] initWithFloat:cumulativeDistance]];
+            double cumulativeDistance = [[cumulativeDistanceBetweenPairs objectAtIndex:i-1] doubleValue] + [[distanceBetweenLongLatPairs objectAtIndex:i] doubleValue];
+            [cumulativeDistanceBetweenPairs addObject:[[NSNumber alloc] initWithDouble:cumulativeDistance]];
         }
         count++;
     }
@@ -334,7 +334,7 @@
         NSNumber *firstYear = [f numberFromString:[[timePoints objectAtIndex:0] getYearInBc]];
         NSNumber *lastYear = [f numberFromString:[[timePoints objectAtIndex:([timePoints count]-1)] getYearInBc]];
         
-        float diff = fabsf([firstYear floatValue]) + fabsf([lastYear floatValue]);
+        double diff = fabsf([firstYear doubleValue]) + fabsf([lastYear doubleValue]);
         
         // We now need to work out the distance between each of our long and lat pairs, so we can work out where to place the timepoints
         
@@ -342,9 +342,9 @@
         for(TimePoint *tp in timePoints) {
            // NSLog(@"%i", count);
             NSNumber *bcYear = [f numberFromString:[tp getYearInBc]];
-            float percentage = 1-(([bcYear floatValue] - [firstYear floatValue]) / diff);
-            float distance = [[f numberFromString:distanceBetweenPoints] floatValue];
-            float distanceToDrawPoint = distance * percentage;
+            double percentage = 1-(([bcYear doubleValue] - [firstYear doubleValue]) / diff);
+            double distance = [[f numberFromString:distanceBetweenPoints] doubleValue];
+            double distanceToDrawPoint = distance * percentage;
 
             [self plot:percentage distance:distanceToDrawPoint timepoint:tp];
             count++;
@@ -362,10 +362,10 @@
 }
 
 // which index of the cumulativeBetweenPairs does our point fall between? Hideous I know. 
--(int)whichIndex:(float)distance
+-(int)whichIndex:(double)distance
 {
     for(int i = 0; i < cumulativeDistanceBetweenPairs.count; i++) {
-        if([[cumulativeDistanceBetweenPairs objectAtIndex:i] floatValue] > distance) {
+        if([[cumulativeDistanceBetweenPairs objectAtIndex:i] doubleValue] > distance) {
             return i-1;
         }
     }
@@ -374,7 +374,7 @@
 
 
 
--(void)plot:(float)percentage distance:(float)distance timepoint:(TimePoint *)tp
+-(void)plot:(double)percentage distance:(double)distance timepoint:(TimePoint *)tp
 {
     NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
     [f setNumberStyle:NSNumberFormatterDecimalStyle];
@@ -397,15 +397,15 @@
     
     NSNumber *cumStart = [cumulativeDistanceBetweenPairs objectAtIndex:index-1];
     
-    float cumStartPercentage = [cumStart floatValue] / [total floatValue];
+    double cumStartPercentage = [cumStart doubleValue] / [total doubleValue];
     
-    float deltaPercentage = percentage - cumStartPercentage;
+    double deltaPercentage = percentage - cumStartPercentage;
     
-    float deltaLong = [[start getLongitude] floatValue] - [[end getLongitude] floatValue];
-    float deltaLat = [[start getLatitude] floatValue] - [[end getLatitude] floatValue];
+    double deltaLong = [[start getLongitude] doubleValue] - [[end getLongitude] doubleValue];
+    double deltaLat = [[start getLatitude] doubleValue] - [[end getLatitude] doubleValue];
     
-    float longitude = [[start getLongitude] floatValue] + (deltaLong * deltaPercentage);
-    float latitude = [[start getLatitude] floatValue] + (deltaLat * deltaPercentage);
+    double longitude = [[start getLongitude] doubleValue] + (deltaLong * deltaPercentage);
+    double latitude = [[start getLatitude] doubleValue] + (deltaLat * deltaPercentage);
     
     MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
     point.coordinate = CLLocationCoordinate2DMake(latitude, longitude);
@@ -420,16 +420,16 @@
 
 
 
--(float)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2
+-(double)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2
 {
     // Implementation of the haversine formula for working out distance between long and lat points, taking into account the spherical nature of the earth.
-    float dLat = degreesToRadians([[pair2 getLatitude] floatValue] - [[pair1 getLatitude] floatValue]);
-    float dLon = degreesToRadians([[pair2 getLongitude] floatValue] - [[pair1 getLongitude] floatValue]);
-    float lat1 = degreesToRadians([[pair1 getLatitude] floatValue]);
-    float lat2 = degreesToRadians([[pair2 getLatitude] floatValue]);
+    double dLat = degreesToRadians([[pair2 getLatitude] doubleValue] - [[pair1 getLatitude] doubleValue]);
+    double dLon = degreesToRadians([[pair2 getLongitude] doubleValue] - [[pair1 getLongitude] doubleValue]);
+    double lat1 = degreesToRadians([[pair1 getLatitude] doubleValue]);
+    double lat2 = degreesToRadians([[pair2 getLatitude] doubleValue]);
     
-    float a = sinf(dLat/2) * sinf(dLat/2) + sinf(dLon/2) * sinf(dLon/2) * cosf(lat1) * cosf(lat2);
-    float c = 2 * atan2f(sqrtf(a), sqrtf(1-a));
+    double a = sinf(dLat/2) * sinf(dLat/2) + sinf(dLon/2) * sinf(dLon/2) * cosf(lat1) * cosf(lat2);
+    double c = 2 * atan2f(sqrtf(a), sqrtf(1-a));
     
     return RADIUS_OF_EARTH * c;
 }

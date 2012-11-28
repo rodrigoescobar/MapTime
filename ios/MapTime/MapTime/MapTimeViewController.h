@@ -58,11 +58,11 @@
 
 -(void)dropTimePoints;
 
--(int)whichIndex:(float)distance;
+-(int)whichIndex:(double)distance;
 
--(void)plot:(float)percentage distance:(float)distance timepoint:(TimePoint *)tp;
+-(void)plot:(double)percentage distance:(double)distance timepoint:(TimePoint *)tp;
 
--(float)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2;
+-(double)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2;
 
 - (void)didReceiveMemoryWarning;
 
