@@ -27,11 +27,11 @@
 @synthesize toLocation;
 @synthesize timeLine;
 
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     currentLocation = [[MKUserLocation alloc] init];
+    isFirstTimeRunning = YES;
 	// Do any additional setup after loading the view, typically from a nib.
 }
 
@@ -166,7 +166,7 @@
     NSString *urlString = [[NSString alloc] initWithFormat:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=%@&flon=%@&tlat=%@&tlon=%@&v=motorcar&fast=1&layer=mapnik" , point1, point2, point3, point4];
     NSURL *url = [NSURL URLWithString:urlString];
     
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:nil timeoutInterval:10];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
     
     (void) [[NSURLConnection alloc] initWithRequest:request delegate:self];
     
@@ -530,6 +530,19 @@
 
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
+    if(isFirstTimeRunning) {
+        
+      /*  for(CLRegion *region in geofenceRegions) {
+            if([region.center]) {
+                
+            }
+            CLLocation *loc = region.center;
+            
+        }
+        */
+        
+        isFirstTimeRunning = NO;
+    }
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
     NSLog(@"location updated");
    // currentLocation = userLocation;
@@ -539,22 +552,17 @@
         [aMapView setRegion:region animated:YES];
     }
     currentLocation = userLocation;
-    
 }
+
 - (IBAction)zoomInToCurrentLocation{
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
     [mapView setRegion:region animated:YES];
 }
-  
-
 
 /**
- 
  The following methods are the delegate methdods that handle entering and exiting regions
- 
  */
-
 -(void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
 {
     NSLog(@"Did enter region: %@", region.identifier);
@@ -563,6 +571,13 @@
     hud.detailsLabelText = [[NSString alloc] initWithFormat:@"%@", region.identifier];
     [mapView addSubview:hud];
     [hud showWhileExecuting:@selector(waitTwo) onTarget:self withObject:nil animated:YES];
+    
+    UILocalNotification *notif = [[UILocalNotification alloc] init];
+    if(notif == nil) {
+        return;
+    }
+   // notif.fireDate =
+    
 }
 
 -(void)waitTwo

@@ -28,6 +28,7 @@
     CLLocationManager *locationManager;
     NSMutableArray *geofenceRegions;
     MKUserLocation *currentLocation;
+    BOOL isFirstTimeRunning;
 }
 
 @property (nonatomic, strong) NSString *fromLocation;
@@ -35,14 +36,20 @@
 @property (nonatomic, strong) TimeLine *timeLine;
 
 - (void)viewDidLoad;
+-(void)viewDidAppear:(BOOL)animated;
 - (void)forwardGeocode;
+
+-(void)initLocationManager;
+-(void)initRegionMonitoring;
+
+-(void)registerForNotifications;
 
 - (IBAction)zoomInToCurrentLocation;
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
+-(void)waitTwo;
+-(void)waitForFourSeconds;
 
 -(void)downloadNavigationData:(NSMutableArray *)array;
-
--(void)downloadTimeLineData;
 
 - (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer;
 
@@ -52,7 +59,7 @@
 
 -(void)drawRoute;
 
-- (void)calculateDistanceInBetween:(int) index:(int)count;
+-(void)calculateDistanceInBetween:(int) index:(int)count;
 
 -(void)populateCumulativeTotal;
 
