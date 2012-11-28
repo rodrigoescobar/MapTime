@@ -113,7 +113,6 @@
         row = [picker selectedRowInComponent:0];
         TimeLine *timeLine = [[delegate getTimeLines] objectAtIndex:row];
         destinationViewController.timeLine = timeLine;
-        
     }
 }
 

@@ -41,34 +41,27 @@
     
     [self registerForNotifications];
     
-
     mapView = (MKMapView *)[self.view viewWithTag:1001];
-    [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
     mapView.showsUserLocation = YES;
+    [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
     
     [self initLocationManager];
     
-    distanceBetweenLongLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
-    cumulativeDistanceBetweenPairs = [[NSMutableArray alloc] initWithCapacity:30]; // holds the cumulative distance between long lat pairs
-    
-    longLatPairs = [[NSMutableArray alloc] initWithCapacity:30];
-    coordinates = [[NSMutableArray alloc] initWithCapacity:4];
-    geofenceRegions = [[NSMutableArray alloc] initWithCapacity:30];
-    
-    numberOfPoints = 0;
-    NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
+    distanceBetweenLongLatPairs =       [[NSMutableArray alloc] initWithCapacity:30];
+    cumulativeDistanceBetweenPairs =    [[NSMutableArray alloc] initWithCapacity:30]; 
+    longLatPairs =                      [[NSMutableArray alloc] initWithCapacity:30];
+    coordinates =                       [[NSMutableArray alloc] initWithCapacity:4];
+    geofenceRegions =                   [[NSMutableArray alloc] initWithCapacity:30];
+    numberOfPoints =                    0;
     
     UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(handleGesture:)];
-    longPressGestureRecognizer.minimumPressDuration = 0.8;
+    longPressGestureRecognizer.minimumPressDuration = 0.7;
     [mapView addGestureRecognizer:longPressGestureRecognizer];
-    
     
     if(![fromLocation isEqualToString:@""] && ![toLocation isEqualToString:@""]) {
         [self forwardGeocode];
     }
-    
 }
-
 
 -(void)registerForNotifications
 {
@@ -95,18 +88,11 @@
         hud.detailsLabelText = @"Please long press on two points to dra a route between them.";
         [mapView addSubview:hud];
         [hud showWhileExecuting:@selector(waitTwo) onTarget:self withObject:nil animated:YES];
-//        CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
-//        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
-//        [mapView setRegion:region animated:YES];
     }
     
-
     locationManager.desiredAccuracy = kCLLocationAccuracyBest;
     locationManager.distanceFilter = 1;
-    
     [locationManager startUpdatingLocation];
-
-
 }
 
 -(void)forwardGeocode
@@ -150,26 +136,18 @@
     return YES;
 }
 
--(void)downloadNavigationData:(NSMutableArray *)array
+- (void)showHud:(MBProgressHUD *)hud message:(NSString *)message
 {
-    mbhud = [[MBProgressHUD alloc] init];
-    mbhud.labelText = @"Getting navigation data";
-    [mapView addSubview:mbhud];
-    [mbhud show:YES];
-    xmlData = [[NSMutableData alloc] init];
-    
-    NSString *point1 =[array objectAtIndex:0];
-    NSString *point2 =[array objectAtIndex:1];
-    NSString *point3 =[array objectAtIndex:2];
-    NSString *point4 =[array objectAtIndex:3];
+    hud = [[MBProgressHUD alloc] init];
+    hud.labelText = message;
+    [mapView addSubview:hud];
+    [hud show:YES];
+}
 
-    NSString *urlString = [[NSString alloc] initWithFormat:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=%@&flon=%@&tlat=%@&tlon=%@&v=motorcar&fast=1&layer=mapnik" , point1, point2, point3, point4];
-    NSURL *url = [NSURL URLWithString:urlString];
-    
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:nil timeoutInterval:10];
-    
-    (void) [[NSURLConnection alloc] initWithRequest:request delegate:self];
-    
+- (void)removeHud:(MBProgressHUD *)hud
+{
+    [hud removeFromSuperview];
+    [hud show:NO];
 }
 
 - (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer
@@ -185,9 +163,7 @@
     MKPointAnnotation *pointAnnotation = [[MKPointAnnotation alloc] init];
     pointAnnotation.coordinate = touchMapCoordinate;
     pointAnnotation.title = [[NSString alloc] initWithFormat:@"%f, %f", pointAnnotation.coordinate.latitude, pointAnnotation.coordinate.longitude];
-    
 
-    
     if (numberOfPoints == 1){
         [mapView removeAnnotations:mapView.annotations];
         [mapView removeOverlays: mapView.overlays];
@@ -207,16 +183,30 @@
         [self downloadNavigationData:coordinates];
     }
 
-//    } else {
-//        [mapView addAnnotation:pointAnnotation];
-//        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
-//        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
-//        numberOfPoints++;
-//        [self downloadNavigationData:coordinates];
-//    }
 }
 
-		
+-(void)downloadNavigationData:(NSMutableArray *)array
+{
+   // [self showHud:mbhud message:@"Getting navigation data"];
+    mbhud = [[MBProgressHUD alloc] init];
+    mbhud.labelText = @"Getting navigation data";
+    [mapView addSubview:mbhud];
+    [mbhud show:YES];
+    xmlData = [[NSMutableData alloc] init];
+    
+    NSString *point1 =[array objectAtIndex:0];
+    NSString *point2 =[array objectAtIndex:1];
+    NSString *point3 =[array objectAtIndex:2];
+    NSString *point4 =[array objectAtIndex:3];
+
+    NSString *urlString = [[NSString alloc] initWithFormat:@"http://www.yournavigation.org/api/1.0/gosmore.php?format=kml&flat=%@&flon=%@&tlat=%@&tlon=%@&v=motorcar&fast=1&layer=mapnik" , point1, point2, point3, point4];
+    NSURL *url = [NSURL URLWithString:urlString];
+    
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url cachePolicy:nil timeoutInterval:10];
+    
+    (void) [[NSURLConnection alloc] initWithRequest:request delegate:self];
+}
+
 -(NSString *)parseXML:(NSData *)xml
 {
     // method that parses the XML navigation data
@@ -260,7 +250,6 @@
         }
         
         [self drawRoute];
-
 }
 
 -(void)drawRoute
@@ -372,8 +361,6 @@
     return cumulativeDistanceBetweenPairs.count;
 }
 
-
-
 -(void)plot:(float)percentage distance:(float)distance timepoint:(TimePoint *)tp
 {
     NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
@@ -418,8 +405,6 @@
                                   
 }
 
-
-
 -(float)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2
 {
     // Implementation of the haversine formula for working out distance between long and lat points, taking into account the spherical nature of the earth.
@@ -447,7 +432,6 @@
         aView.strokeColor = [[UIColor blueColor] colorWithAlphaComponent:0.7];
         return aView;
     }
-    
     return nil;
 }
 
@@ -481,6 +465,7 @@
     [spinner stopAnimating];
     spinner.hidden = YES;
      */
+//    [self removeHud:mbhud];
     [mbhud removeFromSuperview];
     [mbhud show:NO];
 
@@ -502,7 +487,6 @@
         [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
         return;
     }
-    
     for(CLRegion *geofence in geofenceRegions)
     {
         NSLog(@"I found a new geofence %@", geofence.identifier);
@@ -521,7 +505,6 @@
     [hud showWhileExecuting:@selector(waitForFourSeconds) onTarget:self withObject:nil animated:YES];
 }
 
-
 -(void)waitForFourSeconds
 {
     sleep(4);
@@ -531,16 +514,13 @@
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
-    NSLog(@"location updated");
-   // currentLocation = userLocation;
-  //  NSLog(@"%f, %f", currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
     if(currentLocation.coordinate.latitude == 0.000000 && currentLocation.coordinate.longitude == 0.000000){
         MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 10000, 10000);
         [aMapView setRegion:region animated:YES];
     }
     currentLocation = userLocation;
-    
 }
+
 - (IBAction)zoomInToCurrentLocation{
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
     MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 800, 800);
