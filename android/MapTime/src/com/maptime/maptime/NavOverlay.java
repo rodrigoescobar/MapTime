@@ -40,7 +40,7 @@ public class NavOverlay extends Overlay {
         try {
         	URL url = makeURL(gp1,gp2);
         	URLConnection urlC = url.openConnection();
-        	urlC.setReadTimeout(10000);
+        	urlC.setReadTimeout(5000);
         	urlC.addRequestProperty("X-Yours-client", "MapTime"); //The YOURS API requests an extra header when using their servers
         	BufferedReader in = new BufferedReader(new InputStreamReader(urlC.getInputStream()));
 			String str;
@@ -72,12 +72,22 @@ public class NavOverlay extends Overlay {
 			in.close();
         } catch (MalformedURLException e) {
         } catch (IOException e) {
+        	ma.runOnUiThread(new Runnable() {
+				public void run() {
+					AlertDialog.Builder dialog = new AlertDialog.Builder(ma);
+					dialog.setTitle("Navigation Server Error");
+					dialog.setMessage("There was an error when contacting the Navigation Server");
+					dialog.setNeutralButton("OK", new DismissListener());
+					dialog.show();
+				}
+			});
 		} catch (Exception e) {
 			ma.runOnUiThread(new Runnable() {
 				public void run() {
 					AlertDialog.Builder dialog = new AlertDialog.Builder(ma);
 					dialog.setTitle("Navigation Server Error");
 					dialog.setMessage("There was an error when contacting the Navigation Server");
+					dialog.setNeutralButton("OK", new DismissListener());
 					dialog.show();
 				}
 			});

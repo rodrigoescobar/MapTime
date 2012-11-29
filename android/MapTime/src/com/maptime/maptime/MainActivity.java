@@ -321,8 +321,9 @@ public class MainActivity extends MapActivity {
 			nst.start();
 	    	return true;
 	    case R.id.menu_home:
-	    	Intent intentHome = new Intent(this, Home.class);
-	    	startActivity(intentHome);
+	    	/*Intent intentHome = new Intent(this, Home.class);
+	    	startActivity(intentHome);*/
+	    	finish();
 	    	return true;
 	    }
 	    return false;
