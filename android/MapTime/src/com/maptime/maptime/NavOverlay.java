@@ -41,6 +41,7 @@ public class NavOverlay extends Overlay {
         	URL url = makeURL(gp1,gp2);
         	URLConnection urlC = url.openConnection();
         	urlC.setReadTimeout(5000);
+        	urlC.setConnectTimeout(3000);
         	urlC.addRequestProperty("X-Yours-client", "MapTime"); //The YOURS API requests an extra header when using their servers
         	BufferedReader in = new BufferedReader(new InputStreamReader(urlC.getInputStream()));
 			String str;

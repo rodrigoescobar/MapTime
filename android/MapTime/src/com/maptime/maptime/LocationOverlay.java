@@ -52,7 +52,6 @@ public class LocationOverlay extends ItemizedOverlay<OverlayItem>{
 	 */
 	
 	private void setLocation(final GeoPoint gp) {
-		System.out.println(gp);
 		if (mOverlays.size() == 1) {
 			mOverlays.set(0,new OverlayItem(gp,"You are here",""));
 		}

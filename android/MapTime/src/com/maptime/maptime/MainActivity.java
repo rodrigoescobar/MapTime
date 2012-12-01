@@ -325,6 +325,12 @@ public class MainActivity extends MapActivity {
 	    	startActivity(intentHome);*/
 	    	finish();
 	    	return true;
+	    case R.id.menu_help:
+	    	AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
+	    	helpDialog.setTitle(R.string.help_title);
+	    	helpDialog.setMessage(R.string.help_text);
+	    	helpDialog.setPositiveButton("OK", new DismissListener());
+	    	helpDialog.show();
 	    }
 	    return false;
 	}
@@ -415,8 +421,7 @@ public class MainActivity extends MapActivity {
 					break;
 				}
 				try {
-					Thread.sleep(2000);
-					System.out.println("Bananas!");
+					Thread.sleep(1250);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();

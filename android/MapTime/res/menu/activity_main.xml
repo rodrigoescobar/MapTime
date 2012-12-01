@@ -2,8 +2,8 @@
     
     <item android:id="@+id/menu_home"
         android:title="@string/menu_home"
-        android:orderInCategory="50"
-        android:showAsAction="always" />
+        android:orderInCategory="150"
+        android:showAsAction="ifRoom" />
     
     <item android:id="@+id/menu_timelines"
         android:title="@string/menu_timelines"
@@ -14,5 +14,10 @@
         android:title="@string/menu_startnav"
         android:orderInCategory="100"
         android:showAsAction="always" />
+    
+    <item android:id="@+id/menu_help"
+        android:title="@string/menu_help"
+        android:orderInCategory="200"
+        android:showAsAction="ifRoom" />
     
 </menu>
