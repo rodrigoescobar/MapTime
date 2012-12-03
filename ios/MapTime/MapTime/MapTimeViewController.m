@@ -508,19 +508,19 @@
 
 -(void)mapView:(MKMapView *)aMapView didUpdateUserLocation:(MKUserLocation *)userLocation
 {
-    if(isFirstTimeRunning) {
-        
-      /*  for(CLRegion *region in geofenceRegions) {
-            if([region.center]) {
-                
-            }
-            CLLocation *loc = region.center;
-            
-        }
-        */
-        
-        isFirstTimeRunning = NO;
-    }
+//    if(isFirstTimeRunning) {
+//        
+//      /*  for(CLRegion *region in geofenceRegions) {
+//            if([region.center]) {
+//                
+//            }
+//            CLLocation *loc = region.center;
+//            
+//        }
+//        */
+//        
+//        isFirstTimeRunning = NO;
+//    }
     CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(userLocation.coordinate.latitude, userLocation.coordinate.longitude);
     if(currentLocation.coordinate.latitude == 0.000000 && currentLocation.coordinate.longitude == 0.000000){
         MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(coor , 10000, 10000);
