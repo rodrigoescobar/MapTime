@@ -43,5 +43,7 @@
 
 -(NSString *)getName;
 
+-(NSString *)getDescription;
+
 
 @end

@@ -46,6 +46,7 @@
     [mapView setCenterCoordinate: CLLocationCoordinate2DMake(51.944942, -0.428467)];
     
     [self initLocationManager];
+    self.navigationController.navigationBar.tintColor = [UIColor blackColor];
     
     distanceBetweenLongLatPairs =       [[NSMutableArray alloc] initWithCapacity:30];
     cumulativeDistanceBetweenPairs =    [[NSMutableArray alloc] initWithCapacity:30]; 

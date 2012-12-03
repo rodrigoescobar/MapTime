@@ -65,5 +65,10 @@
     return name;
 }
 
+-(NSString *)getDescription
+{
+    return description;
+}
+
 
 @end
