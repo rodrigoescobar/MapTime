@@ -85,7 +85,7 @@
     if([fromLocation isEqualToString:@""] || [toLocation isEqualToString:@""]){
         MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
         hud.mode = MBProgressHUDModeText;
-        hud.detailsLabelText = @"Please long press on two points to dra a route between them.";
+        hud.detailsLabelText = @"Please, long press on one point to draw a route between them.";
         [mapView addSubview:hud];
         [hud showWhileExecuting:@selector(waitTwo) onTarget:self withObject:nil animated:YES];
     }
@@ -152,7 +152,13 @@
 
 - (void)handleGesture:(UIGestureRecognizer *)gestureRecognizer
 {
-    
+    [mapView removeAnnotations:mapView.annotations];
+    [mapView removeAnnotations:mapView.annotations];
+    [mapView removeOverlays: mapView.overlays];
+    [longLatPairs removeAllObjects];
+    [cumulativeDistanceBetweenPairs removeAllObjects];
+    [distanceBetweenLongLatPairs removeAllObjects];
+    [coordinates removeAllObjects];
     if (gestureRecognizer.state != UIGestureRecognizerStateEnded)
         return;
     
@@ -162,27 +168,15 @@
     
     MKPointAnnotation *pointAnnotation = [[MKPointAnnotation alloc] init];
     pointAnnotation.coordinate = touchMapCoordinate;
-    pointAnnotation.title = [[NSString alloc] initWithFormat:@"%f, %f", pointAnnotation.coordinate.latitude, pointAnnotation.coordinate.longitude];
+    pointAnnotation.title = @"End Point";
+    //pointAnnotation.title = [[NSString alloc] initWithFormat:@"%f, %f", pointAnnotation.coordinate.latitude, pointAnnotation.coordinate.longitude];
 
-    if (numberOfPoints == 1){
-        [mapView removeAnnotations:mapView.annotations];
-        [mapView removeOverlays: mapView.overlays];
-        [longLatPairs removeAllObjects];
-        [cumulativeDistanceBetweenPairs removeAllObjects];
-        [distanceBetweenLongLatPairs removeAllObjects];
-        [coordinates removeAllObjects];
-        numberOfPoints = 0;
-    }
-    if (numberOfPoints == 0) {
-        [mapView addAnnotation:pointAnnotation];
-        [coordinates addObject:[NSNumber numberWithDouble:currentLocation.coordinate.latitude]];
-        [coordinates addObject:[NSNumber numberWithDouble:currentLocation.coordinate.longitude]];
-        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
-        [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
-        numberOfPoints++;
-        [self downloadNavigationData:coordinates];
-    }
-
+    [mapView addAnnotation:pointAnnotation];
+    [coordinates addObject:[NSNumber numberWithDouble:currentLocation.coordinate.latitude]];
+    [coordinates addObject:[NSNumber numberWithDouble:currentLocation.coordinate.longitude]];
+    [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.latitude]];
+    [coordinates addObject:[NSNumber numberWithDouble:pointAnnotation.coordinate.longitude]];
+    [self downloadNavigationData:coordinates];
 }
 
 -(void)downloadNavigationData:(NSMutableArray *)array
@@ -311,7 +305,7 @@
     [self.view addSubview:hud];
     hud.labelText = @"Placing TimePoints";
     
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+   // dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Do something...
         
         NSMutableArray *timePoints = [timeLine getTimePoints];
@@ -337,13 +331,14 @@
             [self plot:percentage distance:distanceToDrawPoint timepoint:tp];
             count++;
         }
-
+        //[MBProgressHUD hideHUDForView:self.view animated:YES];
+//
         dispatch_async(dispatch_get_main_queue(), ^{
             [MBProgressHUD hideHUDForView:self.view animated:YES];
             // Register the CLRegions with the CLocationManger here
             [self initRegionMonitoring];
         });
-    });
+ //   });
 }
 
 // which index of the cumulativeBetweenPairs does our point fall between? Hideous I know. 
