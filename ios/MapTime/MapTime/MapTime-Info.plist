@@ -14,8 +14,8 @@
 		<dict>
 			<key>CFBundleIconFiles</key>
 			<array>
-				<string>Map Time Icon [114x114].png</string>
-				<string>Map Time Icon [57x57].png</string>
+				<string>114x114.png</string>
+				<string>57x57.png</string>
 			</array>
 		</dict>
 	</dict>

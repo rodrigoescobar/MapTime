@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		894D71261642B638005580EC /* LongLatPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 894D71251642B638005580EC /* LongLatPair.m */; };
+		895BEFFD166E613800449B4E /* 57x57.png in Resources */ = {isa = PBXBuildFile; fileRef = 895BEFFC166E613800449B4E /* 57x57.png */; };
+		895BF000166E614200449B4E /* 114x114.png in Resources */ = {isa = PBXBuildFile; fileRef = 895BEFFF166E614200449B4E /* 114x114.png */; };
 		89667A6E1643FC8A002AC728 /* TimeLineDownloaderDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 89667A6D1643FC8A002AC728 /* TimeLineDownloaderDelegate.m */; };
 		89667A7216440D01002AC728 /* TimePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 89667A7116440D01002AC728 /* TimePoint.m */; };
 		89667A7516446F67002AC728 /* TimeLine.m in Sources */ = {isa = PBXBuildFile; fileRef = 89667A7416446F67002AC728 /* TimeLine.m */; };
@@ -46,6 +48,8 @@
 /* Begin PBXFileReference section */
 		894D71241642B638005580EC /* LongLatPair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongLatPair.h; sourceTree = "<group>"; };
 		894D71251642B638005580EC /* LongLatPair.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LongLatPair.m; sourceTree = "<group>"; };
+		895BEFFC166E613800449B4E /* 57x57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 57x57.png; sourceTree = "<group>"; };
+		895BEFFF166E614200449B4E /* 114x114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 114x114.png; sourceTree = "<group>"; };
 		89667A6C1643FC8A002AC728 /* TimeLineDownloaderDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLineDownloaderDelegate.h; sourceTree = "<group>"; };
 		89667A6D1643FC8A002AC728 /* TimeLineDownloaderDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLineDownloaderDelegate.m; sourceTree = "<group>"; };
 		89667A7016440D01002AC728 /* TimePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimePoint.h; sourceTree = "<group>"; };
@@ -111,6 +115,8 @@
 		8982F3FA164030270067E7DC = {
 			isa = PBXGroup;
 			children = (
+				895BEFFF166E614200449B4E /* 114x114.png */,
+				895BEFFC166E613800449B4E /* 57x57.png */,
 				DC5D1A96166D011200369D92 /* Default@2x.png */,
 				DC5D1A94166D010F00369D92 /* Default-568h@2x.png */,
 				DC5D1A92166D00FA00369D92 /* Default.png */,
@@ -280,6 +286,8 @@
 				DC5D1A93166D00FA00369D92 /* Default.png in Resources */,
 				DC5D1A95166D010F00369D92 /* Default-568h@2x.png in Resources */,
 				DC5D1A97166D011200369D92 /* Default@2x.png in Resources */,
+				895BEFFD166E613800449B4E /* 57x57.png in Resources */,
+				895BF000166E614200449B4E /* 114x114.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
