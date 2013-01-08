@@ -394,6 +394,7 @@
     [geofenceRegions addObject:region];
     NSLog(@"New geofence region: Lat at: %f Long at: %f", latitude, longitude);
     [mapView addAnnotation:point];
+    
 }
 
 -(double)distanceBetween:(LongLatPair *)pair1 and:(LongLatPair *)pair2
@@ -566,6 +567,7 @@
 -(void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region
 {
     NSLog(@"Did enter region: %@", region.identifier);
+    /*
     MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
     hud.mode = MBProgressHUDModeText;
     hud.detailsLabelText = [[NSString alloc] initWithFormat:@"%@", region.identifier];
@@ -578,6 +580,13 @@
     }
    // notif.fireDate =
     [self triggerNotification:region];
+    */
+    
+    for(MKPointAnnotation *point in [mapView annotations]) {
+        if([point.title isEqualToString:region.identifier]) {
+            [mapView selectAnnotation:point animated:FALSE];
+        }
+    }
     
 }
 
