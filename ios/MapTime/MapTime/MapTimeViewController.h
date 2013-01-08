@@ -28,6 +28,7 @@
     CLLocationManager *locationManager;
     NSMutableArray *geofenceRegions;
     MKUserLocation *currentLocation;
+    NSMutableArray *points;
     BOOL isFirstTimeRunning;
 }
 

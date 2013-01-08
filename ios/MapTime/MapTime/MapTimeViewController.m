@@ -393,7 +393,6 @@
     CLRegion *region = [[CLRegion alloc] initCircularRegionWithCenter:point.coordinate radius:PROXIMITY_TO_FIRE identifier:[tp getName]];
     [geofenceRegions addObject:region];
     NSLog(@"New geofence region: Lat at: %f Long at: %f", latitude, longitude);
-    
     [mapView addAnnotation:point];
 }
 
@@ -443,7 +442,16 @@
 
 -(void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
     NSLog(@"Button tapped");
-    [self performSegueWithIdentifier:@"moveToDetail" sender:self];
+    NSLog(@"%@", [view.annotation title]);
+    NSMutableArray *timePoints = [self.timeLine getTimePoints];
+    for(TimePoint *tp in timePoints) {
+        if([[tp getName] isEqualToString:[view.annotation title]]) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[tp getLink]]];
+        }
+    }
+    
+    //[view de]
+    //[self performSegueWithIdentifier:@"moveToDetail" sender:self];
     
 }
 

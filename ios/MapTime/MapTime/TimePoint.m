@@ -70,5 +70,9 @@
     return description;
 }
 
+-(NSString *)getLink {
+    return soureURL;
+}
+
 
 @end

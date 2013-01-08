@@ -45,5 +45,7 @@
 
 -(NSString *)getDescription;
 
+-(NSString *)getLink;
+
 
 @end
