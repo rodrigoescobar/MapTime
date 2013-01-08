@@ -389,6 +389,7 @@
     MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
     point.coordinate = CLLocationCoordinate2DMake(latitude, longitude);
     point.title = NSLocalizedString([tp getName], "Title of the pin");
+    point.subtitle = NSLocalizedString([tp getDescription], "Description of pin");
     CLRegion *region = [[CLRegion alloc] initCircularRegionWithCenter:point.coordinate radius:PROXIMITY_TO_FIRE identifier:[tp getName]];
     [geofenceRegions addObject:region];
     NSLog(@"New geofence region: Lat at: %f Long at: %f", latitude, longitude);
@@ -424,6 +425,20 @@
         return aView;
     }
     return nil;
+}
+
+-(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
+    MKAnnotationView *view = nil;
+    if(annotation != mapView.userLocation) {
+        view = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"myAnnotationIdentifier"];
+        view.canShowCallout = YES;
+        /*UIImageView *myImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"114x114.png"]];
+         myImageView.frame = CGRectMake(0, 0, 61, 61);
+         view.leftCalloutAccessoryView = myImageView;*/
+        view.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        view.userInteractionEnabled = YES;
+    }
+    return view;
 }
 
 /*
