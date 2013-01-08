@@ -443,6 +443,8 @@
 
 -(void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
     NSLog(@"Button tapped");
+    [self performSegueWithIdentifier:@"moveToDetail" sender:self];
+    
 }
 
 /*
