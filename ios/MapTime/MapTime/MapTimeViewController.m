@@ -441,6 +441,10 @@
     return view;
 }
 
+-(void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
+    NSLog(@"Button tapped");
+}
+
 /*
  Delegate methods that handle the asynchronous network connectivity
  */
